@@ -100,6 +100,7 @@ function initSync(createClient) {
       if (e.target.closest("#pwSignIn")) passwordSignIn();
       if (e.target.closest("#pwSignUp")) passwordSignUp();
       if (e.target.closest("#magicBtn")) sendMagicLink();
+      if (e.target.closest("#setPw")) setPassword();
       if (e.target.closest("#syncSignOut")) supabase.auth.signOut();
     });
     // Enter key in the password field submits sign-in
@@ -115,7 +116,12 @@ function initSync(createClient) {
         '<h3 class="stats-h">Cloud sync</h3>' +
         '<p class="settings-note">Signed in as <b>' + esc(user.email) + "</b>. " +
         "Your streaks, done games and favorites sync automatically across your devices. ✓</p>" +
-        '<div class="settings-row"><button class="btn" id="syncSignOut">Sign out</button></div>';
+        '<h3 class="stats-h">Password</h3>' +
+        '<p class="settings-note">Set (or change) a password so you can log in on new devices instantly, without waiting for an email.</p>' +
+        '<div class="sync-fields"><input type="password" id="setPwInput" class="sync-email" placeholder="New password (6+ characters)" autocomplete="new-password"></div>' +
+        '<div class="settings-row"><button class="btn" id="setPw">Set password</button></div>' +
+        '<p class="import-result" id="syncMsg"></p>' +
+        '<div class="settings-row" style="margin-top:16px"><button class="btn" id="syncSignOut">Sign out</button></div>';
     } else {
       body.innerHTML =
         '<h3 class="stats-h">Cloud sync</h3>' +
@@ -161,6 +167,14 @@ function initSync(createClient) {
     if (error) { setMsg("Sign-up failed: " + error.message); return; }
     if (data.session) setMsg("Account created — you're signed in ✓");
     else setMsg("Account created ✓ Check your email once to confirm, then tap Sign in.");
+  }
+
+  async function setPassword() {
+    const pw = fieldVal("setPwInput");
+    if (!pw || pw.length < 6) { setMsg("Password must be at least 6 characters."); return; }
+    setMsg("Saving…");
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    setMsg(error ? "Error: " + error.message : "Password set ✓ You can now sign in with it on other devices.");
   }
 
   async function sendMagicLink() {

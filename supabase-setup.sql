@@ -8,8 +8,12 @@ create table if not exists public.user_state (
   user_id    uuid primary key references auth.users(id) on delete cascade,
   favorites  jsonb not null default '[]'::jsonb,
   history    jsonb not null default '{}'::jsonb,
+  fails      jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
+
+-- If you created the table before the "failed games" feature, add the column:
+alter table public.user_state add column if not exists fails jsonb not null default '{}'::jsonb;
 
 alter table public.user_state enable row level security;
 

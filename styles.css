@@ -190,6 +190,23 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 }
 .done-btn:hover { border-color: var(--done); color: var(--done); }
 .done-btn.active { background: var(--done); border-color: var(--done); color: #fff; }
+.fail-btn {
+  border: 1px solid var(--border-strong); background: var(--bg); color: var(--text-dim);
+  border-radius: 8px; padding: 6px 9px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: all .12s;
+}
+.fail-btn:hover { border-color: #ef4444; color: #ef4444; }
+.fail-btn.active { background: #ef4444; border-color: #ef4444; color: #fff; }
+.card.is-failed { border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
+.card.is-failed::after {
+  content: "✗ failed today"; position: absolute; top: 12px; right: 12px;
+  background: color-mix(in srgb, #ef4444 16%, transparent); color: #ef4444;
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+}
+/* detail + mode fail buttons */
+.btn.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
+.mode-row.is-failed { border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
+.mode-fail.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
 
 /* ---------- Empty / footer ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 56px 20px; }

@@ -31,11 +31,15 @@ function initSync(createClient) {
 
   async function pull() {
     if (!user) return;
-    const { data, error } = await supabase
-      .from("user_state").select("favorites,history").eq("user_id", user.id).maybeSingle();
-    if (error) { setMsg("Sync error: " + error.message); return; }
+    // Try with the optional `fails` column; fall back if the DB hasn't been migrated.
+    let res = await supabase.from("user_state").select("favorites,history,fails").eq("user_id", user.id).maybeSingle();
+    if (res.error && /fails/.test(res.error.message)) {
+      res = await supabase.from("user_state").select("favorites,history").eq("user_id", user.id).maybeSingle();
+    }
+    if (res.error) { setMsg("Sync error: " + res.error.message); return; }
+    var data = res.data;
     if (data && window.DLEHub) {
-      window.DLEHub.applyRemote({ favorites: data.favorites || [], history: data.history || {} });
+      window.DLEHub.applyRemote({ favorites: data.favorites || [], history: data.history || {}, fails: data.fails || {} });
     }
     await push(true); // upload the merged union so remote has everything too
   }
@@ -46,12 +50,19 @@ function initSync(createClient) {
     const doPush = async () => {
       const s = getState();
       if (!s) return;
-      const { error } = await supabase.from("user_state").upsert({
+      const row = {
         user_id: user.id,
         favorites: s.favorites || [],
         history: s.history || {},
+        fails: s.fails || {},
         updated_at: new Date().toISOString(),
-      });
+      };
+      let { error } = await supabase.from("user_state").upsert(row);
+      if (error && /fails/.test(error.message)) {
+        // DB not migrated for the `fails` column yet — sync everything else.
+        delete row.fails;
+        ({ error } = await supabase.from("user_state").upsert(row));
+      }
       if (error) console.warn("sync push:", error.message);
       updateBtn();
     };

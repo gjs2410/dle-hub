@@ -39,6 +39,7 @@
     fav: "dlehub:favorites",
     done: "dlehub:done",
     history: "dlehub:history",
+    fails: "dlehub:fails",
     theme: "dlehub:theme",
     prefs: "dlehub:prefs",
     pending: "dlehub:pending",
@@ -79,6 +80,11 @@
     write(LS.history, history);
   }
 
+  // Failed attempts: { "YYYY-MM-DD": [gameId, ...] } — played but didn't solve.
+  // Kept separate from `history` (wins) so streaks/heatmap logic is unchanged.
+  var fails = read(LS.fails, null);
+  if (!fails || typeof fails !== "object") fails = {};
+
   // Games you opened today but haven't confirmed finishing yet. Persisted so the
   // "Did you finish?" prompt survives a reload. Reset when the date rolls over.
   var pendingStore = read(LS.pending, { date: "", ids: [] });
@@ -113,10 +119,15 @@
   }
   function saveFavorites() { write(LS.fav, Array.from(favorites)); dleDirty(); }
   function saveHistory() { write(LS.history, history); dleDirty(); }
+  function saveFails() { write(LS.fails, fails); dleDirty(); }
   function isDoneToday(id) {
     return !!history[TODAY] && history[TODAY].indexOf(id) !== -1;
   }
+  function isFailedToday(id) {
+    return !!fails[TODAY] && fails[TODAY].indexOf(id) !== -1;
+  }
   function markDoneToday(id) {
+    clearFailToday(id); // a win overrides a recorded loss for the day
     var arr = history[TODAY] || (history[TODAY] = []);
     if (arr.indexOf(id) === -1) { arr.push(id); saveHistory(); }
   }
@@ -128,6 +139,21 @@
       arr.splice(i, 1);
       if (!arr.length) delete history[TODAY];
       saveHistory();
+    }
+  }
+  function markFailedToday(id) {
+    unmarkDoneToday(id); // a loss overrides a recorded win for the day
+    var arr = fails[TODAY] || (fails[TODAY] = []);
+    if (arr.indexOf(id) === -1) { arr.push(id); saveFails(); }
+  }
+  function clearFailToday(id) {
+    var arr = fails[TODAY];
+    if (!arr) return;
+    var i = arr.indexOf(id);
+    if (i !== -1) {
+      arr.splice(i, 1);
+      if (!arr.length) delete fails[TODAY];
+      saveFails();
     }
   }
 
@@ -191,6 +217,18 @@
   }
   function totalCompletions() {
     return Object.keys(history).reduce(function (n, k) { return n + history[k].length; }, 0);
+  }
+  function gameLosses(id) {
+    var n = 0;
+    Object.keys(fails).forEach(function (k) { if (fails[k].indexOf(id) !== -1) n++; });
+    return n;
+  }
+  function totalFails() {
+    return Object.keys(fails).reduce(function (n, k) { return n + fails[k].length; }, 0);
+  }
+  function winRate(wins, losses) {
+    var t = wins + losses;
+    return t ? Math.round((wins / t) * 100) : 0;
   }
 
   // ---------- "did you finish?" pending queue ----------
@@ -434,6 +472,7 @@
   function gameCardHtml(g) {
     var fav = favorites.has(g.id);
     var done = isDoneToday(g.id);
+    var failed = isFailedToday(g.id);
     var col = colorFor(g.category);
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
@@ -457,7 +496,7 @@
       : "background-color:" + col;
 
     return (
-      '<article class="card' + (done ? " is-done" : "") + '" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '" tabindex="0" role="link" aria-label="Play ' + escapeHtml(g.name) + '">' +
+      '<article class="card' + (done ? " is-done" : "") + (failed ? " is-failed" : "") + '" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '" tabindex="0" role="link" aria-label="Play ' + escapeHtml(g.name) + '">' +
         '<div class="card-thumb" style="' + thumbStyle + '" aria-hidden="true"></div>' +
         '<div class="card-body">' +
           '<div class="card-line">' +
@@ -471,7 +510,8 @@
           '<button class="info-btn" data-act="info" title="Details" aria-label="Details about ' + escapeHtml(g.name) + '">ⓘ</button>' +
           '<button class="star-btn' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
           flame +
-          '<button class="done-btn' + (done ? " active" : "") + '" data-act="done" title="Mark as done today">' + (done ? "✓ Done" : "Mark done") + "</button>" +
+          '<button class="fail-btn' + (failed ? " active" : "") + '" data-act="fail" title="Mark as failed today" aria-pressed="' + failed + '">' + (failed ? "✗ Failed" : "✗") + "</button>" +
+          '<button class="done-btn' + (done ? " active" : "") + '" data-act="done" title="Mark as solved today">' + (done ? "✓ Solved" : "Solved") + "</button>" +
         "</div>" +
       "</article>"
     );
@@ -636,11 +676,14 @@
     var distinct = {};
     Object.keys(history).forEach(function (k) { history[k].forEach(function (id) { distinct[id] = 1; }); });
     var body = statsModal.querySelector(".stats-body");
+    var solved = totalCompletions(), failed = totalFails();
     body.innerHTML =
       '<div class="stats-tiles">' +
         '<div class="stats-tile"><span class="st-big">🔥 ' + currentStreak() + '</span><span class="st-label">Current streak</span></div>' +
         '<div class="stats-tile"><span class="st-big">🏆 ' + longestStreak() + '</span><span class="st-label">Longest streak</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + totalCompletions() + '</span><span class="st-label">Total completions</span></div>' +
+        '<div class="stats-tile"><span class="st-big">' + solved + '</span><span class="st-label">Solved</span></div>' +
+        '<div class="stats-tile"><span class="st-big">' + failed + '</span><span class="st-label">Failed</span></div>' +
+        '<div class="stats-tile"><span class="st-big">' + (solved + failed ? winRate(solved, failed) + "%" : "–") + '</span><span class="st-label">Win rate</span></div>' +
         '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>' +
       "</div>" +
       '<h3 class="stats-h">Activity</h3>' + heatmapHtml() +
@@ -722,7 +765,7 @@
   // ---------- game detail modal ----------
   function detailBody(g) {
     var col = colorFor(g.category);
-    var fav = favorites.has(g.id), done = isDoneToday(g.id);
+    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id);
     var gs = gameStreak(g.id), last = gameLastPlayed(g.id);
     var host = hostOf(g.url);
     var fIco = faviconUrl(g.url);
@@ -747,15 +790,20 @@
       '<div class="detail-meta"><span>🔗 ' + escapeHtml(host) + "</span>" +
         "<span>" + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
-      '<div class="detail-gamestats">' +
-        '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
-        '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
-        '<div class="gs-tile"><b>' + gameTimesPlayed(g.id) + '</b><span>Times played</span></div>' +
-      "</div>" +
+      (function () {
+        var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
+        return '<div class="detail-gamestats">' +
+          '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
+          '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
+          '<div class="gs-tile"><b>' + wins + " / " + losses + '</b><span>Solved / failed</span></div>' +
+          '<div class="gs-tile"><b>' + (wins + losses ? winRate(wins, losses) + "%" : "–") + '</b><span>Win rate</span></div>' +
+        "</div>";
+      })() +
       '<div class="detail-actions">' +
         '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
-        '<button class="btn' + (done ? " on-done" : "") + '" data-detail-act="done">' + (done ? "✓ Done today" : "Mark done") + "</button>" +
+        '<button class="btn' + (done ? " on-done" : "") + '" data-detail-act="done">' + (done ? "✓ Solved today" : "Mark solved") + "</button>" +
+        '<button class="btn' + (failed ? " on-fail" : "") + '" data-detail-act="fail">' + (failed ? "✗ Failed today" : "Mark failed") + "</button>" +
       "</div>" +
       (related.length
         ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
@@ -799,23 +847,27 @@
     } else if (act === "done") {
       if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
       if (prefs.hideDone) render(); else patchCard(id);
+    } else if (act === "fail") {
+      if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
+      if (prefs.hideDone) render(); else patchCard(id);
     }
     refreshDetail();
   }
 
   // ---------- hub (multi-mode) detail modal ----------
   function modeRow(g) {
-    var fav = favorites.has(g.id), done = isDoneToday(g.id), gs = gameStreak(g.id);
+    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id), gs = gameStreak(g.id);
     var col = colorFor(g.category);
     var fIco = faviconUrl(g.url);
     var ico = fIco ? '<img class="mode-ico" src="' + fIco + '" alt="">' : '<span class="mode-ico" style="background:' + col + '"></span>';
     return (
-      '<div class="mode-row' + (done ? " is-done" : "") + '" data-mode-id="' + g.id + '">' +
+      '<div class="mode-row' + (done ? " is-done" : "") + (failed ? " is-failed" : "") + '" data-mode-id="' + g.id + '">' +
         ico +
         '<div class="mode-info"><span class="mode-name">' + escapeHtml(g.name) + "</span>" +
           '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") + "</span></div>" +
         '<button class="act-btn mode-fav' + (fav ? " on" : "") + '" data-mode-act="fav" title="' + (fav ? "Unfavorite" : "Favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
-        '<button class="act-btn mode-done' + (done ? " on-done" : "") + '" data-mode-act="done" title="Mark done today">' + (done ? "✓" : "Done") + "</button>" +
+        '<button class="act-btn mode-fail' + (failed ? " on-fail" : "") + '" data-mode-act="fail" title="Mark failed today">✗</button>' +
+        '<button class="act-btn mode-done' + (done ? " on-done" : "") + '" data-mode-act="done" title="Mark solved today">' + (done ? "✓" : "Solve") + "</button>" +
         '<button class="btn btn-primary mode-play" data-mode-act="play" title="Play ' + escapeHtml(g.name) + '">▶</button>' +
       "</div>"
     );
@@ -853,6 +905,8 @@
       saveFavorites();
     } else if (act === "done") {
       if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
+    } else if (act === "fail") {
+      if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
     }
     refreshHubDetail();
     // reflect on the grid: re-render if a filter could change membership, else patch the hub card
@@ -869,6 +923,7 @@
       app: "dle-hub", version: 1, exportedAt: new Date().toISOString(),
       favorites: Array.from(favorites),
       history: history,
+      fails: fails,
     };
   }
   function applyBackup(obj) {
@@ -889,6 +944,15 @@
         days++;
       });
       saveHistory();
+    }
+    if (obj.fails && typeof obj.fails === "object") {
+      Object.keys(obj.fails).forEach(function (date) {
+        var incoming = obj.fails[date] || [];
+        var arr = fails[date] || (fails[date] = []);
+        incoming.forEach(function (id) { if (arr.indexOf(id) === -1) arr.push(id); });
+        if (!fails[date].length) delete fails[date];
+      });
+      saveFails();
     }
     return { favAdd: favAdd, days: days };
   }
@@ -1027,6 +1091,11 @@
       } else if (btn.dataset.act === "done") {
         if (isDoneToday(id)) unmarkDoneToday(id);
         else markDoneToday(id);
+        if (prefs.hideDone) render();
+        else patchCard(id);
+      } else if (btn.dataset.act === "fail") {
+        if (isFailedToday(id)) clearFailToday(id);
+        else markFailedToday(id);
         if (prefs.hideDone) render();
         else patchCard(id);
       } else if (btn.dataset.act === "info") {

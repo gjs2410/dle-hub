@@ -97,10 +97,14 @@ function initSync(createClient) {
     document.body.appendChild(modal);
     modal.addEventListener("click", (e) => {
       if (e.target === modal || e.target.closest(".modal-close")) hideModal();
-      const si = e.target.closest("#syncSignIn");
-      const so = e.target.closest("#syncSignOut");
-      if (si) signIn();
-      if (so) supabase.auth.signOut();
+      if (e.target.closest("#pwSignIn")) passwordSignIn();
+      if (e.target.closest("#pwSignUp")) passwordSignUp();
+      if (e.target.closest("#magicBtn")) sendMagicLink();
+      if (e.target.closest("#syncSignOut")) supabase.auth.signOut();
+    });
+    // Enter key in the password field submits sign-in
+    modal.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.closest("#syncPassword")) passwordSignIn();
     });
     return modal;
   }
@@ -115,23 +119,53 @@ function initSync(createClient) {
     } else {
       body.innerHTML =
         '<h3 class="stats-h">Cloud sync</h3>' +
-        '<p class="settings-note">Sign in with your email to sync your streaks, done games and ' +
-        "favorites across all your devices. We'll email you a magic link — no password.</p>" +
-        '<div class="settings-row">' +
+        '<p class="settings-note">Sign in to sync your streaks, done games and favorites across ' +
+        "devices. You stay signed in on this device afterward — no need to log in every time.</p>" +
+        '<div class="sync-fields">' +
           '<input type="email" id="syncEmail" class="sync-email" placeholder="you@example.com" autocomplete="email">' +
-          '<button class="btn btn-primary" id="syncSignIn">Send magic link</button>' +
+          '<input type="password" id="syncPassword" class="sync-email" placeholder="Password (6+ characters)" autocomplete="current-password">' +
         "</div>" +
-        '<p class="import-result" id="syncMsg"></p>';
+        '<div class="settings-row">' +
+          '<button class="btn btn-primary" id="pwSignIn">Sign in</button>' +
+          '<button class="btn" id="pwSignUp">Create account</button>' +
+        "</div>" +
+        '<p class="import-result" id="syncMsg"></p>' +
+        '<button class="link-btn magic-alt" id="magicBtn">Prefer no password? Email me a magic link instead</button>';
     }
   }
   function openModal() { ensureModal(); renderModal(); modal.classList.add("show"); }
   function hideModal() { if (modal) modal.classList.remove("show"); }
   function setMsg(t) { const m = document.getElementById("syncMsg"); if (m) m.textContent = t; }
 
-  async function signIn() {
-    const input = document.getElementById("syncEmail");
-    const email = input && input.value.trim();
-    if (!email || email.indexOf("@") === -1) { setMsg("Please enter a valid email."); return; }
+  function fieldVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function validEmail(e) { return e && e.indexOf("@") > 0; }
+
+  async function passwordSignIn() {
+    const email = fieldVal("syncEmail"), pw = fieldVal("syncPassword");
+    if (!validEmail(email) || !pw) { setMsg("Enter your email and password."); return; }
+    setMsg("Signing in…");
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
+    // On success, onAuthStateChange updates the UI + pulls your data.
+    if (error) setMsg("Sign-in failed: " + error.message + ". New here? Tap “Create account”.");
+  }
+
+  async function passwordSignUp() {
+    const email = fieldVal("syncEmail"), pw = fieldVal("syncPassword");
+    if (!validEmail(email)) { setMsg("Enter a valid email."); return; }
+    if (!pw || pw.length < 6) { setMsg("Password must be at least 6 characters."); return; }
+    setMsg("Creating account…");
+    const { data, error } = await supabase.auth.signUp({
+      email, password: pw,
+      options: { emailRedirectTo: location.href.split("#")[0] },
+    });
+    if (error) { setMsg("Sign-up failed: " + error.message); return; }
+    if (data.session) setMsg("Account created — you're signed in ✓");
+    else setMsg("Account created ✓ Check your email once to confirm, then tap Sign in.");
+  }
+
+  async function sendMagicLink() {
+    const email = fieldVal("syncEmail");
+    if (!validEmail(email)) { setMsg("Enter a valid email first."); return; }
     setMsg("Sending…");
     const { error } = await supabase.auth.signInWithOtp({
       email,

@@ -35,6 +35,9 @@ No build step, no framework, no server required.
   (never deletes). No account or server required.
 - **⌨️ Keyboard shortcuts** — <kbd>/</kbd> focus search, <kbd>↑</kbd>/<kbd>↓</kbd>
   move between games, <kbd>Enter</kbd> play, <kbd>Esc</kbd> close / clear.
+- **🎛️ Grouped modes** — games that live on the same site (e.g. Gamedle's 6 modes, or
+  a publisher's suite) collapse into one **hub card**; tap it to see every mode, each
+  with its own play / favorite / done / streak. Keeps the list tidy without losing detail.
 - **▦ List / grid view** — toggle between the compact list and a thumbnail gallery.
 - **📱 Installable (PWA)** — add it to your home screen and it works offline (see below).
 - **🔍 Search** across names, descriptions and categories.

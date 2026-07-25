@@ -885,7 +885,17 @@
       "</div>" +
       (function () {
         var gd = gameGuessDistribution(g.id);
-        return gd.total ? '<h3 class="stats-h">Guess distribution</h3>' + distBarsHtml(gd, gd.total + " solves recorded") : "";
+        var body = gd.total
+          ? distBarsHtml(gd, gd.total + " solves recorded")
+          : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
+        var todayG = guessToday(g.id);
+        var entry =
+          '<div class="guess-entry">' +
+            '<label for="guessInput">Guesses today</label>' +
+            '<input type="number" min="1" max="20" step="1" id="guessInput" class="guess-input" placeholder="e.g. 4" value="' + (todayG || "") + '">' +
+            '<button class="btn" data-detail-act="logguess">Save</button>' +
+          "</div>";
+        return '<h3 class="stats-h">Guess distribution</h3>' + body + entry;
       })() +
       (related.length
         ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
@@ -932,6 +942,10 @@
     } else if (act === "fail") {
       if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
       if (prefs.hideDone) render(); else patchCard(id);
+    } else if (act === "logguess") {
+      var input = document.getElementById("guessInput");
+      var n = input ? parseInt(input.value, 10) : NaN;
+      if (n >= 1) { markDoneToday(id); setGuessToday(id, n); patchCard(id); }
     }
     refreshDetail();
   }

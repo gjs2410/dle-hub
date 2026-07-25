@@ -1,13 +1,15 @@
 // DLE Hub service worker — offline app shell.
 // Strategy: network-first for same-origin (so code/data updates are picked up as
 // soon as you're online), falling back to the cache when offline.
-const CACHE = "dle-hub-v2";
+const CACHE = "dle-hub-v3";
 const SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./games.js",
+  "./supabase-config.js",
+  "./sync.js",
   "./manifest.webmanifest",
   "./icon.svg",
 ];

@@ -105,7 +105,14 @@
   }
   var TODAY = todayStr();
 
-  function saveHistory() { write(LS.history, history); }
+  // Sync bridge: when signed in, sync.js registers window.__dleOnDirty to push
+  // changes to the cloud. suppressDirty prevents a pull→apply→push feedback loop.
+  var suppressDirty = false;
+  function dleDirty() {
+    if (!suppressDirty && typeof window.__dleOnDirty === "function") window.__dleOnDirty();
+  }
+  function saveFavorites() { write(LS.fav, Array.from(favorites)); dleDirty(); }
+  function saveHistory() { write(LS.history, history); dleDirty(); }
   function isDoneToday(id) {
     return !!history[TODAY] && history[TODAY].indexOf(id) !== -1;
   }
@@ -695,7 +702,7 @@
     }
     if (act === "fav") {
       if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
-      write(LS.fav, Array.from(favorites));
+      saveFavorites();
       if (prefs.favOnly || prefs.sort === "fav") render(); else patchCard(id);
     } else if (act === "done") {
       if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
@@ -722,7 +729,7 @@
     var favAdd = 0, days = 0;
     if (Array.isArray(obj.favorites)) {
       obj.favorites.forEach(function (id) { if (!favorites.has(id)) { favorites.add(id); favAdd++; } });
-      write(LS.fav, Array.from(favorites));
+      saveFavorites();
     }
     if (obj.history && typeof obj.history === "object") {
       Object.keys(obj.history).forEach(function (date) {
@@ -861,7 +868,7 @@
       if (btn.dataset.act === "fav") {
         if (favorites.has(id)) favorites.delete(id);
         else favorites.add(id);
-        write(LS.fav, Array.from(favorites));
+        saveFavorites();
         // update just this card + stats without full re-render (unless fav filter active)
         if (prefs.favOnly || prefs.sort === "fav") render();
         else { patchCard(id); }
@@ -1092,6 +1099,20 @@
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline unavailable */ });
     });
   }
+
+  // ---------- sync bridge (used by sync.js if Supabase is configured) ----------
+  window.DLEHub = {
+    // current local state, in the same shape as a backup file
+    getState: function () { return collectBackup(); },
+    // merge cloud state into local (union — never deletes), then refresh the UI
+    applyRemote: function (state) {
+      suppressDirty = true;
+      try { applyBackup(state); } catch (e) { /* ignore malformed */ } finally { suppressDirty = false; }
+      syncControls();
+      buildChips();
+      render();
+    },
+  };
 
   // ---------- boot ----------
   $("openStats").addEventListener("click", openStats);

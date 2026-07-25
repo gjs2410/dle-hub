@@ -25,6 +25,7 @@
         </div>
       </div>
       <div class="header-btns">
+        <button id="accountBtn" class="icon-btn" title="Account / cloud sync" aria-label="Account" style="display:none">👤</button>
         <button id="openStats" class="icon-btn" title="Your streaks & stats" aria-label="Stats">📊</button>
         <button id="openSettings" class="icon-btn" title="Backup, import/export & shortcuts" aria-label="Settings">⚙️</button>
         <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">🌗</button>
@@ -82,5 +83,8 @@
   <!-- Generated dataset (window.GAMES_DATA). Lets the app run from file:// with no server. -->
   <script src="games.js"></script>
   <script src="app.js"></script>
+  <!-- Optional cloud accounts + sync (no-op unless supabase-config.js is filled in). -->
+  <script src="supabase-config.js"></script>
+  <script type="module" src="sync.js"></script>
 </body>
 </html>

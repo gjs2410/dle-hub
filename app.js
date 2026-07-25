@@ -40,6 +40,7 @@
     done: "dlehub:done",
     history: "dlehub:history",
     fails: "dlehub:fails",
+    guesses: "dlehub:guesses",
     theme: "dlehub:theme",
     prefs: "dlehub:prefs",
     pending: "dlehub:pending",
@@ -84,6 +85,10 @@
   // Kept separate from `history` (wins) so streaks/heatmap logic is unchanged.
   var fails = read(LS.fails, null);
   if (!fails || typeof fails !== "object") fails = {};
+
+  // Guess counts: { "YYYY-MM-DD": { gameId: guesses } } — captured from share text.
+  var guesses = read(LS.guesses, null);
+  if (!guesses || typeof guesses !== "object") guesses = {};
 
   // Games you opened today but haven't confirmed finishing yet. Persisted so the
   // "Did you finish?" prompt survives a reload. Reset when the date rolls over.
@@ -155,6 +160,27 @@
       if (!arr.length) delete fails[TODAY];
       saveFails();
     }
+  }
+  function saveGuesses() { write(LS.guesses, guesses); dleDirty(); }
+  function setGuessToday(id, n) {
+    if (!(n > 0)) return;
+    (guesses[TODAY] = guesses[TODAY] || {})[id] = n;
+    saveGuesses();
+  }
+  function guessToday(id) { return guesses[TODAY] && guesses[TODAY][id]; }
+  function gameAvgGuesses(id) {
+    var sum = 0, n = 0;
+    Object.keys(guesses).forEach(function (k) {
+      if (guesses[k][id] != null) { sum += guesses[k][id]; n++; }
+    });
+    return n ? Math.round((sum / n) * 10) / 10 : null;
+  }
+  function overallAvgGuesses() {
+    var sum = 0, n = 0;
+    Object.keys(guesses).forEach(function (k) {
+      Object.keys(guesses[k]).forEach(function (id) { sum += guesses[k][id]; n++; });
+    });
+    return n ? Math.round((sum / n) * 10) / 10 : null;
   }
 
   // ---------- streak & stats computation ----------
@@ -353,6 +379,7 @@
   var itemById = {};     // grid-item id -> hub or game
   var gameById = {};     // every game id -> game (incl. hub members)
   var hubIdOfMember = {}; // member game id -> its hub's id
+  var gamesByHost = {};  // host -> [games] (for extension result matching)
 
   function hubLabel(members, host) {
     var first = members[0].name.split(/[\s:]+/)[0];
@@ -371,6 +398,7 @@
     DATA.forEach(function (g) { gameById[g.id] = g; });
     var byHost = {};
     DATA.forEach(function (g) { var h = hostOf(g.url); (byHost[h] = byHost[h] || []).push(g); });
+    gamesByHost = byHost;
     Object.keys(byHost).forEach(function (h) {
       var members = byHost[h];
       if (members.length >= 2 && h && !SHARED_HOSTS.test(h)) {
@@ -684,6 +712,7 @@
         '<div class="stats-tile"><span class="st-big">' + solved + '</span><span class="st-label">Solved</span></div>' +
         '<div class="stats-tile"><span class="st-big">' + failed + '</span><span class="st-label">Failed</span></div>' +
         '<div class="stats-tile"><span class="st-big">' + (solved + failed ? winRate(solved, failed) + "%" : "–") + '</span><span class="st-label">Win rate</span></div>' +
+        '<div class="stats-tile"><span class="st-big">' + (overallAvgGuesses() != null ? overallAvgGuesses() : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
         '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>' +
       "</div>" +
       '<h3 class="stats-h">Activity</h3>' + heatmapHtml() +
@@ -791,12 +820,13 @@
         "<span>" + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
       (function () {
-        var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
+        var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id), avg = gameAvgGuesses(g.id);
         return '<div class="detail-gamestats">' +
           '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
           '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
           '<div class="gs-tile"><b>' + wins + " / " + losses + '</b><span>Solved / failed</span></div>' +
           '<div class="gs-tile"><b>' + (wins + losses ? winRate(wins, losses) + "%" : "–") + '</b><span>Win rate</span></div>' +
+          '<div class="gs-tile"><b>' + (avg != null ? avg : "–") + '</b><span>Avg guesses</span></div>' +
         "</div>";
       })() +
       '<div class="detail-actions">' +
@@ -864,7 +894,8 @@
       '<div class="mode-row' + (done ? " is-done" : "") + (failed ? " is-failed" : "") + '" data-mode-id="' + g.id + '">' +
         ico +
         '<div class="mode-info"><span class="mode-name">' + escapeHtml(g.name) + "</span>" +
-          '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") + "</span></div>" +
+          '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") +
+          (guessToday(g.id) ? " · " + guessToday(g.id) + " guesses" : "") + "</span></div>" +
         '<button class="act-btn mode-fav' + (fav ? " on" : "") + '" data-mode-act="fav" title="' + (fav ? "Unfavorite" : "Favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
         '<button class="act-btn mode-fail' + (failed ? " on-fail" : "") + '" data-mode-act="fail" title="Mark failed today">✗</button>' +
         '<button class="act-btn mode-done' + (done ? " on-done" : "") + '" data-mode-act="done" title="Mark solved today">' + (done ? "✓" : "Solve") + "</button>" +
@@ -924,6 +955,7 @@
       favorites: Array.from(favorites),
       history: history,
       fails: fails,
+      guesses: guesses,
     };
   }
   function applyBackup(obj) {
@@ -953,6 +985,14 @@
         if (!fails[date].length) delete fails[date];
       });
       saveFails();
+    }
+    if (obj.guesses && typeof obj.guesses === "object") {
+      Object.keys(obj.guesses).forEach(function (date) {
+        var incoming = obj.guesses[date] || {};
+        var day = guesses[date] || (guesses[date] = {});
+        Object.keys(incoming).forEach(function (id) { if (day[id] == null) day[id] = incoming[id]; });
+      });
+      saveGuesses();
     }
     return { favAdd: favAdd, days: days };
   }
@@ -1068,6 +1108,36 @@
   function openGame(url, id) {
     window.open(url, "_blank", "noopener");
     if (id && prefs.askOnReturn) addPending(id);
+  }
+
+  // Ingest a result captured by the browser extension (from a game's share text).
+  // payload: { host, name?, solved:bool, guesses?:number }
+  function recordResult(payload) {
+    if (!payload || !payload.host) return { matched: false };
+    var host = String(payload.host).replace(/^www\./, "").toLowerCase();
+    var candidates = gamesByHost[host];
+    if (!candidates || !candidates.length) return { matched: false };
+    var g = candidates[0];
+    if (candidates.length > 1 && payload.name) {
+      var nm = String(payload.name).toLowerCase();
+      var hit = candidates.filter(function (c) {
+        var cn = c.name.toLowerCase();
+        return cn === nm || cn.indexOf(nm) !== -1 || nm.indexOf(cn) !== -1;
+      });
+      if (hit.length) g = hit[0];
+    }
+    removePending(g.id);
+    if (payload.solved) {
+      markDoneToday(g.id);
+      if (payload.guesses > 0) setGuessToday(g.id, payload.guesses);
+    } else {
+      markFailedToday(g.id);
+    }
+    // refresh UI
+    if (currentHubId && itemById[currentHubId] && hubIdOfMember[g.id] === currentHubId) refreshHubDetail();
+    if (currentDetailId === g.id) refreshDetail();
+    render();
+    return { matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null };
   }
 
   grid.addEventListener("click", function (e) {
@@ -1337,7 +1407,17 @@
       buildChips();
       render();
     },
+    // called by the browser extension with a parsed game result
+    recordResult: function (payload) { return recordResult(payload); },
   };
+
+  // The extension delivers results by posting a message into this page.
+  window.addEventListener("message", function (e) {
+    if (e.source !== window) return;
+    var d = e.data;
+    if (!d || d.source !== "dle-extension" || !d.payload) return;
+    recordResult(d.payload);
+  });
 
   // ---------- boot ----------
   $("openStats").addEventListener("click", openStats);

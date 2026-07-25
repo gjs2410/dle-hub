@@ -9,11 +9,13 @@ create table if not exists public.user_state (
   favorites  jsonb not null default '[]'::jsonb,
   history    jsonb not null default '{}'::jsonb,
   fails      jsonb not null default '{}'::jsonb,
+  guesses    jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now()
 );
 
--- If you created the table before the "failed games" feature, add the column:
-alter table public.user_state add column if not exists fails jsonb not null default '{}'::jsonb;
+-- If you created the table before these features, add the columns:
+alter table public.user_state add column if not exists fails   jsonb not null default '{}'::jsonb;
+alter table public.user_state add column if not exists guesses jsonb not null default '{}'::jsonb;
 
 alter table public.user_state enable row level security;
 

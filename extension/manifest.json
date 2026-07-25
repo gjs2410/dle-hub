@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "DLE Hub Auto-Tracker",
+  "version": "1.0.0",
+  "description": "Auto-records your -dle results (win/loss + guess count) to DLE Hub whenever you share a game.",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["capture.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": ["https://gjs2410.github.io/dle-hub/*", "http://localhost:8777/*"],
+      "js": ["deliver.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    { "resources": ["page-hook.js"], "matches": ["<all_urls>"] }
+  ],
+  "browser_specific_settings": {
+    "gecko": { "id": "dle-hub-tracker@gjs2410", "strict_min_version": "115.0" }
+  }
+}

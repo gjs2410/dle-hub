@@ -736,11 +736,7 @@
       '<h3 class="stats-h">Most played</h3>' + topGamesHtml();
   }
 
-  function guessDistHtml() {
-    var d = guessDistribution();
-    if (!d.total) {
-      return '<p class="stats-empty">No guess data yet — install the extension and share a game, or it fills in as guesses are recorded.</p>';
-    }
+  function distBarsHtml(d, title) {
     var rows = "";
     for (var i = 1; i <= 7; i++) {
       var c = d.dist[i] || 0;
@@ -749,7 +745,26 @@
         '<div class="gd-row"><span class="gd-num">' + (i === 7 ? "7+" : i) + "</span>" +
         '<div class="gd-track"><div class="gd-bar' + (c ? "" : " gd-empty") + '" style="width:' + (c ? Math.max(pct, 12) : 0) + '%">' + c + "</div></div></div>";
     }
-    return '<div class="guess-dist" title="' + d.total + ' solves with a recorded guess count">' + rows + "</div>";
+    return '<div class="guess-dist"' + (title ? ' title="' + title + '"' : "") + ">" + rows + "</div>";
+  }
+  function guessDistHtml() {
+    var d = guessDistribution();
+    if (!d.total) {
+      return '<p class="stats-empty">No guess data yet — install the extension and share a game, or it fills in as guesses are recorded.</p>';
+    }
+    return distBarsHtml(d, d.total + " solves with a recorded guess count");
+  }
+  function gameGuessDistribution(id) {
+    var dist = {}, max = 0, total = 0;
+    Object.keys(guesses).forEach(function (date) {
+      var n = guesses[date][id];
+      if (!(n >= 1)) return;
+      var b = n >= 7 ? 7 : n;
+      dist[b] = (dist[b] || 0) + 1;
+      total++;
+      if (dist[b] > max) max = dist[b];
+    });
+    return { dist: dist, max: max, total: total };
   }
 
   function openStats() {
@@ -868,6 +883,10 @@
         '<button class="btn' + (done ? " on-done" : "") + '" data-detail-act="done">' + (done ? "✓ Solved today" : "Mark solved") + "</button>" +
         '<button class="btn' + (failed ? " on-fail" : "") + '" data-detail-act="fail">' + (failed ? "✗ Failed today" : "Mark failed") + "</button>" +
       "</div>" +
+      (function () {
+        var gd = gameGuessDistribution(g.id);
+        return gd.total ? '<h3 class="stats-h">Guess distribution</h3>' + distBarsHtml(gd, gd.total + " solves recorded") : "";
+      })() +
       (related.length
         ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
           '<div class="related">' +

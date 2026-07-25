@@ -7,3 +7,6 @@ node_modules/
 
 # Generated link-check report (regenerate with: node scrape.mjs --check-links)
 data/link-report.json
+
+# Local Claude Code settings (personal)
+.claude/settings.local.json

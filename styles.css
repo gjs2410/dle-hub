@@ -323,6 +323,33 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 .grid.view-grid .group-head { grid-column: 1 / -1; }
 .grid.view-grid .card.is-done { border-left-width: 2px; }
 
+/* ---------- hub (multi-mode) cards ---------- */
+.hub-card { cursor: pointer; }
+.hub-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 3px 3px 0 -1px var(--card), 4px 4px 0 -1px var(--border); /* stacked-cards hint */
+}
+.hub-count {
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  background: var(--accent-soft); padding: 5px 9px; border-radius: 9px; white-space: nowrap;
+}
+:root[data-theme="dark"] .hub-count, :root[data-theme="auto"] .hub-count { color: var(--text); }
+
+/* ---------- mode list (inside hub detail) ---------- */
+.mode-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 18px 4px; }
+.mode-row {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--border); background: var(--card); border-radius: 11px; padding: 9px 11px;
+}
+.mode-row.is-done { border-color: color-mix(in srgb, var(--done) 45%, var(--border)); }
+.mode-ico { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; object-fit: contain; }
+.mode-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.mode-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mode-sub { font-size: 12px; color: var(--text-dim); }
+.mode-fav.on { color: var(--star); border-color: var(--star); background: color-mix(in srgb, var(--star) 12%, var(--bg)); }
+.mode-done.on-done { color: var(--done); border-color: var(--done); background: var(--done-soft); }
+.mode-play { padding: 7px 12px; flex-shrink: 0; }
+
 /* ---------- info button on cards ---------- */
 .info-btn {
   border: none; background: transparent; color: var(--text-dimmer);

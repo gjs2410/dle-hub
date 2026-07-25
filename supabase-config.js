@@ -14,6 +14,6 @@
 // key here; that one is secret.
 // ---------------------------------------------------------------------------
 window.SUPABASE_CONFIG = {
-  url: "",
-  anonKey: "",
+  url: "https://pazahsfecpzhbpoehmbm.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhemFoc2ZlY3B6aGJwb2VobWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5ODM3NzUsImV4cCI6MjEwMDU1OTc3NX0._Dmuxrwx1_2bMiP4rtGRNojQon9zvaROYigFEAKUo9g",
 };

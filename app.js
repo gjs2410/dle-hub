@@ -182,6 +182,22 @@
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
   }
+  // Distribution of solves by guess count: buckets 1..6 and "7+".
+  function guessDistribution() {
+    var dist = {}, max = 0, total = 0;
+    Object.keys(guesses).forEach(function (date) {
+      var day = guesses[date];
+      Object.keys(day).forEach(function (id) {
+        var n = day[id];
+        if (!(n >= 1)) return;
+        var b = n >= 7 ? 7 : n;
+        dist[b] = (dist[b] || 0) + 1;
+        total++;
+        if (dist[b] > max) max = dist[b];
+      });
+    });
+    return { dist: dist, max: max, total: total };
+  }
 
   // ---------- streak & stats computation ----------
   function completedDaySet() {
@@ -715,8 +731,25 @@
         '<div class="stats-tile"><span class="st-big">' + (overallAvgGuesses() != null ? overallAvgGuesses() : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
         '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>' +
       "</div>" +
+      '<h3 class="stats-h">Guess distribution</h3>' + guessDistHtml() +
       '<h3 class="stats-h">Activity</h3>' + heatmapHtml() +
       '<h3 class="stats-h">Most played</h3>' + topGamesHtml();
+  }
+
+  function guessDistHtml() {
+    var d = guessDistribution();
+    if (!d.total) {
+      return '<p class="stats-empty">No guess data yet — install the extension and share a game, or it fills in as guesses are recorded.</p>';
+    }
+    var rows = "";
+    for (var i = 1; i <= 7; i++) {
+      var c = d.dist[i] || 0;
+      var pct = d.max ? Math.round((c / d.max) * 100) : 0;
+      rows +=
+        '<div class="gd-row"><span class="gd-num">' + (i === 7 ? "7+" : i) + "</span>" +
+        '<div class="gd-track"><div class="gd-bar' + (c ? "" : " gd-empty") + '" style="width:' + (c ? Math.max(pct, 12) : 0) + '%">' + c + "</div></div></div>";
+    }
+    return '<div class="guess-dist" title="' + d.total + ' solves with a recorded guess count">' + rows + "</div>";
   }
 
   function openStats() {

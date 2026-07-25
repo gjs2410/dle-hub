@@ -299,6 +299,19 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 .hm-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11px; color: var(--text-dim); }
 .hm-legend .hm-cell { width: 11px; height: 11px; }
 
+/* guess distribution */
+.guess-dist { display: flex; flex-direction: column; gap: 6px; margin: 0 18px; }
+.gd-row { display: flex; align-items: center; gap: 10px; }
+.gd-num { width: 18px; text-align: center; font-weight: 800; font-size: 13px; color: var(--text-dim); flex-shrink: 0; }
+.gd-track { flex: 1; display: flex; }
+.gd-bar {
+  background: var(--accent); color: #fff; border-radius: 6px;
+  min-width: 26px; padding: 3px 8px; text-align: right;
+  font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
+  transition: width .4s ease;
+}
+.gd-bar.gd-empty { background: var(--border); color: var(--text-dim); min-width: 26px; }
+
 /* top games */
 .top-games { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .top-games li { display: flex; align-items: center; gap: 9px; padding: 8px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }

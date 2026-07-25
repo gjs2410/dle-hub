@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="DLE Hub">
+  <rect width="512" height="512" rx="112" fill="#6d4aff"/>
+  <g>
+    <rect x="96"  y="150" width="150" height="150" rx="24" fill="#ffffff" opacity="0.95"/>
+    <rect x="266" y="150" width="150" height="150" rx="24" fill="#22c55e"/>
+    <rect x="181" y="320" width="150" height="150" rx="24" fill="#ffffff" opacity="0.95"/>
+  </g>
+  <text x="256" y="272" font-size="150" font-weight="800" text-anchor="middle"
+        font-family="system-ui, -apple-system, Segoe UI, Arial, sans-serif" fill="#6d4aff">d</text>
+</svg>

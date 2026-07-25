@@ -1,0 +1,9 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (only used by the scraper/server; none committed)
+node_modules/
+
+# Generated link-check report (regenerate with: node scrape.mjs --check-links)
+data/link-report.json

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLE Hub — your daily -dle games</title>
+  <meta name="description" content="A searchable, favoritable hub of every daily -dle game. Track what you've played today." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#6d4aff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="DLE Hub" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="brand-logo">🧩</span>
+        <div>
+          <h1>DLE Hub</h1>
+          <p class="tagline">Every daily <span class="mono">-dle</span> game, in one place.</p>
+        </div>
+      </div>
+      <div class="header-btns">
+        <button id="openStats" class="icon-btn" title="Your streaks & stats" aria-label="Stats">📊</button>
+        <button id="openSettings" class="icon-btn" title="Backup, import/export & shortcuts" aria-label="Settings">⚙️</button>
+        <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">🌗</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats" aria-live="polite"></div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="search" type="search" placeholder="Search games, descriptions, categories…" autocomplete="off" spellcheck="false" />
+        <button id="clearSearch" class="clear-btn" title="Clear" hidden>✕</button>
+      </div>
+      <div class="toggles">
+        <button id="favFilter" class="toggle-btn" aria-pressed="false">★ Favorites</button>
+        <button id="hideDone" class="toggle-btn" aria-pressed="false">Hide done today</button>
+        <button id="askReturn" class="toggle-btn" aria-pressed="true" title="When you return to this tab after opening a game, ask if you finished it">🔔 Ask when back</button>
+        <button id="viewToggle" class="toggle-btn" title="Switch between list and grid" aria-label="Toggle view">▦ Grid</button>
+        <label class="sort-wrap">
+          <span>Sort</span>
+          <select id="sort">
+            <option value="name">Name (A–Z)</option>
+            <option value="fav">Favorites first</option>
+            <option value="popular">Most played</option>
+            <option value="category">Category</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="chips" id="categoryChips"></div>
+  </header>
+
+  <main>
+    <div id="grid" class="grid"></div>
+    <div id="scrollSentinel" aria-hidden="true" hidden></div>
+    <div id="emptyState" class="empty" hidden>
+      <p class="empty-emoji">🕵️</p>
+      <p>No games match your filters.</p>
+      <button id="resetFilters" class="link-btn">Reset filters</button>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      <span id="footerCount"></span> ·
+      Data merged from <a href="https://dles.aukspot.com/" target="_blank" rel="noopener">aukspot/dles</a>
+      and <a href="https://listdle.com/" target="_blank" rel="noopener">listdle</a>.
+      Refresh anytime with <code>node scrape.mjs</code>.
+    </p>
+    <p class="fine">Favorites &amp; daily progress are stored on this device only. Daily status resets automatically at local midnight.</p>
+  </footer>
+
+  <!-- Generated dataset (window.GAMES_DATA). Lets the app run from file:// with no server. -->
+  <script src="games.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

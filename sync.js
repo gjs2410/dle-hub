@@ -32,14 +32,14 @@ function initSync(createClient) {
   async function pull() {
     if (!user) return;
     // Try with optional columns; fall back if the DB hasn't been migrated.
-    let res = await supabase.from("user_state").select("favorites,history,fails,guesses").eq("user_id", user.id).maybeSingle();
-    if (res.error && /fails|guesses/.test(res.error.message)) {
+    let res = await supabase.from("user_state").select("favorites,history,fails,guesses,routine").eq("user_id", user.id).maybeSingle();
+    if (res.error && /fails|guesses|routine/.test(res.error.message)) {
       res = await supabase.from("user_state").select("favorites,history").eq("user_id", user.id).maybeSingle();
     }
     if (res.error) { setMsg("Sync error: " + res.error.message); return; }
     var data = res.data;
     if (data && window.DLEHub) {
-      window.DLEHub.applyRemote({ favorites: data.favorites || [], history: data.history || {}, fails: data.fails || {}, guesses: data.guesses || {} });
+      window.DLEHub.applyRemote({ favorites: data.favorites || [], history: data.history || {}, fails: data.fails || {}, guesses: data.guesses || {}, routine: data.routine || [] });
     }
     await push(true); // upload the merged union so remote has everything too
   }
@@ -56,12 +56,13 @@ function initSync(createClient) {
         history: s.history || {},
         fails: s.fails || {},
         guesses: s.guesses || {},
+        routine: s.routine || [],
         updated_at: new Date().toISOString(),
       };
       let { error } = await supabase.from("user_state").upsert(row);
-      if (error && /fails|guesses/.test(error.message)) {
-        // DB not migrated for the fails/guesses columns yet — sync everything else.
-        delete row.fails; delete row.guesses;
+      if (error && /fails|guesses|routine/.test(error.message)) {
+        // DB not migrated for the extra columns yet — sync the essentials.
+        delete row.fails; delete row.guesses; delete row.routine;
         ({ error } = await supabase.from("user_state").upsert(row));
       }
       if (error) console.warn("sync push:", error.message);

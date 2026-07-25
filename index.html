@@ -42,7 +42,16 @@
       </div>
       <div class="toggles">
         <button id="favFilter" class="toggle-btn" aria-pressed="false">★ Favorites</button>
-        <button id="hideDone" class="toggle-btn" aria-pressed="false">Hide done today</button>
+        <button id="routineFilter" class="toggle-btn" aria-pressed="false" title="Show only your routine" hidden>🎯 Routine</button>
+        <button id="playRoutine" class="toggle-btn" title="Open today's unplayed routine games" hidden>▶ Play routine</button>
+        <label class="sort-wrap">
+          <span>Status</span>
+          <select id="statusFilter">
+            <option value="all">All</option>
+            <option value="todo">To-do</option>
+            <option value="done">Completed</option>
+          </select>
+        </label>
         <button id="askReturn" class="toggle-btn" aria-pressed="true" title="When you return to this tab after opening a game, ask if you finished it">🔔 Ask when back</button>
         <button id="viewToggle" class="toggle-btn" title="Switch between list and grid" aria-label="Toggle view">▦ Grid</button>
         <label class="sort-wrap">

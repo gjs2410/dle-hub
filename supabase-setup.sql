@@ -10,12 +10,14 @@ create table if not exists public.user_state (
   history    jsonb not null default '{}'::jsonb,
   fails      jsonb not null default '{}'::jsonb,
   guesses    jsonb not null default '{}'::jsonb,
+  routine    jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
 
 -- If you created the table before these features, add the columns:
 alter table public.user_state add column if not exists fails   jsonb not null default '{}'::jsonb;
 alter table public.user_state add column if not exists guesses jsonb not null default '{}'::jsonb;
+alter table public.user_state add column if not exists routine jsonb not null default '[]'::jsonb;
 
 alter table public.user_state enable row level security;
 

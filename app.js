@@ -41,6 +41,7 @@
     history: "dlehub:history",
     fails: "dlehub:fails",
     guesses: "dlehub:guesses",
+    routine: "dlehub:routine",
     theme: "dlehub:theme",
     prefs: "dlehub:prefs",
     pending: "dlehub:pending",
@@ -60,9 +61,15 @@
   }
 
   var favorites = new Set(read(LS.fav, []));
-  var prefs = read(LS.prefs, { category: "all", favOnly: false, hideDone: false, sort: "name", askOnReturn: true, view: "list" });
+  // Custom routine: an ordered list of game ids the user plays daily.
+  var routine = read(LS.routine, []);
+  if (!Array.isArray(routine)) routine = [];
+  var prefs = read(LS.prefs, { category: "all", favOnly: false, completion: "all", sort: "name", askOnReturn: true, view: "list", routineOnly: false });
   if (prefs.askOnReturn === undefined) prefs.askOnReturn = true;
   if (prefs.view === undefined) prefs.view = "list";
+  if (prefs.routineOnly === undefined) prefs.routineOnly = false;
+  // migrate the old "hide done" boolean into the new 3-way completion filter
+  if (prefs.completion === undefined) prefs.completion = prefs.hideDone ? "todo" : "all";
 
   // Completion history: { "YYYY-MM-DD": [gameId, ...] }. Single source of truth for
   // "done today", and the basis for streaks, the activity heatmap, and per-game stats.
@@ -123,6 +130,14 @@
     if (!suppressDirty && typeof window.__dleOnDirty === "function") window.__dleOnDirty();
   }
   function saveFavorites() { write(LS.fav, Array.from(favorites)); dleDirty(); }
+  function saveRoutine() { write(LS.routine, routine); dleDirty(); }
+  function inRoutine(id) { return routine.indexOf(id) !== -1; }
+  function toggleRoutine(id) {
+    var i = routine.indexOf(id);
+    if (i === -1) routine.push(id); else routine.splice(i, 1);
+    saveRoutine();
+    updateRoutineControls();
+  }
   function saveHistory() { write(LS.history, history); dleDirty(); }
   function saveFails() { write(LS.fails, fails); dleDirty(); }
   function isDoneToday(id) {
@@ -315,7 +330,9 @@
   var searchEl = $("search");
   var clearSearchBtn = $("clearSearch");
   var favFilterBtn = $("favFilter");
-  var hideDoneBtn = $("hideDone");
+  var routineFilterBtn = $("routineFilter");
+  var playRoutineBtn = $("playRoutine");
+  var statusEl = $("statusFilter");
   var sortEl = $("sort");
   var chipsEl = $("categoryChips");
   var statsEl = $("stats");
@@ -436,6 +453,9 @@
   function itemFavorited(it) {
     return it.isHub ? it.members.some(function (g) { return favorites.has(g.id); }) : favorites.has(it.id);
   }
+  function itemInRoutine(it) {
+    return it.isHub ? it.members.some(function (g) { return inRoutine(g.id); }) : inRoutine(it.id);
+  }
   function itemAllDone(it) {
     return it.isHub ? it.members.every(function (g) { return isDoneToday(g.id); }) : isDoneToday(it.id);
   }
@@ -457,7 +477,9 @@
     var list = ITEMS.filter(function (it) {
       if (!itemMatchesCat(it, prefs.category)) return false;
       if (prefs.favOnly && !itemFavorited(it)) return false;
-      if (prefs.hideDone && itemAllDone(it)) return false;
+      if (prefs.routineOnly && !itemInRoutine(it)) return false;
+      if (prefs.completion === "todo" && itemAllDone(it)) return false;
+      if (prefs.completion === "done" && !itemAllDone(it)) return false;
       if (term && itemHay(it).indexOf(term) === -1) return false;
       return true;
     });
@@ -842,7 +864,7 @@
   // ---------- game detail modal ----------
   function detailBody(g) {
     var col = colorFor(g.category);
-    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id);
+    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id), rt = inRoutine(g.id);
     var gs = gameStreak(g.id), last = gameLastPlayed(g.id);
     var host = hostOf(g.url);
     var fIco = faviconUrl(g.url);
@@ -882,6 +904,7 @@
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
         '<button class="btn' + (done ? " on-done" : "") + '" data-detail-act="done">' + (done ? "✓ Solved today" : "Mark solved") + "</button>" +
         '<button class="btn' + (failed ? " on-fail" : "") + '" data-detail-act="fail">' + (failed ? "✗ Failed today" : "Mark failed") + "</button>" +
+        '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
       "</div>" +
       (function () {
         var gd = gameGuessDistribution(g.id);
@@ -938,21 +961,24 @@
       if (prefs.favOnly || prefs.sort === "fav") render(); else patchCard(id);
     } else if (act === "done") {
       if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
-      if (prefs.hideDone) render(); else patchCard(id);
+      if (prefs.completion !== "all") render(); else patchCard(id);
     } else if (act === "fail") {
       if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
-      if (prefs.hideDone) render(); else patchCard(id);
+      if (prefs.completion !== "all") render(); else patchCard(id);
     } else if (act === "logguess") {
       var input = document.getElementById("guessInput");
       var n = input ? parseInt(input.value, 10) : NaN;
       if (n >= 1) { markDoneToday(id); setGuessToday(id, n); patchCard(id); }
+    } else if (act === "routine") {
+      toggleRoutine(id);
+      if (prefs.routineOnly) render();
     }
     refreshDetail();
   }
 
   // ---------- hub (multi-mode) detail modal ----------
   function modeRow(g) {
-    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id), gs = gameStreak(g.id);
+    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id), rt = inRoutine(g.id), gs = gameStreak(g.id);
     var col = colorFor(g.category);
     var fIco = faviconUrl(g.url);
     var ico = fIco ? '<img class="mode-ico" src="' + fIco + '" alt="">' : '<span class="mode-ico" style="background:' + col + '"></span>';
@@ -963,6 +989,7 @@
           '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") +
           (guessToday(g.id) ? " · " + guessToday(g.id) + " guesses" : "") + "</span></div>" +
         '<button class="act-btn mode-fav' + (fav ? " on" : "") + '" data-mode-act="fav" title="' + (fav ? "Unfavorite" : "Favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
+        '<button class="act-btn mode-routine' + (rt ? " on-routine" : "") + '" data-mode-act="routine" title="' + (rt ? "In routine" : "Add to routine") + '">🎯</button>' +
         '<button class="act-btn mode-fail' + (failed ? " on-fail" : "") + '" data-mode-act="fail" title="Mark failed today">✗</button>' +
         '<button class="act-btn mode-done' + (done ? " on-done" : "") + '" data-mode-act="done" title="Mark solved today">' + (done ? "✓" : "Solve") + "</button>" +
         '<button class="btn btn-primary mode-play" data-mode-act="play" title="Play ' + escapeHtml(g.name) + '">▶</button>' +
@@ -1004,10 +1031,12 @@
       if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
     } else if (act === "fail") {
       if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
+    } else if (act === "routine") {
+      toggleRoutine(id);
     }
     refreshHubDetail();
     // reflect on the grid: re-render if a filter could change membership, else patch the hub card
-    if (prefs.favOnly || prefs.hideDone || prefs.sort === "fav") render();
+    if (prefs.favOnly || prefs.routineOnly || prefs.completion !== "all" || prefs.sort === "fav") render();
     else patchCard(currentHubId);
   }
 
@@ -1022,6 +1051,7 @@
       history: history,
       fails: fails,
       guesses: guesses,
+      routine: routine,
     };
   }
   function applyBackup(obj) {
@@ -1059,6 +1089,10 @@
         Object.keys(incoming).forEach(function (id) { if (day[id] == null) day[id] = incoming[id]; });
       });
       saveGuesses();
+    }
+    if (Array.isArray(obj.routine)) {
+      obj.routine.forEach(function (id) { if (routine.indexOf(id) === -1) routine.push(id); });
+      saveRoutine();
     }
     return { favAdd: favAdd, days: days };
   }
@@ -1227,12 +1261,12 @@
       } else if (btn.dataset.act === "done") {
         if (isDoneToday(id)) unmarkDoneToday(id);
         else markDoneToday(id);
-        if (prefs.hideDone) render();
+        if (prefs.completion !== "all") render();
         else patchCard(id);
       } else if (btn.dataset.act === "fail") {
         if (isFailedToday(id)) clearFailToday(id);
         else markFailedToday(id);
-        if (prefs.hideDone) render();
+        if (prefs.completion !== "all") render();
         else patchCard(id);
       } else if (btn.dataset.act === "info") {
         openDetail(id);
@@ -1297,12 +1331,18 @@
     savePrefs();
     render();
   });
-  hideDoneBtn.addEventListener("click", function () {
-    prefs.hideDone = !prefs.hideDone;
-    hideDoneBtn.setAttribute("aria-pressed", prefs.hideDone);
+  statusEl.addEventListener("change", function () {
+    prefs.completion = statusEl.value;
     savePrefs();
     render();
   });
+  routineFilterBtn.addEventListener("click", function () {
+    prefs.routineOnly = !prefs.routineOnly;
+    routineFilterBtn.setAttribute("aria-pressed", prefs.routineOnly);
+    savePrefs();
+    render();
+  });
+  playRoutineBtn.addEventListener("click", playRoutine);
   sortEl.addEventListener("change", function () {
     prefs.sort = sortEl.value;
     savePrefs();
@@ -1321,7 +1361,7 @@
     render();
   });
   $("resetFilters").addEventListener("click", function () {
-    prefs.category = "all"; prefs.favOnly = false; prefs.hideDone = false;
+    prefs.category = "all"; prefs.favOnly = false; prefs.completion = "all"; prefs.routineOnly = false;
     searchTerm = ""; searchEl.value = ""; clearSearchBtn.hidden = true;
     savePrefs();
     syncControls();
@@ -1330,6 +1370,19 @@
   });
 
   function savePrefs() { write(LS.prefs, prefs); }
+
+  // Open every routine game that isn't solved/failed yet today (in new tabs).
+  function playRoutine() {
+    var todo = routine.filter(function (id) { return gameById[id] && !isDoneToday(id) && !isFailedToday(id); });
+    if (!todo.length) { alert(routine.length ? "All your routine games are done for today. 🎉" : "Your routine is empty — add games from a game's ⓘ details."); return; }
+    if (todo.length > 6 && !confirm("Open " + todo.length + " routine games in new tabs?")) return;
+    todo.forEach(function (id) { var g = gameById[id]; if (g) { window.open(g.url, "_blank", "noopener"); if (prefs.askOnReturn) addPending(id); } });
+  }
+  function updateRoutineControls() {
+    routineFilterBtn.hidden = routine.length === 0;
+    playRoutineBtn.hidden = routine.length === 0;
+    routineFilterBtn.setAttribute("aria-pressed", prefs.routineOnly);
+  }
 
   function applyView() {
     var grd = prefs.view === "grid";
@@ -1341,10 +1394,11 @@
 
   function syncControls() {
     favFilterBtn.setAttribute("aria-pressed", prefs.favOnly);
-    hideDoneBtn.setAttribute("aria-pressed", prefs.hideDone);
+    statusEl.value = prefs.completion;
     $("askReturn").setAttribute("aria-pressed", prefs.askOnReturn);
     sortEl.value = prefs.sort;
     applyView();
+    updateRoutineControls();
   }
 
   // ---------- "did you finish?" prompt when you return to the hub ----------
@@ -1365,7 +1419,7 @@
       if (b.dataset.fp === "yes") {
         markDoneToday(id);
         removePending(id);
-        if (prefs.hideDone) render();
+        if (prefs.completion !== "all") render();
         else patchCard(id);
       } else {
         removePending(id);

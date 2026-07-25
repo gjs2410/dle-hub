@@ -205,6 +205,8 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 }
 /* detail + mode fail buttons */
 .btn.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
+.btn.on-routine { background: var(--accent); border-color: var(--accent); color: #fff; }
+.mode-routine.on-routine { background: var(--accent); border-color: var(--accent); color: #fff; }
 .mode-row.is-failed { border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
 .mode-fail.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
 

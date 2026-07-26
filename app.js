@@ -828,6 +828,9 @@
       document.body.appendChild(genericModal);
       genericModal.addEventListener("click", onModalClick);
       genericModal.addEventListener("change", onModalChange);
+      genericModal.addEventListener("input", function (e) {
+        if (e.target && e.target.id === "pasteBox") populateFromPaste(e.target.value);
+      });
     }
     genericModal.querySelector(".modal-head h2").textContent = title;
     genericModal.querySelector(".modal-body").innerHTML = bodyHtml;
@@ -854,8 +857,9 @@
     if (m) { var row = e.target.closest("[data-mode-id]"); if (row) handleModeAct(row.dataset.modeId, m.dataset.modeAct); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
-    var p = e.target.closest("[data-paste-act]");
-    if (p) { handlePasteRecord(); return; }
+    var res = e.target.closest("[data-res]");
+    if (res) { setResSelection(res.dataset.res); return; }
+    if (e.target.closest("[data-record]")) { handleRecord(); return; }
   }
   function onModalChange(e) {
     if (e.target.id === "importFile" && e.target.files && e.target.files[0]) {
@@ -904,8 +908,6 @@
       '<div class="detail-actions">' +
         '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
-        '<button class="btn' + (done ? " on-done" : "") + '" data-detail-act="done">' + (done ? "✓ Solved today" : "Mark solved") + "</button>" +
-        '<button class="btn' + (failed ? " on-fail" : "") + '" data-detail-act="fail">' + (failed ? "✗ Failed today" : "Mark failed") + "</button>" +
         '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
       "</div>" +
       (function () {
@@ -913,19 +915,9 @@
         var body = gd.total
           ? distBarsHtml(gd, gd.total + " solves recorded")
           : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
-        var todayG = guessToday(g.id);
-        var entry =
-          '<div class="guess-entry">' +
-            '<label for="guessInput">Guesses today</label>' +
-            '<input type="number" min="1" max="20" step="1" id="guessInput" class="guess-input" placeholder="e.g. 4" value="' + (todayG || "") + '">' +
-            '<button class="btn" data-detail-act="logguess">Save</button>' +
-          "</div>" +
-          '<div class="detail-paste">' +
-            '<textarea id="detailPaste" class="paste-input" rows="2" placeholder="…or paste this game\'s Share text — reads solved/failed + guesses"></textarea>' +
-            '<div class="settings-row"><button class="btn" data-detail-act="pasteHere">Record from paste</button></div>' +
-            '<p class="import-result" id="detailPasteMsg"></p>' +
-          "</div>";
-        return '<h3 class="stats-h">Guess distribution</h3>' + body + entry;
+        var editor = resultEditorHtml({ solved: done, failed: failed, guesses: guessToday(g.id) });
+        return '<h3 class="stats-h">Guess distribution</h3>' + body +
+          '<h3 class="stats-h">Log today\'s result</h3>' + editor;
       })() +
       (related.length
         ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
@@ -1188,21 +1180,59 @@
   function openSettings() { currentDetailId = null; currentHubId = null; showModal("Settings & backup", settingsBody()); }
 
   // ---------- paste-a-result modal ----------
+  // Analyse a share string. Reads the emoji grid ("the picture") for guesses/win,
+  // and cross-checks an explicit "n/m" score line when present.
   function parseShareText(text) {
-    if (!text || text.length > 5000) return null;
-    var grid = /[🟩🟨⬛⬜🟦🟧🟥🟪]/.test(text);
-    var frac = text.match(/(^|\s)(\d{1,2}|X|x)\s*\/\s*(\d{1,2})(\s|$)/);
-    if (!frac && !grid) return null;
-    var solved, gc = null;
-    if (frac) {
-      var a = frac[2];
-      if (/x/i.test(a)) { solved = false; }
-      else { solved = true; gc = parseInt(a, 10) || null; }
-    } else {
-      solved = true;
-      gc = text.split("\n").filter(function (ln) { return /[🟩🟨⬛⬜🟦🟧🟥🟪]/.test(ln); }).length || null;
+    if (!text || text.length > 8000) return null;
+    var CELL = /[\u{1F7E5}-\u{1F7EB}\u{2B1B}\u{2B1C}]/gu; // 🟥🟦🟧🟨🟩🟪🟫 ⬛ ⬜
+    var GREEN = /\u{1F7E9}/u;
+
+    // grid rows = lines that are made of cell emojis
+    var rows = [];
+    text.split("\n").forEach(function (ln) {
+      var cs = ln.match(CELL);
+      if (cs && cs.length >= 2) rows.push(cs);
+    });
+    var hasGrid = rows.length > 0;
+
+    // explicit score "N/M" or "X/M" — guard against dates/percentages
+    var fSolved = null, fGuess = null;
+    var fm = text.match(/(?:^|[\s(#])(X|x|[1-9]\d?)\s*\/\s*([1-9]\d?)(?![\d/])/);
+    if (fm) {
+      var mx = parseInt(fm[2], 10);
+      if (mx >= 1 && mx <= 30) {
+        if (/x/i.test(fm[1])) { fSolved = false; }
+        else { var n = parseInt(fm[1], 10); if (n <= mx) { fSolved = true; fGuess = n; } }
+      }
     }
-    return { solved: solved, guesses: gc, nameHint: extractNameHint(text) };
+
+    if (!hasGrid && fSolved === null) return null;
+
+    var solved, guesses = null;
+    if (hasGrid && rows.length === 1) {
+      // single-row game (e.g. Framed): a green square marks the correct guess
+      var row = rows[0], gi = -1;
+      for (var i = 0; i < row.length; i++) { if (GREEN.test(row[i])) { gi = i; break; } }
+      solved = gi !== -1;
+      guesses = solved ? gi + 1 : null;
+    } else if (hasGrid) {
+      // multi-row grid (Wordle-like): last row all-green = solved, rows = guesses
+      var last = rows[rows.length - 1];
+      var allGreen = last.length >= 3 && last.every(function (c) { return GREEN.test(c); });
+      solved = allGreen;
+      guesses = solved ? rows.length : null;
+    } else {
+      solved = fSolved;
+      guesses = fSolved ? fGuess : null;
+    }
+
+    // Reconcile with the explicit score when we have one.
+    if (fSolved !== null) {
+      if (fSolved === false) { solved = false; guesses = null; }
+      else { solved = true; if (fGuess) guesses = fGuess; } // the game's own count wins
+    }
+
+    return { solved: solved, guesses: guesses, nameHint: extractNameHint(text) };
   }
   function extractNameHint(text) {
     var line = (text.split("\n")[0] || "").trim().replace(/^#/, "");
@@ -1224,46 +1254,81 @@
     }
     return best;
   }
-  function pastePreview(text) {
-    var p = parseShareText(text);
-    var el = document.getElementById("pastePreview");
-    if (!el) return;
-    if (!text.trim()) { el.textContent = ""; return; }
-    if (!p) { el.textContent = "🤔 Doesn't look like a game result yet."; return; }
-    var g = matchGameByName(p.nameHint);
-    if (!g) { el.textContent = '⚠️ Parsed ' + (p.solved ? "a solve" : "a fail") + ", but couldn't match a game from “" + p.nameHint + "”."; return; }
-    el.textContent = "→ " + g.name + " · " + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed");
+  // Reusable "confirm the result" editor: paste box + Solved/Failed toggle + guesses.
+  // Used by the global paste modal AND each game's detail, so auto-detect is always
+  // editable before recording (guarantees accuracy).
+  function resultEditorHtml(state) {
+    state = state || {};
+    var sel = state.failed ? "failed" : "solved";
+    return (
+      (state.paste !== false
+        ? '<textarea id="pasteBox" class="paste-input" rows="3" placeholder="Paste the game’s Share text to auto-fill ↓ (or just set it manually)"></textarea>'
+        : "") +
+      '<p class="res-preview" id="resPreview"></p>' +
+      '<div class="res-editor">' +
+        '<button class="btn res-solved' + (sel === "solved" ? " active" : "") + '" data-res="solved">✓ Solved</button>' +
+        '<button class="btn res-failed' + (sel === "failed" ? " active" : "") + '" data-res="failed">✗ Failed</button>' +
+        '<span class="res-g">in <input type="number" id="resGuesses" class="guess-input" min="1" max="30" placeholder="?" value="' + (state.guesses || "") + '"' + (sel === "failed" ? " disabled" : "") + "> guesses</span>" +
+        '<button class="btn btn-primary" data-record="1">Record</button>' +
+      "</div>" +
+      '<p class="import-result" id="resMsg"></p>'
+    );
   }
-  function handlePasteRecord() {
-    var ta = document.getElementById("pasteInput");
-    var msg = document.getElementById("pasteMsg");
-    var p = ta && parseShareText(ta.value);
-    if (!p) { if (msg) msg.textContent = "That doesn't look like a game's share text."; return; }
-    var g = matchGameByName(p.nameHint);
-    if (!g) { if (msg) msg.textContent = 'Couldn\'t match a game from “' + p.nameHint + "”. Open it in the hub and log it from its ⓘ."; return; }
+  function setResSelection(sel) {
+    var s = document.querySelector(".res-solved"), f = document.querySelector(".res-failed"), g = document.getElementById("resGuesses");
+    if (!s || !f) return;
+    s.classList.toggle("active", sel === "solved");
+    f.classList.toggle("active", sel === "failed");
+    if (g) { g.disabled = sel === "failed"; if (sel === "failed") g.value = ""; }
+  }
+  function populateFromPaste(text) {
+    var p = parseShareText(text);
+    var prev = document.getElementById("resPreview");
+    if (!p) { if (prev) prev.textContent = text.trim() ? "Couldn’t read a result from that yet…" : ""; return; }
+    setResSelection(p.solved ? "solved" : "failed");
+    var gi = document.getElementById("resGuesses");
+    if (gi && p.solved) gi.value = p.guesses || "";
+    var name = currentDetailId ? (gameById[currentDetailId] || {}).name : (matchGameByName(p.nameHint) || {}).name;
+    if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed") + " — fix below if wrong.";
+  }
+  function handleRecord() {
+    var msg = document.getElementById("resMsg");
+    var solvedBtn = document.querySelector(".res-solved");
+    var solved = solvedBtn && solvedBtn.classList.contains("active");
+    var gv = document.getElementById("resGuesses");
+    var guesses = solved && gv ? (parseInt(gv.value, 10) || null) : null;
+    var g;
+    if (currentDetailId) {
+      g = gameById[currentDetailId];
+    } else {
+      var pb = document.getElementById("pasteBox");
+      var p = pb && parseShareText(pb.value);
+      if (!p) { if (msg) msg.textContent = "Paste a game’s share text first."; return; }
+      g = matchGameByName(p.nameHint);
+      if (!g) { if (msg) msg.textContent = "Couldn’t match a game from that text. Open it in the hub and log it from its ⓘ."; return; }
+    }
+    if (!g) return;
     removePending(g.id);
-    if (p.solved) { markDoneToday(g.id); if (p.guesses) setGuessToday(g.id, p.guesses); }
+    if (solved) { markDoneToday(g.id); if (guesses) setGuessToday(g.id, guesses); }
     else markFailedToday(g.id);
-    render();
-    if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed") + ".";
-    if (ta) ta.value = "";
-    pastePreview("");
+    patchCard(g.id);
+    if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
+    if (currentDetailId) { refreshDetail(); }
+    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (guesses ? " in " + guesses : "") : "failed") + ".";
   }
   function pasteBody() {
     return (
-      '<p class="settings-note">Finished a game? Hit its <b>Share</b> button, then paste the copied text here — ' +
-      "the hub reads whether you solved it and in how many guesses, and matches the game by name.</p>" +
-      '<textarea id="pasteInput" class="paste-input" rows="4" placeholder="e.g.  Wordle 1,234 4/6&#10;🟩🟨⬛⬛⬛&#10;🟩🟩🟩🟩🟩"></textarea>' +
-      '<p id="pastePreview" class="paste-preview"></p>' +
-      '<div class="settings-row"><button class="btn btn-primary" data-paste-act="record">Record result</button></div>' +
-      '<p class="import-result" id="pasteMsg"></p>'
+      '<p class="settings-note">Finished a game? Hit its <b>Share</b> button and paste the text below — ' +
+      "the hub reads the grid to detect solved/failed and your guesses, and matches the game by name. " +
+      "<b>Check it's right, then Record.</b></p>" +
+      resultEditorHtml({})
     );
   }
   function openPaste() {
     currentDetailId = null; currentHubId = null;
     showModal("Paste a result", pasteBody());
-    var ta = document.getElementById("pasteInput");
-    if (ta) { ta.addEventListener("input", function () { pastePreview(ta.value); }); ta.focus(); }
+    var ta = document.getElementById("pasteBox");
+    if (ta) ta.focus();
   }
 
   // ---------- keyboard shortcuts ----------

@@ -476,8 +476,13 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 }
 .paste-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .paste-preview { margin: 8px 18px 0; font-size: 13px; font-weight: 600; color: var(--accent); min-height: 4px; }
-.detail-paste { margin-top: 8px; }
-.detail-paste .paste-input { width: calc(100% - 36px); }
+.res-preview { margin: 8px 18px 0; font-size: 13px; font-weight: 600; color: var(--accent); min-height: 4px; }
+.res-editor { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 18px 0; }
+.res-solved.active { background: var(--done); border-color: var(--done); color: #fff; }
+.res-failed.active { background: #ef4444; border-color: #ef4444; color: #fff; }
+.res-g { font-size: 13px; color: var(--text-dim); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.res-g .guess-input { width: 64px; }
+.res-g .guess-input:disabled { opacity: .5; }
 .magic-alt { display: block; margin: 10px 18px 0; font-size: 13px; text-align: left; }
 .shortcuts { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .shortcuts li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-dim); }

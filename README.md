@@ -35,9 +35,10 @@ No build step, no framework, no server required.
   (never deletes). No account or server required.
 - **⌨️ Keyboard shortcuts** — <kbd>/</kbd> focus search, <kbd>↑</kbd>/<kbd>↓</kbd>
   move between games, <kbd>Enter</kbd> play, <kbd>Esc</kbd> close / clear.
-- **🎛️ Grouped modes** — games that live on the same site (e.g. Gamedle's 6 modes, or
-  a publisher's suite) collapse into one **hub card**; tap it to see every mode, each
-  with its own play / favorite / done / streak. Keeps the list tidy without losing detail.
+- **🎛️ Multi-mode games as separate cards** — a game with several internal daily modes
+  (curated via `data/overrides.json`, e.g. Brawldle's 6 modes) shows up as one card
+  per mode ("Brawldle: Classic", "Brawldle: Gadget", …), each with its own play /
+  favorite / done / streak / page.
 - **▦ List / grid view** — toggle between the compact list and a thumbnail gallery.
 - **📱 Installable (PWA)** — add it to your home screen and it works offline (see below).
 - **🔍 Search** across names, descriptions and categories.
@@ -188,9 +189,10 @@ top of `games.json` without touching the generated dataset:
 }
 ```
 
-- `modes` expands one catalog entry into several trackable entries (own streak,
-  favorite, daily completion), grouped into one hub card — same UI as the
-  existing same-host grouping.
+- `modes` expands one catalog entry into several standalone, independently
+  trackable games (own streak, favorite, daily completion, and page) — e.g.
+  Brawldle becomes "Brawldle: Classic", "Brawldle: Gadget", etc., each its
+  own card in the grid rather than nested behind a single "N modes" card.
 - `resultType` (per game or per mode) is one of `guesses` (default — a count,
   Wordle-style), `winloss` (no number, just solved/failed), `score` (a plain
   number), `time` (formatted mm:ss), or `correct` (an "N/M correct" pair, e.g.

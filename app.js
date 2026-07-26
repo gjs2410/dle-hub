@@ -55,7 +55,9 @@
           }
           out.push({
             id: g.id + "::" + mode.id,
-            name: mode.label,
+            // Each mode is now its own standalone card (no hub grouping), so it needs the
+            // parent game's name for context — "Classic" alone wouldn't mean anything on its own.
+            name: g.name + ": " + mode.label,
             url: url,
             category: g.category,
             description: g.description,
@@ -572,71 +574,31 @@
     chipsEl.appendChild(frag);
   }
 
-  // ---------- group same-site games into "hubs" (modes / multi-game sites) ----------
-  // Generic hosts that just host lots of unrelated games are never grouped.
-  var SHARED_HOSTS = /(?:^|\.)(github\.io|itch\.io|vercel\.app|netlify\.app|pages\.dev|web\.app|firebaseapp\.com|glitch\.me|herokuapp\.com|replit\.dev|repl\.co|surge\.sh|neocities\.org|onrender\.com|fly\.dev|gitlab\.io)$/;
-  var ITEMS = [];        // what the grid iterates: hubs + standalone games
-  var itemById = {};     // grid-item id -> hub or game
-  var gameById = {};     // every game id -> game (incl. hub members)
-  var hubIdOfMember = {}; // member game id -> its hub's id
+  // ---------- flat item list: every game (incl. each multi-mode entry) is its own card ----------
+  var ITEMS = [];        // what the grid iterates: every game, one card each
+  var itemById = {};     // grid-item id -> game
+  var gameById = {};     // every game id -> game
   var gamesByHost = {};  // host -> [games] (for extension result matching)
 
-  function hubLabel(members, host) {
-    var first = members[0].name.split(/[\s:]+/)[0];
-    var common = first && first.length >= 2 && members.every(function (m) {
-      return m.name.split(/[\s:]+/)[0].toLowerCase() === first.toLowerCase();
-    });
-    if (common) return first;
-    var lbl = host.split(".")[0];
-    return lbl.charAt(0).toUpperCase() + lbl.slice(1);
-  }
-  function hubCategory(members) {
-    var c = members[0].category;
-    return members.every(function (m) { return m.category === c; }) ? c : "Various";
-  }
   (function buildItems() {
-    DATA.forEach(function (g) { gameById[g.id] = g; });
-    var byHost = {};
-    DATA.forEach(function (g) { var h = hostOf(g.url); (byHost[h] = byHost[h] || []).push(g); });
-    gamesByHost = byHost;
-    Object.keys(byHost).forEach(function (h) {
-      var members = byHost[h];
-      if (members.length >= 2 && h && !SHARED_HOSTS.test(h)) {
-        members.sort(function (a, b) { return a.name.localeCompare(b.name); });
-        var hub = { isHub: true, id: "hub:" + h, host: h, name: hubLabel(members, h), members: members, category: hubCategory(members) };
-        ITEMS.push(hub);
-        itemById[hub.id] = hub;
-        members.forEach(function (m) { hubIdOfMember[m.id] = hub.id; });
-      } else {
-        members.forEach(function (m) { ITEMS.push(m); itemById[m.id] = m; });
-      }
+    DATA.forEach(function (g) {
+      gameById[g.id] = g;
+      itemById[g.id] = g;
+      ITEMS.push(g);
+      var h = hostOf(g.url);
+      (gamesByHost[h] = gamesByHost[h] || []).push(g);
     });
   })();
 
-  // accessors that work for both a hub and a plain game
-  function itemPopularity(it) {
-    return it.isHub ? it.members.reduce(function (m, g) { return Math.max(m, g.popularity || 0); }, 0) : (it.popularity || 0);
-  }
-  function itemFavorited(it) {
-    return it.isHub ? it.members.some(function (g) { return favorites.has(g.id); }) : favorites.has(it.id);
-  }
-  function itemInRoutine(it) {
-    return it.isHub ? it.members.some(function (g) { return inRoutine(g.id); }) : inRoutine(it.id);
-  }
-  function itemAllDone(it) {
-    return it.isHub ? it.members.every(function (g) { return isDoneToday(g.id); }) : isDoneToday(it.id);
-  }
-  function itemDoneCount(it) {
-    return it.isHub ? it.members.filter(function (g) { return isDoneToday(g.id); }).length : (isDoneToday(it.id) ? 1 : 0);
-  }
-  function itemMatchesCat(it, cat) {
-    if (cat === "all") return true;
-    return it.isHub ? it.members.some(function (g) { return g.category === cat; }) : it.category === cat;
-  }
-  function itemHay(it) {
-    if (it.isHub) return (it.name + " " + it.host + " " + it.members.map(function (g) { return g.name + " " + g.description; }).join(" ")).toLowerCase();
-    return (it.name + " " + it.description + " " + it.category).toLowerCase();
-  }
+  // thin predicates kept as named functions since they're used from several places (filtering,
+  // sorting) — no longer branch on "hub vs game" now that every item is a plain game.
+  function itemPopularity(it) { return it.popularity || 0; }
+  function itemFavorited(it) { return favorites.has(it.id); }
+  function itemInRoutine(it) { return inRoutine(it.id); }
+  function itemAllDone(it) { return isDoneToday(it.id); }
+  function itemDoneCount(it) { return isDoneToday(it.id) ? 1 : 0; }
+  function itemMatchesCat(it, cat) { return cat === "all" || it.category === cat; }
+  function itemHay(it) { return (it.name + " " + it.description + " " + it.category).toLowerCase(); }
 
   // ---------- filtering + sorting ----------
   function getFiltered() {
@@ -665,41 +627,7 @@
 
   // ---------- card ----------
   function cardHtml(it) {
-    return it.isHub ? hubCardHtml(it) : gameCardHtml(it);
-  }
-
-  function hubCardHtml(hub) {
-    var col = hub.category === "Various" ? "#64748b" : colorFor(hub.category);
-    var fIco = faviconUrl(hub.members[0].url);
-    var letter = escapeHtml((hub.name[0] || "?").toUpperCase());
-    var fallback = '<span class=&quot;favicon-fallback&quot; style=&quot;background:' + col + '&quot;>' + letter + "</span>";
-    var icon = fIco
-      ? '<img class="favicon" src="' + fIco + '" alt="" loading="lazy" onerror="this.outerHTML=\'' + fallback + '\'">'
-      : '<span class="favicon-fallback" style="background:' + col + '">' + letter + "</span>";
-    var n = hub.members.length;
-    var doneN = itemDoneCount(hub);
-    var favN = hub.members.filter(function (g) { return favorites.has(g.id); }).length;
-    var thumbG = null;
-    for (var i = 0; i < hub.members.length; i++) { if (hub.members[i].thumbnail) { thumbG = hub.members[i]; break; } }
-    var thumbStyle = thumbG ? "background-color:" + col + ";background-image:url('" + encodeURI(thumbG.thumbnail) + "')" : "background-color:" + col;
-    var donePill = doneN > 0 ? '<span class="streak-pill" title="' + doneN + ' of ' + n + ' done today">✓ ' + doneN + "/" + n + "</span>" : "";
-    return (
-      '<article class="card hub-card' + (itemAllDone(hub) ? " is-done" : "") + '" data-id="' + hub.id + '" tabindex="0" role="button" aria-label="' + escapeHtml(hub.name) + ", " + n + ' modes">' +
-        '<div class="card-thumb" style="' + thumbStyle + '" aria-hidden="true"></div>' +
-        '<div class="card-body">' +
-          '<div class="card-line">' +
-            icon +
-            '<span class="card-title">' + escapeHtml(hub.name) + "</span>" +
-            '<span class="card-badge" style="background:' + col + '">' + escapeHtml(hub.category) + "</span>" +
-          "</div>" +
-          '<p class="card-desc">' + n + " modes on " + escapeHtml(hub.host) + (favN ? " · ★ " + favN : "") + "</p>" +
-        "</div>" +
-        '<div class="card-acts">' +
-          donePill +
-          '<span class="hub-count">' + n + " modes ▸</span>" +
-        "</div>" +
-      "</article>"
-    );
+    return gameCardHtml(it);
   }
 
   function gameCardHtml(g) {
@@ -1033,8 +961,6 @@
     if (rel) { openDetail(rel.dataset.relatedId); return; }
     var d = e.target.closest("[data-detail-act]");
     if (d && currentDetailId) { handleDetailAct(d.dataset.detailAct); return; }
-    var m = e.target.closest("[data-mode-act]");
-    if (m) { var row = e.target.closest("[data-mode-id]"); if (row) handleModeAct(row.dataset.modeId, m.dataset.modeAct); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -1054,20 +980,16 @@
     if (e.target && e.target.id === "pasteBox") populateFromPaste(e.target.value);
   }
 
-  // ---------- page view (game / hub detail as a real, deep-linkable page) ----------
-  // The URL hash drives what's shown: #g=<gameId> or #h=<hubHost>. This makes a
-  // multi-mode game (and any single game) a bookmarkable/shareable page instead of
-  // just a popup, and the browser's own back/forward buttons work with it.
-  var currentDetailId = null, currentHubId = null;
+  // ---------- page view (game detail as a real, deep-linkable page) ----------
+  // The URL hash drives what's shown: #g=<gameId> (every game, including each mode of a
+  // multi-mode game, has its own). Bookmarkable/shareable, and the browser's own
+  // back/forward buttons work with it.
+  var currentDetailId = null;
   var pageBodyEl = null, pageTitleEl = null;
 
   function parseRoute() {
-    var h = location.hash;
-    var g = h.match(/[#&]g=([^&]+)/);
-    if (g) return { type: "game", id: decodeURIComponent(g[1]) };
-    var hh = h.match(/[#&]h=([^&]+)/);
-    if (hh) return { type: "hub", host: decodeURIComponent(hh[1]) };
-    return { type: "grid" };
+    var g = location.hash.match(/[#&]g=([^&]+)/);
+    return g ? { type: "game", id: decodeURIComponent(g[1]) } : { type: "grid" };
   }
   function navigateTo(hashValue) {
     if (hashValue) {
@@ -1082,7 +1004,6 @@
   function applyRoute() {
     var r = parseRoute();
     if (r.type === "game") renderGamePage(r.id);
-    else if (r.type === "hub") renderHubPage(itemById["hub:" + r.host]);
     else hidePage();
   }
   function showPage(title, bodyHtml) {
@@ -1105,7 +1026,6 @@
     $("pageView").hidden = true;
     $("mainGrid").hidden = false;
     currentDetailId = null;
-    currentHubId = null;
   }
   function copyPageLink() {
     var btn = $("pageShare");
@@ -1143,8 +1063,7 @@
     var host = hostOf(g.url);
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
-    // Hub members are excluded — they don't have their own standalone page, only the hub does.
-    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id && !hubIdOfMember[x.id]; }).slice(0, 6);
+    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).slice(0, 6);
 
     var icon = fIco
       ? '<img src="' + fIco + '" alt="" class="detail-ico">'
@@ -1242,7 +1161,6 @@
     var g = gameById[id] || DATA.find(function (x) { return x.id === id; });
     if (!g) { navigateTo(""); return; }
     currentDetailId = id;
-    currentHubId = null;
     showPage(g.name, detailBody(g));
   }
   function refreshDetail() {
@@ -1289,74 +1207,6 @@
       if (prefs.completion !== "all" || prefs.routineOnly || prefs.favOnly) render();
     }
     refreshDetail();
-  }
-
-  // ---------- hub (multi-mode) detail modal ----------
-  function modeRow(g) {
-    var fav = favorites.has(g.id), done = isDoneToday(g.id), failed = isFailedToday(g.id), rt = inRoutine(g.id), gs = gameStreak(g.id);
-    var col = colorFor(g.category);
-    var fIco = faviconUrl(g.url);
-    var ico = fIco ? '<img class="mode-ico" src="' + fIco + '" alt="">' : '<span class="mode-ico" style="background:' + col + '"></span>';
-    return (
-      '<div class="mode-row' + (done ? " is-done" : "") + (failed ? " is-failed" : "") + '" data-mode-id="' + g.id + '">' +
-        ico +
-        '<div class="mode-info"><span class="mode-name">' + escapeHtml(g.name) + "</span>" +
-          '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") +
-          escapeHtml(resultValueSuffix(g)) + "</span></div>" +
-        '<button class="act-btn mode-fav' + (fav ? " on" : "") + '" data-mode-act="fav" title="' + (fav ? "Unfavorite" : "Favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
-        '<button class="act-btn mode-routine' + (rt ? " on-routine" : "") + '" data-mode-act="routine" title="' + (rt ? "In routine" : "Add to routine") + '">🎯</button>' +
-        '<button class="act-btn mode-fail' + (failed ? " on-fail" : "") + '" data-mode-act="fail" title="Mark failed today">✗</button>' +
-        '<button class="act-btn mode-done' + (done ? " on-done" : "") + '" data-mode-act="done" title="Mark solved today">' + (done ? "✓" : "Solve") + "</button>" +
-        '<button class="btn btn-primary mode-play" data-mode-act="play" title="Play ' + escapeHtml(g.name) + '">▶</button>' +
-      "</div>"
-    );
-  }
-  function hubDetailBody(hub) {
-    var col = hub.category === "Various" ? "#64748b" : colorFor(hub.category);
-    var n = hub.members.length, doneN = itemDoneCount(hub);
-    return (
-      '<div class="detail-hero" style="background:linear-gradient(135deg,' + col + ",color-mix(in srgb," + col + ' 55%, #000))">' +
-        '<span class="detail-ico detail-fallback" style="background:rgba(0,0,0,.25)">' + escapeHtml((hub.name[0] || "?").toUpperCase()) + "</span>" +
-        '<div class="detail-hero-txt"><span class="detail-cat">' + n + " modes · " + escapeHtml(hub.host) + "</span>" +
-          '<span class="detail-streak">✓ ' + doneN + "/" + n + " done today</span></div>" +
-      "</div>" +
-      '<p class="settings-note">Each mode tracks its own streak, favorite and daily completion.</p>' +
-      '<div class="mode-list">' + hub.members.map(modeRow).join("") + "</div>"
-    );
-  }
-  function openHubDetail(hub) {
-    if (!hub) return;
-    navigateTo("h=" + encodeURIComponent(hub.host));
-  }
-  function renderHubPage(hub) {
-    if (!hub) { navigateTo(""); return; }
-    currentHubId = hub.id;
-    currentDetailId = null;
-    showPage(hub.name, hubDetailBody(hub));
-  }
-  function refreshHubDetail() {
-    var hub = itemById[currentHubId];
-    if (!hub || !pageBodyEl) return;
-    pageBodyEl.innerHTML = hubDetailBody(hub);
-  }
-  function handleModeAct(id, act) {
-    var g = gameById[id];
-    if (!g) return;
-    if (act === "play") { openGame(g.url, g.id); return; }
-    if (act === "fav") {
-      if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
-      saveFavorites();
-    } else if (act === "done") {
-      if (isDoneToday(id)) unmarkDoneToday(id); else markDoneToday(id);
-    } else if (act === "fail") {
-      if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
-    } else if (act === "routine") {
-      toggleRoutine(id);
-    }
-    refreshHubDetail();
-    // reflect on the grid: re-render if a filter could change membership, else patch the hub card
-    if (prefs.favOnly || prefs.routineOnly || prefs.completion !== "all" || prefs.sort === "fav") render();
-    else patchCard(currentHubId);
   }
 
   // ---------- settings / backup modal ----------
@@ -1797,7 +1647,6 @@
       markFailedToday(g.id);
     }
     // refresh UI
-    if (currentHubId && itemById[currentHubId] && hubIdOfMember[g.id] === currentHubId) refreshHubDetail();
     if (currentDetailId === g.id) refreshDetail();
     render();
     return { matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null };
@@ -1807,9 +1656,6 @@
     var card = e.target.closest(".card");
     if (!card) return;
     var id = card.dataset.id;
-
-    // hub card → open its list of modes
-    if (id.indexOf("hub:") === 0) { openHubDetail(itemById[id]); return; }
 
     var btn = e.target.closest("button[data-act]");
     if (btn) {
@@ -1846,19 +1692,15 @@
     var card = e.target.closest(".card");
     if (card && !e.target.closest("button")) {
       e.preventDefault();
-      var id = card.dataset.id;
-      if (id.indexOf("hub:") === 0) openHubDetail(itemById[id]);
-      else openGame(card.dataset.url, id);
+      openGame(card.dataset.url, card.dataset.id);
     }
   });
 
   // Replace one card in place (keeps scroll position on toggle).
-  // A hub member's change repaints its hub card.
   function patchCard(id) {
-    var targetId = hubIdOfMember[id] || id;
-    var g = itemById[targetId];
+    var g = itemById[id];
     if (!g) return;
-    var old = grid.querySelector('.card[data-id="' + CSS.escape(targetId) + '"]');
+    var old = grid.querySelector('.card[data-id="' + CSS.escape(id) + '"]');
     // Not currently rendered (lazy list or filtered out) — just refresh stats;
     // the card will reflect live state whenever it next renders. Avoids a full
     // re-render that would reset scroll position.

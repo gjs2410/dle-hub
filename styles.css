@@ -111,7 +111,7 @@ body {
 .toggle-btn:hover { border-color: var(--text-dim); }
 .toggle-btn[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); }
 .sort-wrap { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-dim); font-weight: 600; }
-#sort {
+#sort, #statusFilter {
   border: 1px solid var(--border-strong); background: var(--bg); color: var(--text);
   padding: 8px 9px; border-radius: 9px; font-size: 13px; cursor: pointer;
 }
@@ -213,12 +213,9 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
   background: color-mix(in srgb, #ef4444 16%, transparent); color: #ef4444;
   font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
 }
-/* detail + mode fail buttons */
+/* detail fail/routine buttons */
 .btn.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
 .btn.on-routine { background: var(--accent); border-color: var(--accent); color: #fff; }
-.mode-routine.on-routine { background: var(--accent); border-color: var(--accent); color: #fff; }
-.mode-row.is-failed { border-color: color-mix(in srgb, #ef4444 45%, var(--border)); }
-.mode-fail.on-fail { background: #ef4444; border-color: #ef4444; color: #fff; }
 
 /* ---------- Empty / footer ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 56px 20px; }
@@ -373,33 +370,6 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 .grid.view-grid .card-acts { padding: 4px 10px 9px; margin-top: auto; }
 .grid.view-grid .group-head { grid-column: 1 / -1; }
 .grid.view-grid .card.is-done { border-left-width: 2px; }
-
-/* ---------- hub (multi-mode) cards ---------- */
-.hub-card { cursor: pointer; }
-.hub-card::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  box-shadow: 3px 3px 0 -1px var(--card), 4px 4px 0 -1px var(--border); /* stacked-cards hint */
-}
-.hub-count {
-  font-size: 12px; font-weight: 700; color: var(--accent);
-  background: var(--accent-soft); padding: 5px 9px; border-radius: 9px; white-space: nowrap;
-}
-:root[data-theme="dark"] .hub-count, :root[data-theme="auto"] .hub-count { color: var(--text); }
-
-/* ---------- mode list (inside hub detail) ---------- */
-.mode-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 18px 4px; }
-.mode-row {
-  display: flex; align-items: center; gap: 10px;
-  border: 1px solid var(--border); background: var(--card); border-radius: 11px; padding: 9px 11px;
-}
-.mode-row.is-done { border-color: color-mix(in srgb, var(--done) 45%, var(--border)); }
-.mode-ico { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; object-fit: contain; }
-.mode-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.mode-name { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mode-sub { font-size: 12px; color: var(--text-dim); }
-.mode-fav.on { color: var(--star); border-color: var(--star); background: color-mix(in srgb, var(--star) 12%, var(--bg)); }
-.mode-done.on-done { color: var(--done); border-color: var(--done); background: var(--done-soft); }
-.mode-play { padding: 7px 12px; flex-shrink: 0; }
 
 /* ---------- info button on cards ---------- */
 .info-btn {
@@ -596,8 +566,6 @@ body.page-open .page-topbar { display: flex; }
 .page-body .detail-gamestats { gap: 10px; }
 .page-body .gs-tile { flex-basis: 96px; padding: 16px 10px; border-radius: 13px; }
 .page-body .gs-tile b { font-size: 23px; }
-.page-body .mode-list { margin-top: 14px; }
-.page-body .mode-row { padding: 11px 13px; }
 @media (max-width: 560px) {
   .page-body .detail-hero { padding: 28px clamp(14px, 4vw, 24px) 24px; flex-wrap: wrap; }
   .page-body .detail-banner { height: 160px; }

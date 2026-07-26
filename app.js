@@ -854,6 +854,8 @@
     if (m) { var row = e.target.closest("[data-mode-id]"); if (row) handleModeAct(row.dataset.modeId, m.dataset.modeAct); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
+    var p = e.target.closest("[data-paste-act]");
+    if (p) { handlePasteRecord(); return; }
   }
   function onModalChange(e) {
     if (e.target.id === "importFile" && e.target.files && e.target.files[0]) {
@@ -1167,6 +1169,85 @@
     );
   }
   function openSettings() { currentDetailId = null; currentHubId = null; showModal("Settings & backup", settingsBody()); }
+
+  // ---------- paste-a-result modal ----------
+  function parseShareText(text) {
+    if (!text || text.length > 5000) return null;
+    var grid = /[🟩🟨⬛⬜🟦🟧🟥🟪]/.test(text);
+    var frac = text.match(/(^|\s)(\d{1,2}|X|x)\s*\/\s*(\d{1,2})(\s|$)/);
+    if (!frac && !grid) return null;
+    var solved, gc = null;
+    if (frac) {
+      var a = frac[2];
+      if (/x/i.test(a)) { solved = false; }
+      else { solved = true; gc = parseInt(a, 10) || null; }
+    } else {
+      solved = true;
+      gc = text.split("\n").filter(function (ln) { return /[🟩🟨⬛⬜🟦🟧🟥🟪]/.test(ln); }).length || null;
+    }
+    return { solved: solved, guesses: gc, nameHint: extractNameHint(text) };
+  }
+  function extractNameHint(text) {
+    var line = (text.split("\n")[0] || "").trim().replace(/^#/, "");
+    var m = line.match(/^[^\d#(:]+/); // leading letters before a number / # / ( / :
+    return (m ? m[0] : line).trim();
+  }
+  function normName(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function matchGameByName(hint) {
+    if (!hint) return null;
+    var key = normName(hint);
+    if (!key) return null;
+    if (gameById[key]) return gameById[key];
+    var best = null;
+    for (var i = 0; i < DATA.length; i++) {
+      var nk = normName(DATA[i].name);
+      if (nk === key) return DATA[i];
+      if (!best && (nk.indexOf(key) === 0 || key.indexOf(nk) === 0)) best = DATA[i];
+      if (!best && key.length >= 4 && (nk.indexOf(key) !== -1 || key.indexOf(nk) !== -1)) best = DATA[i];
+    }
+    return best;
+  }
+  function pastePreview(text) {
+    var p = parseShareText(text);
+    var el = document.getElementById("pastePreview");
+    if (!el) return;
+    if (!text.trim()) { el.textContent = ""; return; }
+    if (!p) { el.textContent = "🤔 Doesn't look like a game result yet."; return; }
+    var g = matchGameByName(p.nameHint);
+    if (!g) { el.textContent = '⚠️ Parsed ' + (p.solved ? "a solve" : "a fail") + ", but couldn't match a game from “" + p.nameHint + "”."; return; }
+    el.textContent = "→ " + g.name + " · " + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed");
+  }
+  function handlePasteRecord() {
+    var ta = document.getElementById("pasteInput");
+    var msg = document.getElementById("pasteMsg");
+    var p = ta && parseShareText(ta.value);
+    if (!p) { if (msg) msg.textContent = "That doesn't look like a game's share text."; return; }
+    var g = matchGameByName(p.nameHint);
+    if (!g) { if (msg) msg.textContent = 'Couldn\'t match a game from “' + p.nameHint + "”. Open it in the hub and log it from its ⓘ."; return; }
+    removePending(g.id);
+    if (p.solved) { markDoneToday(g.id); if (p.guesses) setGuessToday(g.id, p.guesses); }
+    else markFailedToday(g.id);
+    render();
+    if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed") + ".";
+    if (ta) ta.value = "";
+    pastePreview("");
+  }
+  function pasteBody() {
+    return (
+      '<p class="settings-note">Finished a game? Hit its <b>Share</b> button, then paste the copied text here — ' +
+      "the hub reads whether you solved it and in how many guesses, and matches the game by name.</p>" +
+      '<textarea id="pasteInput" class="paste-input" rows="4" placeholder="e.g.  Wordle 1,234 4/6&#10;🟩🟨⬛⬛⬛&#10;🟩🟩🟩🟩🟩"></textarea>' +
+      '<p id="pastePreview" class="paste-preview"></p>' +
+      '<div class="settings-row"><button class="btn btn-primary" data-paste-act="record">Record result</button></div>' +
+      '<p class="import-result" id="pasteMsg"></p>'
+    );
+  }
+  function openPaste() {
+    currentDetailId = null; currentHubId = null;
+    showModal("Paste a result", pasteBody());
+    var ta = document.getElementById("pasteInput");
+    if (ta) { ta.addEventListener("input", function () { pastePreview(ta.value); }); ta.focus(); }
+  }
 
   // ---------- keyboard shortcuts ----------
   document.addEventListener("keydown", function (e) {
@@ -1542,6 +1623,7 @@
   // ---------- boot ----------
   $("openStats").addEventListener("click", openStats);
   $("openSettings").addEventListener("click", openSettings);
+  $("pasteResult").addEventListener("click", openPaste);
   syncControls();
   buildChips();
   render();

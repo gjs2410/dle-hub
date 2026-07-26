@@ -468,6 +468,14 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 }
 .sync-email:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .sync-fields { display: flex; flex-direction: column; gap: 8px; margin: 0 18px; }
+.paste-input {
+  display: block; width: calc(100% - 36px); margin: 4px 18px 0; resize: vertical;
+  border: 1px solid var(--border-strong); background: var(--bg); color: var(--text);
+  border-radius: 11px; padding: 10px 12px; font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.paste-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.paste-preview { margin: 8px 18px 0; font-size: 13px; font-weight: 600; color: var(--accent); min-height: 4px; }
 .magic-alt { display: block; margin: 10px 18px 0; font-size: 13px; text-align: left; }
 .shortcuts { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .shortcuts li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-dim); }

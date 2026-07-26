@@ -1,0 +1,15 @@
+{
+  "brawldle": {
+    "resultType": "guesses",
+    "modes": [
+      { "id": "classic", "label": "Classic", "path": "/classic" },
+      { "id": "gadget", "label": "Gadget", "path": "/gadget" },
+      { "id": "star-power", "label": "Star Power", "path": "/star-power" },
+      { "id": "hypercharge", "label": "Hypercharge", "path": "/hypercharge" },
+      { "id": "pixel", "label": "Pixel", "path": "/pixel" },
+      { "id": "emoji", "label": "Emoji", "path": "/emoji" }
+    ],
+    "source": "manual",
+    "verifiedAt": "2026-07-26"
+  }
+}

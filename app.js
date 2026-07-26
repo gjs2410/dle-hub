@@ -34,6 +34,45 @@
     return;
   }
 
+  // ---------- per-game overrides (multi-mode games + result types) ----------
+  // window.GAMES_OVERRIDES: { [gameId]: { resultType?, modes?: [{id,label,path?,url?,resultType?}] } }
+  // Games with `modes` are expanded into one synthetic entry per mode (id "parentId::modeId").
+  // These share the parent's URL host, so the existing same-host hub grouping below renders
+  // them as a single card with one row per mode — no separate UI path needed.
+  (function applyOverrides() {
+    var overrides = window.GAMES_OVERRIDES || {};
+    var out = [];
+    DATA.forEach(function (g) {
+      var ov = overrides[g.id];
+      if (ov && Array.isArray(ov.modes) && ov.modes.length) {
+        var baseType = ov.resultType || "guesses";
+        ov.modes.forEach(function (mode) {
+          var url = g.url;
+          if (mode.path) {
+            try { url = new URL(mode.path, g.url).href; } catch (e) {}
+          } else if (mode.url) {
+            url = mode.url;
+          }
+          out.push({
+            id: g.id + "::" + mode.id,
+            name: mode.label,
+            url: url,
+            category: g.category,
+            description: g.description,
+            thumbnail: g.thumbnail,
+            unlimited: g.unlimited,
+            popularity: g.popularity,
+            resultType: mode.resultType || baseType,
+          });
+        });
+      } else {
+        g.resultType = (ov && ov.resultType) || "guesses";
+        out.push(g);
+      }
+    });
+    DATA = out;
+  })();
+
   // ---------- storage ----------
   var LS = {
     fav: "dlehub:favorites",
@@ -45,6 +84,7 @@
     theme: "dlehub:theme",
     prefs: "dlehub:prefs",
     pending: "dlehub:pending",
+    resultTypes: "dlehub:resultTypes",
   };
   function read(key, fallback) {
     try {
@@ -190,10 +230,16 @@
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
   }
+  // Global averages/distribution only make sense across games that share the same unit
+  // (a guess count). Score- and time-type games are excluded so they don't skew the mix.
   function overallAvgGuesses() {
     var sum = 0, n = 0;
     Object.keys(guesses).forEach(function (k) {
-      Object.keys(guesses[k]).forEach(function (id) { sum += guesses[k][id]; n++; });
+      Object.keys(guesses[k]).forEach(function (id) {
+        var g = gameById[id];
+        if (g && resultTypeOf(g) !== "guesses") return;
+        sum += guesses[k][id]; n++;
+      });
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
   }
@@ -203,6 +249,8 @@
     Object.keys(guesses).forEach(function (date) {
       var day = guesses[date];
       Object.keys(day).forEach(function (id) {
+        var g = gameById[id];
+        if (g && resultTypeOf(g) !== "guesses") return;
         var n = day[id];
         if (!(n >= 1)) return;
         var b = n >= 7 ? 7 : n;
@@ -212,6 +260,57 @@
       });
     });
     return { dist: dist, max: max, total: total };
+  }
+
+  // ---------- result types (guesses / winloss / score / time) ----------
+  // Static default comes from the game's own `resultType` (set from overrides.json above,
+  // "guesses" if unset). A game can also "learn" a different type from a pasted result
+  // whose text clearly indicates one (see parseShareText) — that overrides the static default.
+  var learnedResultTypes = read(LS.resultTypes, {});
+  function saveLearnedResultTypes() { write(LS.resultTypes, learnedResultTypes); }
+  function resultTypeOf(g) {
+    if (!g) return "guesses";
+    return learnedResultTypes[g.id] || g.resultType || "guesses";
+  }
+  function rememberResultType(id, rt) {
+    if (!rt || rt === "guesses" || learnedResultTypes[id] === rt) return;
+    learnedResultTypes[id] = rt;
+    saveLearnedResultTypes();
+  }
+  function formatResultValue(rt, v) {
+    if (v == null) return "";
+    if (rt === "time") {
+      var s = Math.max(0, Math.round(v));
+      var m = Math.floor(s / 60), r = s % 60;
+      return m + ":" + (r < 10 ? "0" : "") + r;
+    }
+    return String(v);
+  }
+  function parseResultValueInput(rt, str) {
+    str = String(str || "").trim();
+    if (!str) return null;
+    if (rt === "time") {
+      var m = str.match(/^(\d+):(\d{1,2})$/);
+      if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    }
+    var n = parseFloat(str);
+    return isFinite(n) ? Math.round(n) : null;
+  }
+  function describeResultValue(rt, v) {
+    if (v == null) return "";
+    if (rt === "time") return "in " + formatResultValue("time", v);
+    if (rt === "score") return "scoring " + v;
+    return "in " + v;
+  }
+  // Short " · ..." suffix for compact rows (mode list, cards).
+  function resultValueSuffix(g) {
+    var v = guessToday(g.id);
+    if (v == null) return "";
+    var rt = resultTypeOf(g);
+    if (rt === "winloss") return "";
+    if (rt === "time") return " · " + formatResultValue("time", v);
+    if (rt === "score") return " · " + v + " pts";
+    return " · " + v + " guesses";
   }
 
   // ---------- streak & stats computation ----------
@@ -896,14 +995,18 @@
         "<span>" + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
       (function () {
+        var resType = resultTypeOf(g);
         var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id), avg = gameAvgGuesses(g.id);
-        return '<div class="detail-gamestats">' +
-          '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
+        var avgLabel = resType === "score" ? "Avg score" : resType === "time" ? "Avg time" : "Avg guesses";
+        var avgVal = avg != null ? formatResultValue(resType, avg) : "–";
+        var tiles = '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
           '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
           '<div class="gs-tile"><b>' + wins + " / " + losses + '</b><span>Solved / failed</span></div>' +
-          '<div class="gs-tile"><b>' + (wins + losses ? winRate(wins, losses) + "%" : "–") + '</b><span>Win rate</span></div>' +
-          '<div class="gs-tile"><b>' + (avg != null ? avg : "–") + '</b><span>Avg guesses</span></div>' +
-        "</div>";
+          '<div class="gs-tile"><b>' + (wins + losses ? winRate(wins, losses) + "%" : "–") + '</b><span>Win rate</span></div>';
+        if (resType !== "winloss") {
+          tiles += '<div class="gs-tile"><b>' + avgVal + "</b><span>" + avgLabel + "</span></div>";
+        }
+        return '<div class="detail-gamestats">' + tiles + "</div>";
       })() +
       '<div class="detail-actions">' +
         '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
@@ -911,12 +1014,26 @@
         '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
       "</div>" +
       (function () {
-        var gd = gameGuessDistribution(g.id);
-        var body = gd.total
-          ? distBarsHtml(gd, gd.total + " solves recorded")
-          : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
-        var editor = resultEditorHtml({ solved: done, failed: failed, guesses: guessToday(g.id) });
-        return '<h3 class="stats-h">Guess distribution</h3>' + body +
+        var resType = resultTypeOf(g);
+        var heading, body;
+        if (resType === "guesses") {
+          var gd = gameGuessDistribution(g.id);
+          heading = "Guess distribution";
+          body = gd.total
+            ? distBarsHtml(gd, gd.total + " solves recorded")
+            : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
+        } else if (resType === "winloss") {
+          heading = "History";
+          body = '<p class="stats-empty">This game is tracked as solved/failed only — no score or guess count.</p>';
+        } else {
+          var avg = gameAvgGuesses(g.id);
+          heading = resType === "time" ? "Times" : "Scores";
+          body = avg != null
+            ? '<p class="stats-empty">Average ' + (resType === "time" ? "time" : "score") + ": " + formatResultValue(resType, avg) + "</p>"
+            : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+        }
+        var editor = resultEditorHtml({ solved: done, failed: failed, value: guessToday(g.id), resultType: resType });
+        return '<h3 class="stats-h">' + heading + '</h3>' + body +
           '<h3 class="stats-h">Log today\'s result</h3>' + editor;
       })() +
       (related.length
@@ -979,8 +1096,9 @@
         if (m) m.textContent = "That doesn't look like a game result — paste the game's Share text.";
         return; // keep the box + message (don't refresh)
       }
-      if (pr.solved) { markDoneToday(id); if (pr.guesses) setGuessToday(id, pr.guesses); }
+      if (pr.solved) { markDoneToday(id); if (pr.value != null) setGuessToday(id, pr.value); }
       else markFailedToday(id);
+      rememberResultType(id, pr.resultType);
       patchCard(id);
       if (prefs.completion !== "all" || prefs.routineOnly || prefs.favOnly) render();
     }
@@ -998,7 +1116,7 @@
         ico +
         '<div class="mode-info"><span class="mode-name">' + escapeHtml(g.name) + "</span>" +
           '<span class="mode-sub">' + escapeHtml(g.category) + (gs >= 1 ? " · 🔥 " + gs : "") +
-          (guessToday(g.id) ? " · " + guessToday(g.id) + " guesses" : "") + "</span></div>" +
+          escapeHtml(resultValueSuffix(g)) + "</span></div>" +
         '<button class="act-btn mode-fav' + (fav ? " on" : "") + '" data-mode-act="fav" title="' + (fav ? "Unfavorite" : "Favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
         '<button class="act-btn mode-routine' + (rt ? " on-routine" : "") + '" data-mode-act="routine" title="' + (rt ? "In routine" : "Add to routine") + '">🎯</button>' +
         '<button class="act-btn mode-fail' + (failed ? " on-fail" : "") + '" data-mode-act="fail" title="Mark failed today">✗</button>' +
@@ -1181,7 +1299,29 @@
 
   // ---------- paste-a-result modal ----------
   // Analyse a share string. Reads the emoji grid ("the picture") for guesses/win,
-  // and cross-checks an explicit "n/m" score line when present.
+  // and cross-checks an explicit "n/m" score line when present. When there's no grid
+  // and no n/m score, falls back to detecting a time (mm:ss), a bare score ("1,234 pts"),
+  // or plain solved/failed wording — so games that aren't guess-count based still work.
+  function extractTimeSeconds(text) {
+    var m = text.match(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/);
+    if (m) {
+      return m[3] != null
+        ? parseInt(m[1], 10) * 3600 + parseInt(m[2], 10) * 60 + parseInt(m[3], 10)
+        : parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    }
+    m = text.match(/\b(\d+)\s*(?:m|min|mins|minutes?)\s*(\d+)\s*(?:s|sec|secs|seconds?)\b/i);
+    if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    m = text.match(/\b(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds?)\b/i);
+    if (m) return Math.round(parseFloat(m[1]));
+    return null;
+  }
+  function extractScore(text) {
+    var m = text.match(/\bscore[:\s]+(\d{1,3}(?:,\d{3})*|\d{1,6})\b/i);
+    if (m) return parseInt(m[1].replace(/,/g, ""), 10);
+    m = text.match(/\b(\d{1,3}(?:,\d{3})*|\d{2,6})\s*(?:pts?|points?)\b/i);
+    if (m) return parseInt(m[1].replace(/,/g, ""), 10);
+    return null;
+  }
   function parseShareText(text) {
     if (!text || text.length > 8000) return null;
     var CELL = /[\u{1F7E5}-\u{1F7EB}\u{2B1B}\u{2B1C}]/gu; // 🟥🟦🟧🟨🟩🟪🟫 ⬛ ⬜
@@ -1206,7 +1346,21 @@
       }
     }
 
-    if (!hasGrid && fSolved === null) return null;
+    if (!hasGrid && fSolved === null) {
+      // No grid, no n/m — try a time, then a score, then plain solved/failed wording.
+      var nameHint = extractNameHint(text);
+      var timeSec = extractTimeSeconds(text);
+      if (timeSec != null) return { solved: true, value: timeSec, resultType: "time", nameHint: nameHint };
+      var score = extractScore(text);
+      if (score != null) return { solved: true, value: score, resultType: "score", nameHint: nameHint };
+      if (/\b(solved|won|win|success|complete|completed)\b/i.test(text)) {
+        return { solved: true, value: null, resultType: "winloss", nameHint: nameHint };
+      }
+      if (/\b(failed|lost|lose|unsolved|didn.?t (?:get|guess) it)\b/i.test(text)) {
+        return { solved: false, value: null, resultType: "winloss", nameHint: nameHint };
+      }
+      return null;
+    }
 
     var solved, guesses = null;
     if (hasGrid && rows.length === 1) {
@@ -1232,7 +1386,7 @@
       else { solved = true; if (fGuess) guesses = fGuess; } // the game's own count wins
     }
 
-    return { solved: solved, guesses: guesses, nameHint: extractNameHint(text) };
+    return { solved: solved, value: guesses, resultType: "guesses", nameHint: extractNameHint(text) };
   }
   function extractNameHint(text) {
     var line = (text.split("\n")[0] || "").trim().replace(/^#/, "");
@@ -1254,11 +1408,27 @@
     }
     return best;
   }
-  // Reusable "confirm the result" editor: paste box + Solved/Failed toggle + guesses.
-  // Used by the global paste modal AND each game's detail, so auto-detect is always
-  // editable before recording (guarantees accuracy).
+  // Reusable "confirm the result" editor: paste box + Solved/Failed toggle + a value
+  // field whose shape depends on the game's result type (guess count / score / time /
+  // none for plain win-loss). Used by the global paste modal AND each game's detail, so
+  // auto-detect is always editable before recording (guarantees accuracy).
+  function valueFieldHtml(rt, val, disabled) {
+    rt = rt || "guesses";
+    if (rt === "winloss") return '<span class="res-g" id="resValueWrap" data-restype="winloss"></span>';
+    var isTime = rt === "time";
+    var prefix = rt === "score" ? "scoring" : "in";
+    var unit = rt === "score" ? "points" : rt === "time" ? "" : "guesses";
+    var display = val != null ? (isTime ? formatResultValue("time", val) : val) : "";
+    return (
+      '<span class="res-g" id="resValueWrap" data-restype="' + rt + '">' + prefix + ' ' +
+      '<input type="' + (isTime ? "text" : "number") + '" id="resValue" class="guess-input" ' +
+      (isTime ? 'placeholder="m:ss"' : 'min="0" max="9999" placeholder="?"') +
+      ' value="' + escapeHtml(String(display)) + '"' + (disabled ? " disabled" : "") + "> " + unit + "</span>"
+    );
+  }
   function resultEditorHtml(state) {
     state = state || {};
+    var rt = state.resultType || "guesses";
     var sel = state.failed ? "failed" : "solved";
     return (
       (state.paste !== false
@@ -1268,35 +1438,45 @@
       '<div class="res-editor">' +
         '<button class="btn res-solved' + (sel === "solved" ? " active" : "") + '" data-res="solved">✓ Solved</button>' +
         '<button class="btn res-failed' + (sel === "failed" ? " active" : "") + '" data-res="failed">✗ Failed</button>' +
-        '<span class="res-g">in <input type="number" id="resGuesses" class="guess-input" min="1" max="30" placeholder="?" value="' + (state.guesses || "") + '"' + (sel === "failed" ? " disabled" : "") + "> guesses</span>" +
+        valueFieldHtml(rt, state.value, sel === "failed") +
         '<button class="btn btn-primary" data-record="1">Record</button>' +
       "</div>" +
       '<p class="import-result" id="resMsg"></p>'
     );
   }
+  function swapValueField(rt, val, disabled) {
+    var wrap = document.getElementById("resValueWrap");
+    if (!wrap) return;
+    wrap.outerHTML = valueFieldHtml(rt, val, disabled);
+  }
   function setResSelection(sel) {
-    var s = document.querySelector(".res-solved"), f = document.querySelector(".res-failed"), g = document.getElementById("resGuesses");
+    var s = document.querySelector(".res-solved"), f = document.querySelector(".res-failed");
     if (!s || !f) return;
     s.classList.toggle("active", sel === "solved");
     f.classList.toggle("active", sel === "failed");
-    if (g) { g.disabled = sel === "failed"; if (sel === "failed") g.value = ""; }
+    var wrap = document.getElementById("resValueWrap");
+    var rt = wrap ? wrap.dataset.restype : "guesses";
+    var val = document.getElementById("resValue");
+    swapValueField(rt, sel === "failed" ? null : (val ? val.value : null), sel === "failed");
   }
   function populateFromPaste(text) {
     var p = parseShareText(text);
     var prev = document.getElementById("resPreview");
     if (!p) { if (prev) prev.textContent = text.trim() ? "Couldn’t read a result from that yet…" : ""; return; }
     setResSelection(p.solved ? "solved" : "failed");
-    var gi = document.getElementById("resGuesses");
-    if (gi && p.solved) gi.value = p.guesses || "";
+    swapValueField(p.resultType, p.value, !p.solved);
     var name = currentDetailId ? (gameById[currentDetailId] || {}).name : (matchGameByName(p.nameHint) || {}).name;
-    if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + (p.guesses ? " in " + p.guesses : "") : "failed") + " — fix below if wrong.";
+    var valTxt = p.solved && p.value != null ? " " + describeResultValue(p.resultType, p.value) : "";
+    if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + valTxt : "failed") + " — fix below if wrong.";
   }
   function handleRecord() {
     var msg = document.getElementById("resMsg");
     var solvedBtn = document.querySelector(".res-solved");
     var solved = solvedBtn && solvedBtn.classList.contains("active");
-    var gv = document.getElementById("resGuesses");
-    var guesses = solved && gv ? (parseInt(gv.value, 10) || null) : null;
+    var wrap = document.getElementById("resValueWrap");
+    var rt = wrap ? wrap.dataset.restype : "guesses";
+    var vi = document.getElementById("resValue");
+    var value = solved && vi ? parseResultValueInput(rt, vi.value) : null;
     var g;
     if (currentDetailId) {
       g = gameById[currentDetailId];
@@ -1308,18 +1488,19 @@
       if (!g) { if (msg) msg.textContent = "Couldn’t match a game from that text. Open it in the hub and log it from its ⓘ."; return; }
     }
     if (!g) return;
+    rememberResultType(g.id, rt);
     removePending(g.id);
-    if (solved) { markDoneToday(g.id); if (guesses) setGuessToday(g.id, guesses); }
+    if (solved) { markDoneToday(g.id); if (value != null) setGuessToday(g.id, value); }
     else markFailedToday(g.id);
     patchCard(g.id);
     if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
     if (currentDetailId) { refreshDetail(); }
-    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (guesses ? " in " + guesses : "") : "failed") + ".";
+    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (value != null ? " (" + formatResultValue(rt, value) + ")" : "") : "failed") + ".";
   }
   function pasteBody() {
     return (
       '<p class="settings-note">Finished a game? Hit its <b>Share</b> button and paste the text below — ' +
-      "the hub reads the grid to detect solved/failed and your guesses, and matches the game by name. " +
+      "the hub reads the grid to detect solved/failed and your guesses (or a time/score for games that use those), and matches the game by name. " +
       "<b>Check it's right, then Record.</b></p>" +
       resultEditorHtml({})
     );

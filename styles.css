@@ -64,6 +64,11 @@ body {
   background: var(--bg-elev); /* opaque: avoids per-frame backdrop-filter re-blur on scroll */
   border-bottom: 1px solid var(--border);
   padding: 10px clamp(12px, 4vw, 24px);
+  /* iOS status bar is translucent (see index.html) — pad the safe area so content/icons
+     don't sit under the clock/battery, and extend the header's own background up under it. */
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-left: calc(clamp(12px, 4vw, 24px) + env(safe-area-inset-left));
+  padding-right: calc(clamp(12px, 4vw, 24px) + env(safe-area-inset-right));
 }
 .header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; }
@@ -506,7 +511,7 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
 .finish-prompt {
   position: fixed;
   left: 50%;
-  bottom: 22px;
+  bottom: calc(22px + env(safe-area-inset-bottom));
   transform: translate(-50%, 140%);
   z-index: 100;
   display: flex;

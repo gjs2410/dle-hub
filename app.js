@@ -278,6 +278,29 @@
     });
     return { dist: dist, max: max, total: total };
   }
+  // Same idea as overallAvgGuesses() above, but for score/time-type games.
+  function overallAvgByType(type) {
+    var sum = 0, n = 0;
+    Object.keys(guesses).forEach(function (k) {
+      Object.keys(guesses[k]).forEach(function (id) {
+        if (resultTypeOf(gameById[id]) !== type) return;
+        sum += guesses[k][id]; n++;
+      });
+    });
+    return n ? Math.round((sum / n) * 10) / 10 : null;
+  }
+  // Average accuracy (%) across all "correct" (N/M)-type games.
+  function overallAccuracy() {
+    var sumRatio = 0, n = 0;
+    Object.keys(guesses).forEach(function (k) {
+      Object.keys(guesses[k]).forEach(function (id) {
+        if (resultTypeOf(gameById[id]) !== "correct") return;
+        var v = guesses[k][id];
+        if (v && typeof v === "object" && v.m > 0) { sumRatio += v.n / v.m; n++; }
+      });
+    });
+    return n ? Math.round((sumRatio / n) * 1000) / 10 : null;
+  }
 
   // ---------- result types (guesses / winloss / score / time) ----------
   // Static default comes from the game's own `resultType` (set from overrides.json above,
@@ -468,6 +491,17 @@
   var searchTerm = "";
 
   // ---------- theme ----------
+  // Keeps the browser chrome / PWA status bar color matching the actual page background —
+  // Android reads the <meta name="theme-color"> tag directly (installed PWA and browser tab),
+  // and it has to be updated by hand because the theme can be forced to light/dark, not just
+  // follow the OS (a static prefers-color-scheme media query wouldn't reflect that override).
+  var darkMedia = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+  function syncThemeColor() {
+    var theme = document.documentElement.getAttribute("data-theme");
+    var dark = theme === "dark" || (theme === "auto" && darkMedia && darkMedia.matches);
+    var meta = $("themeColorMeta");
+    if (meta) meta.setAttribute("content", dark ? "#1f1f23" : "#ffffff");
+  }
   function toggleTheme() {
     var cur = document.documentElement.getAttribute("data-theme");
     var order = ["auto", "light", "dark"];
@@ -477,12 +511,15 @@
     var title = "Theme: " + next + " (click to change)";
     $("themeToggle").title = title;
     $("pageTheme").title = title;
+    syncThemeColor();
   }
   (function initTheme() {
     var saved = read(LS.theme, "auto");
     document.documentElement.setAttribute("data-theme", saved);
     $("themeToggle").addEventListener("click", toggleTheme);
     $("pageTheme").addEventListener("click", toggleTheme);
+    syncThemeColor();
+    if (darkMedia && darkMedia.addEventListener) darkMedia.addEventListener("change", syncThemeColor);
   })();
 
   // ---------- category chips ----------
@@ -873,16 +910,31 @@
     Object.keys(history).forEach(function (k) { history[k].forEach(function (id) { distinct[id] = 1; }); });
     var body = statsModal.querySelector(".stats-body");
     var solved = totalCompletions(), failed = totalFails();
+    var tiles =
+      '<div class="stats-tile"><span class="st-big">🔥 ' + currentStreak() + '</span><span class="st-label">Current streak</span></div>' +
+      '<div class="stats-tile"><span class="st-big">🏆 ' + longestStreak() + '</span><span class="st-label">Longest streak</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + solved + '</span><span class="st-label">Solved</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + failed + '</span><span class="st-label">Failed</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + (solved + failed ? winRate(solved, failed) + "%" : "–") + '</span><span class="st-label">Win rate</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + (overallAvgGuesses() != null ? overallAvgGuesses() : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>';
+    // Score/time/accuracy games are a different unit from guesses, so they only show up
+    // here — as their own tiles — when there's actually data for them, rather than
+    // padding the guess-count average/distribution above.
+    var avgScore = overallAvgByType("score");
+    if (avgScore != null) {
+      tiles += '<div class="stats-tile"><span class="st-big">' + avgScore + '</span><span class="st-label">Avg score</span></div>';
+    }
+    var avgTime = overallAvgByType("time");
+    if (avgTime != null) {
+      tiles += '<div class="stats-tile"><span class="st-big">' + formatResultValue("time", avgTime) + '</span><span class="st-label">Avg time</span></div>';
+    }
+    var accuracy = overallAccuracy();
+    if (accuracy != null) {
+      tiles += '<div class="stats-tile"><span class="st-big">' + accuracy + '%</span><span class="st-label">Accuracy</span></div>';
+    }
     body.innerHTML =
-      '<div class="stats-tiles">' +
-        '<div class="stats-tile"><span class="st-big">🔥 ' + currentStreak() + '</span><span class="st-label">Current streak</span></div>' +
-        '<div class="stats-tile"><span class="st-big">🏆 ' + longestStreak() + '</span><span class="st-label">Longest streak</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + solved + '</span><span class="st-label">Solved</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + failed + '</span><span class="st-label">Failed</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + (solved + failed ? winRate(solved, failed) + "%" : "–") + '</span><span class="st-label">Win rate</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + (overallAvgGuesses() != null ? overallAvgGuesses() : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
-        '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>' +
-      "</div>" +
+      '<div class="stats-tiles">' + tiles + "</div>" +
       '<h3 class="stats-h">Guess distribution</h3>' + guessDistHtml() +
       '<h3 class="stats-h">Activity</h3>' + heatmapHtml() +
       '<h3 class="stats-h">Most played</h3>' + topGamesHtml();
@@ -1442,13 +1494,24 @@
   // an explicit "N/M correct" (accuracy games), or plain solved/failed wording — so games
   // that aren't guess-count based still work.
   function extractCorrectFraction(text) {
+    // Explicit "N/M correct" (or "correct: N/M", "N of M correct") — has its own total.
     var m = text.match(/(\d{1,3})\s*\/\s*(\d{1,3})\s*correct\b/i) ||
       text.match(/correct[:\s]+(\d{1,3})\s*\/\s*(\d{1,3})\b/i) ||
       text.match(/(\d{1,3})\s*(?:of|out of)\s*(\d{1,3})\s*correct\b/i);
-    if (!m) return null;
-    var n = parseInt(m[1], 10), tot = parseInt(m[2], 10);
-    if (!(tot >= 1 && tot <= 100) || !(n >= 0 && n <= tot)) return null;
-    return { n: n, m: tot };
+    if (m) {
+      var n = parseInt(m[1], 10), tot = parseInt(m[2], 10);
+      return (tot >= 1 && tot <= 100 && n >= 0 && n <= tot) ? { n: n, m: tot } : null;
+    }
+    // Bare "N correct" with no explicit total (e.g. "3 correct") — infer the total by
+    // counting per-item right/wrong marks (✅❌✔️✖️☑️✘) elsewhere in the same text.
+    var bare = text.match(/\b(\d{1,3})\s*correct\b/i);
+    if (!bare) return null;
+    var n2 = parseInt(bare[1], 10);
+    var MARK = /[✅✔☑❌✖✘](?:️)?/g;
+    var marks = text.match(MARK);
+    var total = marks ? marks.length : 0;
+    if (total < 2 || total < n2) return null; // need real per-item marks, and total >= n
+    return { n: n2, m: total };
   }
   function extractTimeSeconds(text) {
     var m = text.match(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/);
@@ -1476,7 +1539,7 @@
     // "N/M correct" (trivia grids, category-style games) — checked first since the explicit
     // "correct" keyword is unambiguous and would otherwise be misread as a guess count.
     var cf = extractCorrectFraction(text);
-    if (cf) return { solved: true, value: cf, resultType: "correct", nameHint: extractNameHint(text) };
+    if (cf) return { solved: cf.n / cf.m > 0.5, value: cf, resultType: "correct", nameHint: extractNameHint(text) };
 
     var CELL = /[\u{1F7E5}-\u{1F7EB}\u{2B1B}\u{2B1C}]/gu; // 🟥🟦🟧🟨🟩🟪🟫 ⬛ ⬜
     var GREEN = /\u{1F7E9}/u;

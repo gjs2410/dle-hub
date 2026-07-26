@@ -2,16 +2,20 @@
 <html lang="en" data-theme="auto">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>DLE Hub — your daily -dle games</title>
   <meta name="description" content="A searchable, favoritable hub of every daily -dle game. Track what you've played today." />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#6d4aff" />
+  <!-- Kept in sync with the actual light/dark theme by app.js (syncThemeColor). -->
+  <meta name="theme-color" id="themeColorMeta" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="DLE Hub" />
+  <!-- Translucent status bar on iOS lets the app's own header color show through instead
+       of the default grey bar; app.js pads content for the safe area (env(safe-area-inset-top)). -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="icon.svg" />
 </head>
 <body>

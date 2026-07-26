@@ -193,10 +193,12 @@ top of `games.json` without touching the generated dataset:
   existing same-host grouping.
 - `resultType` (per game or per mode) is one of `guesses` (default — a count,
   Wordle-style), `winloss` (no number, just solved/failed), `score` (a plain
-  number), or `time` (formatted mm:ss). It controls how the detail view's
-  stats and "log a result" field are labeled/formatted. Games also silently
-  *learn* a different type the first time a pasted result clearly implies one
-  (e.g. pasting "1:23" for a game with no override).
+  number), `time` (formatted mm:ss), or `correct` (an "N/M correct" pair, e.g.
+  trivia grids or category games — stored as `{n, m}` instead of a single
+  number). It controls how the detail view's stats and "log a result" field
+  are labeled/formatted. Games also silently *learn* a different type the
+  first time a pasted result clearly implies one (e.g. pasting "1:23", or
+  "3/6 correct", for a game with no override).
 
 After hand-editing `data/overrides.json`, regenerate `overrides.js` (the
 `window.GAMES_OVERRIDES` script the app actually loads):

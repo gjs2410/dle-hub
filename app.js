@@ -217,9 +217,16 @@
     }
   }
   function saveGuesses() { write(LS.guesses, guesses); dleDirty(); }
-  function setGuessToday(id, n) {
-    if (!(n > 0)) return;
-    (guesses[TODAY] = guesses[TODAY] || {})[id] = n;
+  // val is normally a plain number (guesses/score/time-in-seconds), but for the "correct"
+  // result type it's a { n, m } pair (e.g. 3 correct out of 6) — stored as-is either way.
+  function setGuessToday(id, val) {
+    if (val == null) return;
+    if (typeof val === "object") {
+      if (!(val.m > 0) || !(val.n >= 0) || val.n > val.m) return;
+    } else if (!(val > 0)) {
+      return;
+    }
+    (guesses[TODAY] = guesses[TODAY] || {})[id] = val;
     saveGuesses();
   }
   function guessToday(id) { return guesses[TODAY] && guesses[TODAY][id]; }
@@ -229,6 +236,16 @@
       if (guesses[k][id] != null) { sum += guesses[k][id]; n++; }
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
+  }
+  // Average for "correct" (N/M) games — averages n and m separately since m can vary.
+  function gameAvgCorrect(id) {
+    var sumN = 0, sumM = 0, n = 0;
+    Object.keys(guesses).forEach(function (k) {
+      var v = guesses[k][id];
+      if (v && typeof v === "object" && v.m > 0) { sumN += v.n; sumM += v.m; n++; }
+    });
+    if (!n) return null;
+    return { n: Math.round((sumN / n) * 10) / 10, m: Math.round((sumM / n) * 10) / 10 };
   }
   // Global averages/distribution only make sense across games that share the same unit
   // (a guess count). Score- and time-type games are excluded so they don't skew the mix.
@@ -284,6 +301,7 @@
       var m = Math.floor(s / 60), r = s % 60;
       return m + ":" + (r < 10 ? "0" : "") + r;
     }
+    if (rt === "correct" && v && typeof v === "object") return v.n + "/" + v.m;
     return String(v);
   }
   function parseResultValueInput(rt, str) {
@@ -292,14 +310,22 @@
     if (rt === "time") {
       var m = str.match(/^(\d+):(\d{1,2})$/);
       if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+      return null;
     }
-    var n = parseFloat(str);
-    return isFinite(n) ? Math.round(n) : null;
+    if (rt === "correct") {
+      var cm = str.match(/^(\d{1,3})\s*\/\s*(\d{1,3})$/);
+      if (!cm) return null;
+      var n = parseInt(cm[1], 10), tot = parseInt(cm[2], 10);
+      return tot > 0 && n >= 0 && n <= tot ? { n: n, m: tot } : null;
+    }
+    var n2 = parseFloat(str);
+    return isFinite(n2) ? Math.round(n2) : null;
   }
   function describeResultValue(rt, v) {
     if (v == null) return "";
     if (rt === "time") return "in " + formatResultValue("time", v);
     if (rt === "score") return "scoring " + v;
+    if (rt === "correct") return "with " + formatResultValue("correct", v) + " correct";
     return "in " + v;
   }
   // Short " · ..." suffix for compact rows (mode list, cards).
@@ -310,6 +336,7 @@
     if (rt === "winloss") return "";
     if (rt === "time") return " · " + formatResultValue("time", v);
     if (rt === "score") return " · " + v + " pts";
+    if (rt === "correct") return " · " + formatResultValue("correct", v) + " correct";
     return " · " + v + " guesses";
   }
 
@@ -441,17 +468,21 @@
   var searchTerm = "";
 
   // ---------- theme ----------
+  function toggleTheme() {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var order = ["auto", "light", "dark"];
+    var next = order[(order.indexOf(cur) + 1) % order.length];
+    document.documentElement.setAttribute("data-theme", next);
+    write(LS.theme, next);
+    var title = "Theme: " + next + " (click to change)";
+    $("themeToggle").title = title;
+    $("pageTheme").title = title;
+  }
   (function initTheme() {
     var saved = read(LS.theme, "auto");
     document.documentElement.setAttribute("data-theme", saved);
-    $("themeToggle").addEventListener("click", function () {
-      var cur = document.documentElement.getAttribute("data-theme");
-      var order = ["auto", "light", "dark"];
-      var next = order[(order.indexOf(cur) + 1) % order.length];
-      document.documentElement.setAttribute("data-theme", next);
-      write(LS.theme, next);
-      $("themeToggle").title = "Theme: " + next + " (click to change)";
-    });
+    $("themeToggle").addEventListener("click", toggleTheme);
+    $("pageTheme").addEventListener("click", toggleTheme);
   })();
 
   // ---------- category chips ----------
@@ -912,8 +943,8 @@
   }
   function escClose(e) { if (e.key === "Escape") closeStats(); }
 
-  // ---------- generic modal (used by detail + settings + hub) ----------
-  var genericModal = null, genericEsc = null, currentDetailId = null, currentHubId = null;
+  // ---------- generic modal (used by settings + stats-like popups) ----------
+  var genericModal = null, genericEsc = null;
 
   function showModal(title, bodyHtml) {
     if (!genericModal) {
@@ -941,13 +972,11 @@
   function hideModal() {
     if (genericModal) genericModal.classList.remove("show");
     if (genericEsc) { document.removeEventListener("keydown", genericEsc); genericEsc = null; }
-    currentDetailId = null;
-    currentHubId = null;
   }
   function modalBody() { return genericModal.querySelector(".modal-body"); }
 
-  function onModalClick(e) {
-    if (e.target === genericModal || e.target.closest(".modal-close")) { hideModal(); return; }
+  // Click/change handling shared between the settings/paste modal and the game/hub page view.
+  function onContentClick(e) {
     var rel = e.target.closest("[data-related-id]");
     if (rel) { openDetail(rel.dataset.relatedId); return; }
     var d = e.target.closest("[data-detail-act]");
@@ -960,10 +989,98 @@
     if (res) { setResSelection(res.dataset.res); return; }
     if (e.target.closest("[data-record]")) { handleRecord(); return; }
   }
+  function onModalClick(e) {
+    if (e.target === genericModal || e.target.closest(".modal-close")) { hideModal(); return; }
+    onContentClick(e);
+  }
   function onModalChange(e) {
     if (e.target.id === "importFile" && e.target.files && e.target.files[0]) {
       importFromFile(e.target.files[0]);
     }
+  }
+  function onPasteInput(e) {
+    if (e.target && e.target.id === "pasteBox") populateFromPaste(e.target.value);
+  }
+
+  // ---------- page view (game / hub detail as a real, deep-linkable page) ----------
+  // The URL hash drives what's shown: #g=<gameId> or #h=<hubHost>. This makes a
+  // multi-mode game (and any single game) a bookmarkable/shareable page instead of
+  // just a popup, and the browser's own back/forward buttons work with it.
+  var currentDetailId = null, currentHubId = null;
+  var pageBodyEl = null, pageTitleEl = null;
+
+  function parseRoute() {
+    var h = location.hash;
+    var g = h.match(/[#&]g=([^&]+)/);
+    if (g) return { type: "game", id: decodeURIComponent(g[1]) };
+    var hh = h.match(/[#&]h=([^&]+)/);
+    if (hh) return { type: "hub", host: decodeURIComponent(hh[1]) };
+    return { type: "grid" };
+  }
+  function navigateTo(hashValue) {
+    if (hashValue) {
+      if (location.hash.replace(/^#/, "") === hashValue) { applyRoute(); return; }
+      location.hash = hashValue;
+    } else {
+      if (!location.hash) { applyRoute(); return; }
+      window.history.pushState(null, "", location.pathname + location.search);
+      applyRoute();
+    }
+  }
+  function applyRoute() {
+    var r = parseRoute();
+    if (r.type === "game") renderGamePage(r.id);
+    else if (r.type === "hub") renderHubPage(itemById["hub:" + r.host]);
+    else hidePage();
+  }
+  function showPage(title, bodyHtml) {
+    if (!pageBodyEl) {
+      pageBodyEl = $("pageBody");
+      pageTitleEl = $("pageTitle");
+      pageBodyEl.addEventListener("click", onContentClick);
+      pageBodyEl.addEventListener("change", onModalChange);
+      pageBodyEl.addEventListener("input", onPasteInput);
+    }
+    pageTitleEl.textContent = title;
+    pageBodyEl.innerHTML = bodyHtml;
+    document.body.classList.add("page-open");
+    $("mainGrid").hidden = true;
+    $("pageView").hidden = false;
+    window.scrollTo(0, 0);
+  }
+  function hidePage() {
+    document.body.classList.remove("page-open");
+    $("pageView").hidden = true;
+    $("mainGrid").hidden = false;
+    currentDetailId = null;
+    currentHubId = null;
+  }
+  function copyPageLink() {
+    var btn = $("pageShare");
+    var url = location.href;
+    var flash = function (ok) {
+      btn.textContent = ok ? "✓" : "🔗";
+      btn.classList.toggle("copied", ok);
+      setTimeout(function () { btn.textContent = "🔗"; btn.classList.remove("copied"); }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { flash(true); }, function () { fallbackCopy(url, flash); });
+    } else {
+      fallbackCopy(url, flash);
+    }
+  }
+  function fallbackCopy(text, flash) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      flash(ok);
+    } catch (e) { flash(false); }
   }
 
   // ---------- game detail modal ----------
@@ -974,7 +1091,8 @@
     var host = hostOf(g.url);
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
-    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).slice(0, 6);
+    // Hub members are excluded — they don't have their own standalone page, only the hub does.
+    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id && !hubIdOfMember[x.id]; }).slice(0, 6);
 
     var icon = fIco
       ? '<img src="' + fIco + '" alt="" class="detail-ico">'
@@ -996,9 +1114,17 @@
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
       (function () {
         var resType = resultTypeOf(g);
-        var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id), avg = gameAvgGuesses(g.id);
-        var avgLabel = resType === "score" ? "Avg score" : resType === "time" ? "Avg time" : "Avg guesses";
-        var avgVal = avg != null ? formatResultValue(resType, avg) : "–";
+        var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
+        var avgLabel, avgVal;
+        if (resType === "correct") {
+          var avgC = gameAvgCorrect(g.id);
+          avgLabel = "Avg correct";
+          avgVal = avgC != null ? formatResultValue("correct", avgC) : "–";
+        } else {
+          var avg = gameAvgGuesses(g.id);
+          avgLabel = resType === "score" ? "Avg score" : resType === "time" ? "Avg time" : "Avg guesses";
+          avgVal = avg != null ? formatResultValue(resType, avg) : "–";
+        }
         var tiles = '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
           '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
           '<div class="gs-tile"><b>' + wins + " / " + losses + '</b><span>Solved / failed</span></div>' +
@@ -1025,6 +1151,12 @@
         } else if (resType === "winloss") {
           heading = "History";
           body = '<p class="stats-empty">This game is tracked as solved/failed only — no score or guess count.</p>';
+        } else if (resType === "correct") {
+          var avgC = gameAvgCorrect(g.id);
+          heading = "Accuracy";
+          body = avgC != null
+            ? '<p class="stats-empty">Average: ' + formatResultValue("correct", avgC) + " correct</p>"
+            : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
         } else {
           var avg = gameAvgGuesses(g.id);
           heading = resType === "time" ? "Times" : "Scores";
@@ -1052,22 +1184,24 @@
     );
   }
   function openDetail(id) {
+    navigateTo("g=" + encodeURIComponent(id));
+  }
+  function renderGamePage(id) {
     var g = gameById[id] || DATA.find(function (x) { return x.id === id; });
-    if (!g) return;
+    if (!g) { navigateTo(""); return; }
     currentDetailId = id;
     currentHubId = null;
-    showModal(g.name, detailBody(g));
+    showPage(g.name, detailBody(g));
   }
   function refreshDetail() {
     var g = DATA.find(function (x) { return x.id === currentDetailId; });
-    if (!g || !genericModal) return;
-    modalBody().innerHTML = detailBody(g);
+    if (!g || !pageBodyEl) return;
+    pageBodyEl.innerHTML = detailBody(g);
   }
   function handleDetailAct(act) {
     var id = currentDetailId;
     if (act === "play") {
       var g = DATA.find(function (x) { return x.id === id; });
-      hideModal();
       if (g) openGame(g.url, g.id);
       return;
     }
@@ -1140,19 +1274,23 @@
   }
   function openHubDetail(hub) {
     if (!hub) return;
+    navigateTo("h=" + encodeURIComponent(hub.host));
+  }
+  function renderHubPage(hub) {
+    if (!hub) { navigateTo(""); return; }
     currentHubId = hub.id;
     currentDetailId = null;
-    showModal(hub.name, hubDetailBody(hub));
+    showPage(hub.name, hubDetailBody(hub));
   }
   function refreshHubDetail() {
     var hub = itemById[currentHubId];
-    if (!hub || !genericModal) return;
-    modalBody().innerHTML = hubDetailBody(hub);
+    if (!hub || !pageBodyEl) return;
+    pageBodyEl.innerHTML = hubDetailBody(hub);
   }
   function handleModeAct(id, act) {
     var g = gameById[id];
     if (!g) return;
-    if (act === "play") { hideModal(); openGame(g.url, g.id); return; }
+    if (act === "play") { openGame(g.url, g.id); return; }
     if (act === "fav") {
       if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
       saveFavorites();
@@ -1295,13 +1433,23 @@
       "</ul>"
     );
   }
-  function openSettings() { currentDetailId = null; currentHubId = null; showModal("Settings & backup", settingsBody()); }
+  function openSettings() { showModal("Settings & backup", settingsBody()); }
 
   // ---------- paste-a-result modal ----------
   // Analyse a share string. Reads the emoji grid ("the picture") for guesses/win,
   // and cross-checks an explicit "n/m" score line when present. When there's no grid
   // and no n/m score, falls back to detecting a time (mm:ss), a bare score ("1,234 pts"),
-  // or plain solved/failed wording — so games that aren't guess-count based still work.
+  // an explicit "N/M correct" (accuracy games), or plain solved/failed wording — so games
+  // that aren't guess-count based still work.
+  function extractCorrectFraction(text) {
+    var m = text.match(/(\d{1,3})\s*\/\s*(\d{1,3})\s*correct\b/i) ||
+      text.match(/correct[:\s]+(\d{1,3})\s*\/\s*(\d{1,3})\b/i) ||
+      text.match(/(\d{1,3})\s*(?:of|out of)\s*(\d{1,3})\s*correct\b/i);
+    if (!m) return null;
+    var n = parseInt(m[1], 10), tot = parseInt(m[2], 10);
+    if (!(tot >= 1 && tot <= 100) || !(n >= 0 && n <= tot)) return null;
+    return { n: n, m: tot };
+  }
   function extractTimeSeconds(text) {
     var m = text.match(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/);
     if (m) {
@@ -1324,6 +1472,12 @@
   }
   function parseShareText(text) {
     if (!text || text.length > 8000) return null;
+
+    // "N/M correct" (trivia grids, category-style games) — checked first since the explicit
+    // "correct" keyword is unambiguous and would otherwise be misread as a guess count.
+    var cf = extractCorrectFraction(text);
+    if (cf) return { solved: true, value: cf, resultType: "correct", nameHint: extractNameHint(text) };
+
     var CELL = /[\u{1F7E5}-\u{1F7EB}\u{2B1B}\u{2B1C}]/gu; // 🟥🟦🟧🟨🟩🟪🟫 ⬛ ⬜
     var GREEN = /\u{1F7E9}/u;
 
@@ -1416,13 +1570,15 @@
     rt = rt || "guesses";
     if (rt === "winloss") return '<span class="res-g" id="resValueWrap" data-restype="winloss"></span>';
     var isTime = rt === "time";
+    var isCorrect = rt === "correct";
+    var isText = isTime || isCorrect;
     var prefix = rt === "score" ? "scoring" : "in";
-    var unit = rt === "score" ? "points" : rt === "time" ? "" : "guesses";
-    var display = val != null ? (isTime ? formatResultValue("time", val) : val) : "";
+    var unit = rt === "score" ? "points" : rt === "time" ? "" : rt === "correct" ? "correct" : "guesses";
+    var display = val != null ? (isText ? formatResultValue(rt, val) : val) : "";
     return (
       '<span class="res-g" id="resValueWrap" data-restype="' + rt + '">' + prefix + ' ' +
-      '<input type="' + (isTime ? "text" : "number") + '" id="resValue" class="guess-input" ' +
-      (isTime ? 'placeholder="m:ss"' : 'min="0" max="9999" placeholder="?"') +
+      '<input type="' + (isText ? "text" : "number") + '" id="resValue" class="guess-input" ' +
+      (isTime ? 'placeholder="m:ss"' : isCorrect ? 'placeholder="3/6"' : 'min="0" max="9999" placeholder="?"') +
       ' value="' + escapeHtml(String(display)) + '"' + (disabled ? " disabled" : "") + "> " + unit + "</span>"
     );
   }
@@ -1506,7 +1662,6 @@
     );
   }
   function openPaste() {
-    currentDetailId = null; currentHubId = null;
     showModal("Paste a result", pasteBody());
     var ta = document.getElementById("pasteBox");
     if (ta) ta.focus();
@@ -1518,6 +1673,7 @@
     var typing = tag === "input" || tag === "textarea" || tag === "select" || t.isContentEditable;
     if (e.key === "/" && !typing) { e.preventDefault(); searchEl.focus(); searchEl.select(); return; }
     if (e.key === "Escape" && t === searchEl) { searchEl.blur(); return; }
+    if (e.key === "Escape" && document.body.classList.contains("page-open") && !typing) { navigateTo(""); return; }
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       var cards = Array.prototype.slice.call(grid.querySelectorAll(".card"));
@@ -1887,9 +2043,13 @@
   $("openStats").addEventListener("click", openStats);
   $("openSettings").addEventListener("click", openSettings);
   $("pasteResult").addEventListener("click", openPaste);
+  $("pageBack").addEventListener("click", function () { navigateTo(""); });
+  $("pageShare").addEventListener("click", copyPageLink);
+  window.addEventListener("hashchange", applyRoute);
   syncControls();
   buildChips();
   render();
+  applyRoute(); // deep link on load, e.g. #g=wordle or #h=brawldle.gg
   checkImportHash();
   // If you opened a game earlier today and reloaded the hub, ask on load too.
   if (document.visibilityState === "visible") setTimeout(processPending, 500);

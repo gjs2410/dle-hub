@@ -86,7 +86,8 @@
     theme: "dlehub:theme",
     prefs: "dlehub:prefs",
     pending: "dlehub:pending",
-    resultTypes: "dlehub:resultTypes",
+    resultTypes: "dlehub:resultTypes", // legacy: single learned type per game, read once for migration
+    activeTypes: "dlehub:activeTypes",
   };
   function read(key, fallback) {
     try {
@@ -219,23 +220,29 @@
     }
   }
   function saveGuesses() { write(LS.guesses, guesses); dleDirty(); }
-  // val is normally a plain number (guesses/score/time-in-seconds), but for the "correct"
-  // result type it's a { n, m } pair (e.g. 3 correct out of 6) — stored as-is either way.
-  function setGuessToday(id, val) {
+  // Each day's entry per game is an object keyed by value type, e.g. { guesses: 4, score: 1250 } —
+  // a game can track more than one measurement at once. "correct" values are { n, m } pairs.
+  function setValueToday(id, type, val) {
     if (val == null) return;
-    if (typeof val === "object") {
+    if (type === "correct") {
       if (!(val.m > 0) || !(val.n >= 0) || val.n > val.m) return;
     } else if (!(val > 0)) {
       return;
     }
-    (guesses[TODAY] = guesses[TODAY] || {})[id] = val;
+    var day = guesses[TODAY] || (guesses[TODAY] = {});
+    var entry = day[id] || (day[id] = {});
+    entry[type] = val;
     saveGuesses();
   }
-  function guessToday(id) { return guesses[TODAY] && guesses[TODAY][id]; }
-  function gameAvgGuesses(id) {
+  function valueToday(id, type) {
+    var entry = guesses[TODAY] && guesses[TODAY][id];
+    return entry ? entry[type] : undefined;
+  }
+  function gameAvgValue(id, type) {
     var sum = 0, n = 0;
     Object.keys(guesses).forEach(function (k) {
-      if (guesses[k][id] != null) { sum += guesses[k][id]; n++; }
+      var v = guesses[k][id] && guesses[k][id][type];
+      if (v != null) { sum += v; n++; }
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
   }
@@ -243,34 +250,31 @@
   function gameAvgCorrect(id) {
     var sumN = 0, sumM = 0, n = 0;
     Object.keys(guesses).forEach(function (k) {
-      var v = guesses[k][id];
-      if (v && typeof v === "object" && v.m > 0) { sumN += v.n; sumM += v.m; n++; }
+      var v = guesses[k][id] && guesses[k][id].correct;
+      if (v && v.m > 0) { sumN += v.n; sumM += v.m; n++; }
     });
     if (!n) return null;
     return { n: Math.round((sumN / n) * 10) / 10, m: Math.round((sumM / n) * 10) / 10 };
   }
-  // Global averages/distribution only make sense across games that share the same unit
-  // (a guess count). Score- and time-type games are excluded so they don't skew the mix.
-  function overallAvgGuesses() {
+  // Global average for one value type, across every game that has ever recorded it —
+  // values are stored under their own type key, so no per-game type-matching needed here.
+  function overallAvgByType(type) {
     var sum = 0, n = 0;
     Object.keys(guesses).forEach(function (k) {
       Object.keys(guesses[k]).forEach(function (id) {
-        var g = gameById[id];
-        if (g && resultTypeOf(g) !== "guesses") return;
-        sum += guesses[k][id]; n++;
+        var v = guesses[k][id][type];
+        if (v != null) { sum += v; n++; }
       });
     });
     return n ? Math.round((sum / n) * 10) / 10 : null;
   }
-  // Distribution of solves by guess count: buckets 1..6 and "7+".
+  // Distribution of guess-count solves: buckets 1..6 and "7+".
   function guessDistribution() {
     var dist = {}, max = 0, total = 0;
     Object.keys(guesses).forEach(function (date) {
       var day = guesses[date];
       Object.keys(day).forEach(function (id) {
-        var g = gameById[id];
-        if (g && resultTypeOf(g) !== "guesses") return;
-        var n = day[id];
+        var n = day[id].guesses;
         if (!(n >= 1)) return;
         var b = n >= 7 ? 7 : n;
         dist[b] = (dist[b] || 0) + 1;
@@ -280,44 +284,48 @@
     });
     return { dist: dist, max: max, total: total };
   }
-  // Same idea as overallAvgGuesses() above, but for score/time-type games.
-  function overallAvgByType(type) {
-    var sum = 0, n = 0;
-    Object.keys(guesses).forEach(function (k) {
-      Object.keys(guesses[k]).forEach(function (id) {
-        if (resultTypeOf(gameById[id]) !== type) return;
-        sum += guesses[k][id]; n++;
-      });
-    });
-    return n ? Math.round((sum / n) * 10) / 10 : null;
-  }
-  // Average accuracy (%) across all "correct" (N/M)-type games.
+  // Average accuracy (%) across every recorded "correct" (N/M) value.
   function overallAccuracy() {
     var sumRatio = 0, n = 0;
     Object.keys(guesses).forEach(function (k) {
       Object.keys(guesses[k]).forEach(function (id) {
-        if (resultTypeOf(gameById[id]) !== "correct") return;
-        var v = guesses[k][id];
-        if (v && typeof v === "object" && v.m > 0) { sumRatio += v.n / v.m; n++; }
+        var v = guesses[k][id].correct;
+        if (v && v.m > 0) { sumRatio += v.n / v.m; n++; }
       });
     });
     return n ? Math.round((sumRatio / n) * 1000) / 10 : null;
   }
 
-  // ---------- result types (guesses / winloss / score / time) ----------
-  // Static default comes from the game's own `resultType` (set from overrides.json above,
-  // "guesses" if unset). A game can also "learn" a different type from a pasted result
-  // whose text clearly indicates one (see parseShareText) — that overrides the static default.
-  var learnedResultTypes = read(LS.resultTypes, {});
-  function saveLearnedResultTypes() { write(LS.resultTypes, learnedResultTypes); }
-  function resultTypeOf(g) {
-    if (!g) return "guesses";
-    return learnedResultTypes[g.id] || g.resultType || "guesses";
+  // ---------- result types (which measurements a game tracks) ----------
+  // A game can track any combination of these at once (e.g. both "guesses" and "score").
+  var ALL_TYPES = ["guesses", "score", "time", "correct"];
+  var TYPE_LABELS = { guesses: "Guesses", score: "Score", time: "Time", correct: "Accuracy" };
+  // Static default comes from the game's own `resultType` (set from overrides.json), a single
+  // type ("winloss" meaning none). The user can override this per game (manualTypes, possibly
+  // more than one type, or none at all) — that always wins once set, even to an empty list.
+  var manualTypes = read(LS.activeTypes, {});
+  function saveManualTypes() { write(LS.activeTypes, manualTypes); }
+  function defaultTypesOf(g) {
+    if (!g || !g.resultType || g.resultType === "winloss") return [];
+    return [g.resultType];
   }
-  function rememberResultType(id, rt) {
-    if (!rt || rt === "guesses" || learnedResultTypes[id] === rt) return;
-    learnedResultTypes[id] = rt;
-    saveLearnedResultTypes();
+  function activeTypesOf(g) {
+    if (!g) return ["guesses"];
+    if (Object.prototype.hasOwnProperty.call(manualTypes, g.id)) return manualTypes[g.id];
+    return defaultTypesOf(g);
+  }
+  function setActiveTypes(id, types) {
+    manualTypes[id] = types.slice();
+    saveManualTypes();
+  }
+  // Auto-add a type the first time a paste/extension result clearly implies it, so a game
+  // starts tracking whatever it's actually shown to produce without the user having to
+  // find the toggle first (they still can, to add/remove types manually at any time).
+  function ensureTypeActive(id, type) {
+    if (!type || ALL_TYPES.indexOf(type) === -1) return;
+    var current = activeTypesOf(gameById[id]);
+    if (current.indexOf(type) !== -1) return;
+    setActiveTypes(id, current.concat([type]));
   }
   function formatResultValue(rt, v) {
     if (v == null) return "";
@@ -353,18 +361,6 @@
     if (rt === "correct") return "with " + formatResultValue("correct", v) + " correct";
     return "in " + v;
   }
-  // Short " · ..." suffix for compact rows (mode list, cards).
-  function resultValueSuffix(g) {
-    var v = guessToday(g.id);
-    if (v == null) return "";
-    var rt = resultTypeOf(g);
-    if (rt === "winloss") return "";
-    if (rt === "time") return " · " + formatResultValue("time", v);
-    if (rt === "score") return " · " + v + " pts";
-    if (rt === "correct") return " · " + formatResultValue("correct", v) + " correct";
-    return " · " + v + " guesses";
-  }
-
   // ---------- streak & stats computation ----------
   function completedDaySet() {
     var s = {};
@@ -588,6 +584,52 @@
       var h = hostOf(g.url);
       (gamesByHost[h] = gamesByHost[h] || []).push(g);
     });
+  })();
+
+  // One-time migration: each day's recorded value used to be a single number (or, for the
+  // "correct" type, a bare { n, m } pair) with the type inferred from the game's one-and-only
+  // resultType. Now that a game can track several types at once, values live under their type's
+  // key instead — recover the type each old value was actually recorded under (its per-game
+  // learned override if it had one, else its static default) so history isn't misattributed.
+  (function migrateGuessesShape() {
+    var legacyLearned = read(LS.resultTypes, {});
+    var changed = false;
+    Object.keys(guesses).forEach(function (date) {
+      var day = guesses[date];
+      Object.keys(day).forEach(function (id) {
+        var v = day[id];
+        if (v == null) return;
+        if (v && typeof v === "object" && "n" in v && "m" in v) {
+          day[id] = { correct: v };
+          changed = true;
+        } else if (typeof v !== "object") {
+          var g = gameById[id];
+          var oldType = legacyLearned[id] || (g && g.resultType) || "guesses";
+          if (oldType === "winloss") oldType = "guesses";
+          var obj = {};
+          obj[oldType] = v;
+          day[id] = obj;
+          changed = true;
+        }
+        // else: already { type: value, ... } shaped — nothing to do.
+      });
+    });
+    if (changed) saveGuesses();
+
+    // Carry forward any single learned type as that game's initial active-type set, so a
+    // game that had already learned e.g. "score" keeps showing it now that a game's active
+    // types live in their own storage (dlehub:activeTypes) instead of alongside resultType.
+    var existingActive = read(LS.activeTypes, {});
+    var activeChanged = false;
+    Object.keys(legacyLearned).forEach(function (id) {
+      if (Object.prototype.hasOwnProperty.call(existingActive, id)) return;
+      var t = legacyLearned[id];
+      if (t && t !== "winloss" && ["guesses", "score", "time", "correct"].indexOf(t) !== -1) {
+        existingActive[id] = [t];
+        activeChanged = true;
+      }
+    });
+    if (activeChanged) write(LS.activeTypes, existingActive);
   })();
 
   // thin predicates kept as named functions since they're used from several places (filtering,
@@ -844,7 +886,7 @@
       '<div class="stats-tile"><span class="st-big">' + solved + '</span><span class="st-label">Solved</span></div>' +
       '<div class="stats-tile"><span class="st-big">' + failed + '</span><span class="st-label">Failed</span></div>' +
       '<div class="stats-tile"><span class="st-big">' + (solved + failed ? winRate(solved, failed) + "%" : "–") + '</span><span class="st-label">Win rate</span></div>' +
-      '<div class="stats-tile"><span class="st-big">' + (overallAvgGuesses() != null ? overallAvgGuesses() : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
+      '<div class="stats-tile"><span class="st-big">' + (overallAvgByType("guesses") != null ? overallAvgByType("guesses") : "–") + '</span><span class="st-label">Avg guesses</span></div>' +
       '<div class="stats-tile"><span class="st-big">' + Object.keys(distinct).length + '</span><span class="st-label">Games played</span></div>';
     // Score/time/accuracy games are a different unit from guesses, so they only show up
     // here — as their own tiles — when there's actually data for them, rather than
@@ -889,7 +931,7 @@
   function gameGuessDistribution(id) {
     var dist = {}, max = 0, total = 0;
     Object.keys(guesses).forEach(function (date) {
-      var n = guesses[date][id];
+      var n = guesses[date][id] && guesses[date][id].guesses;
       if (!(n >= 1)) return;
       var b = n >= 7 ? 7 : n;
       dist[b] = (dist[b] || 0) + 1;
@@ -902,7 +944,7 @@
   function gameScoreHistory(id) {
     var rows = [];
     Object.keys(guesses).forEach(function (date) {
-      var v = guesses[date][id];
+      var v = guesses[date][id] && guesses[date][id].score;
       if (v != null) rows.push({ date: date, value: v });
     });
     rows.sort(function (a, b) { return b.date.localeCompare(a.date); });
@@ -989,6 +1031,16 @@
     if (d && currentDetailId) { handleDetailAct(d.dataset.detailAct); return; }
     var tab = e.target.closest("[data-tab]");
     if (tab && currentDetailId) { currentDetailTab = tab.dataset.tab; refreshDetail(); return; }
+    var tt = e.target.closest("[data-type-toggle]");
+    if (tt && currentDetailId) {
+      var type = tt.dataset.typeToggle;
+      var active = activeTypesOf(gameById[currentDetailId]).slice();
+      var idx = active.indexOf(type);
+      if (idx === -1) active.push(type); else active.splice(idx, 1);
+      setActiveTypes(currentDetailId, active);
+      refreshDetail();
+      return;
+    }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -1093,10 +1145,10 @@
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
     var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).slice(0, 6);
-    var resType = resultTypeOf(g);
+    var types = activeTypesOf(g); // e.g. [], ["guesses"], or ["score","guesses"]
     // A "Score" tab (score history over time) only makes sense — and only appears —
-    // for games actually tracked as the "score" result type.
-    var hasScoreTab = resType === "score";
+    // for games actually tracking a score.
+    var hasScoreTab = types.indexOf("score") !== -1;
     if (!hasScoreTab) currentDetailTab = "overview";
 
     var icon = fIco
@@ -1119,23 +1171,21 @@
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
       (function () {
         var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
-        var avgLabel, avgVal;
-        if (resType === "correct") {
-          var avgC = gameAvgCorrect(g.id);
-          avgLabel = "Avg correct";
-          avgVal = avgC != null ? formatResultValue("correct", avgC) : "–";
-        } else {
-          var avg = gameAvgGuesses(g.id);
-          avgLabel = resType === "score" ? "Avg score" : resType === "time" ? "Avg time" : "Avg guesses";
-          avgVal = avg != null ? formatResultValue(resType, avg) : "–";
-        }
         var tiles = '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
           '<div class="gs-tile"><b>🏆 ' + gameLongestStreak(g.id) + '</b><span>Best streak</span></div>' +
           '<div class="gs-tile"><b>' + wins + " / " + losses + '</b><span>Solved / failed</span></div>' +
           '<div class="gs-tile"><b>' + (wins + losses ? winRate(wins, losses) + "%" : "–") + '</b><span>Win rate</span></div>';
-        if (resType !== "winloss") {
-          tiles += '<div class="gs-tile"><b>' + avgVal + "</b><span>" + avgLabel + "</span></div>";
-        }
+        types.forEach(function (t) {
+          var val;
+          if (t === "correct") {
+            var avgC = gameAvgCorrect(g.id);
+            val = avgC != null ? formatResultValue("correct", avgC) : "–";
+          } else {
+            var avg = gameAvgValue(g.id, t);
+            val = avg != null ? formatResultValue(t, avg) : "–";
+          }
+          tiles += '<div class="gs-tile"><b>' + val + "</b><span>Avg " + TYPE_LABELS[t].toLowerCase() + "</span></div>";
+        });
         return '<div class="detail-gamestats">' + tiles + "</div>";
       })() +
       '<div class="detail-actions">' +
@@ -1151,32 +1201,46 @@
         : "") +
       '<div class="tab-panel"' + (hasScoreTab && currentDetailTab !== "overview" ? " hidden" : "") + '>' +
         (function () {
-          var heading, body;
-          if (resType === "guesses") {
-            var gd = gameGuessDistribution(g.id);
-            heading = "Guess distribution";
-            body = gd.total
-              ? distBarsHtml(gd, gd.total + " solves recorded")
-              : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
-          } else if (resType === "winloss") {
-            heading = "History";
-            body = '<p class="stats-empty">This game is tracked as solved/failed only — no score or guess count.</p>';
-          } else if (resType === "correct") {
-            var avgC = gameAvgCorrect(g.id);
-            heading = "Accuracy";
-            body = avgC != null
-              ? '<p class="stats-empty">Average: ' + formatResultValue("correct", avgC) + " correct</p>"
-              : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
-          } else {
-            var avg = gameAvgGuesses(g.id);
-            heading = resType === "time" ? "Times" : "Scores";
-            body = avg != null
-              ? '<p class="stats-empty">Average ' + (resType === "time" ? "time" : "score") + ": " + formatResultValue(resType, avg) + "</p>"
-              : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+          if (!types.length) {
+            return '<h3 class="stats-h">History</h3><p class="stats-empty">This game is tracked as solved/failed only — no score or guess count. Add a measurement below to start tracking one.</p>';
           }
-          var editor = resultEditorHtml({ solved: done, failed: failed, value: guessToday(g.id), resultType: resType });
-          return '<h3 class="stats-h">' + heading + '</h3>' + body +
-            '<h3 class="stats-h">Log today\'s result</h3>' + editor;
+          return types.map(function (t) {
+            var heading, body;
+            if (t === "guesses") {
+              var gd = gameGuessDistribution(g.id);
+              heading = "Guess distribution";
+              body = gd.total
+                ? distBarsHtml(gd, gd.total + " solves recorded")
+                : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
+            } else if (t === "correct") {
+              var avgC = gameAvgCorrect(g.id);
+              heading = "Accuracy";
+              body = avgC != null
+                ? '<p class="stats-empty">Average: ' + formatResultValue("correct", avgC) + " correct</p>"
+                : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+            } else {
+              var avg = gameAvgValue(g.id, t);
+              heading = t === "time" ? "Times" : "Scores";
+              body = avg != null
+                ? '<p class="stats-empty">Average ' + (t === "time" ? "time" : "score") + ": " + formatResultValue(t, avg) + "</p>"
+                : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+            }
+            return '<h3 class="stats-h">' + heading + '</h3>' + body;
+          }).join("");
+        })() +
+        '<h3 class="stats-h">Track</h3>' +
+        '<div class="type-picker">' +
+          ALL_TYPES.map(function (t) {
+            var on = types.indexOf(t) !== -1;
+            return '<button class="type-chip' + (on ? " active" : "") + '" data-type-toggle="' + t + '">' +
+              (on ? "✓ " : "+ ") + TYPE_LABELS[t] + "</button>";
+          }).join("") +
+        "</div>" +
+        (function () {
+          var values = {};
+          types.forEach(function (t) { values[t] = valueToday(g.id, t); });
+          var editor = resultEditorHtml({ solved: done, failed: failed, types: types, values: values });
+          return '<h3 class="stats-h">Log today\'s result</h3>' + editor;
         })() +
         (related.length
           ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
@@ -1231,26 +1295,9 @@
     } else if (act === "fail") {
       if (isFailedToday(id)) clearFailToday(id); else markFailedToday(id);
       if (prefs.completion !== "all") render(); else patchCard(id);
-    } else if (act === "logguess") {
-      var input = document.getElementById("guessInput");
-      var n = input ? parseInt(input.value, 10) : NaN;
-      if (n >= 1) { markDoneToday(id); setGuessToday(id, n); patchCard(id); }
     } else if (act === "routine") {
       toggleRoutine(id);
       if (prefs.routineOnly) render();
-    } else if (act === "pasteHere") {
-      var ta = document.getElementById("detailPaste");
-      var pr = ta && parseShareText(ta.value);
-      if (!pr) {
-        var m = document.getElementById("detailPasteMsg");
-        if (m) m.textContent = "That doesn't look like a game result — paste the game's Share text.";
-        return; // keep the box + message (don't refresh)
-      }
-      if (pr.solved) { markDoneToday(id); if (pr.value != null) setGuessToday(id, pr.value); }
-      else markFailedToday(id);
-      rememberResultType(id, pr.resultType);
-      patchCard(id);
-      if (prefs.completion !== "all" || prefs.routineOnly || prefs.favOnly) render();
     }
     refreshDetail();
   }
@@ -1521,65 +1568,72 @@
     }
     return best;
   }
-  // Reusable "confirm the result" editor: paste box + Solved/Failed toggle + a value
-  // field whose shape depends on the game's result type (guess count / score / time /
-  // none for plain win-loss). Used by the global paste modal AND each game's detail, so
-  // auto-detect is always editable before recording (guarantees accuracy).
-  function valueFieldHtml(rt, val, disabled) {
-    rt = rt || "guesses";
-    if (rt === "winloss") return '<span class="res-g" id="resValueWrap" data-restype="winloss"></span>';
-    var isTime = rt === "time";
-    var isCorrect = rt === "correct";
+  // Reusable "confirm the result" editor: paste box + Solved/Failed toggle + one value field
+  // per tracked measurement (a game can track several at once, e.g. guesses AND score).
+  // Used by the global paste modal AND each game's detail, so auto-detect is always editable
+  // before recording (guarantees accuracy).
+  function valueFieldHtml(type, val, disabled) {
+    var isTime = type === "time";
+    var isCorrect = type === "correct";
     var isText = isTime || isCorrect;
-    var prefix = rt === "score" ? "scoring" : "in";
-    var unit = rt === "score" ? "points" : rt === "time" ? "" : rt === "correct" ? "correct" : "guesses";
-    var display = val != null ? (isText ? formatResultValue(rt, val) : val) : "";
+    var prefix = type === "score" ? "scoring" : "in";
+    var unit = type === "score" ? "points" : type === "time" ? "" : type === "correct" ? "correct" : "guesses";
+    var display = val != null ? (isText ? formatResultValue(type, val) : val) : "";
     return (
-      '<span class="res-g" id="resValueWrap" data-restype="' + rt + '">' + prefix + ' ' +
-      '<input type="' + (isText ? "text" : "number") + '" id="resValue" class="guess-input" ' +
+      '<span class="res-g" data-restype="' + type + '">' + prefix + ' ' +
+      '<input type="' + (isText ? "text" : "number") + '" class="guess-input res-value-input" data-restype="' + type + '" ' +
       (isTime ? 'placeholder="m:ss"' : isCorrect ? 'placeholder="3/6"' : 'min="0" max="9999" placeholder="?"') +
       ' value="' + escapeHtml(String(display)) + '"' + (disabled ? " disabled" : "") + "> " + unit + "</span>"
     );
   }
   function resultEditorHtml(state) {
     state = state || {};
-    var rt = state.resultType || "guesses";
+    var types = state.types || [];
+    var values = state.values || {};
     var sel = state.failed ? "failed" : "solved";
+    var fields = types.map(function (t) { return valueFieldHtml(t, values[t], sel === "failed"); }).join("");
     return (
       (state.paste !== false
         ? '<textarea id="pasteBox" class="paste-input" rows="3" placeholder="Paste the game’s Share text to auto-fill ↓ (or just set it manually)"></textarea>'
         : "") +
       '<p class="res-preview" id="resPreview"></p>' +
-      '<div class="res-editor">' +
+      '<div class="res-editor" id="resFields">' +
         '<button class="btn res-solved' + (sel === "solved" ? " active" : "") + '" data-res="solved">✓ Solved</button>' +
         '<button class="btn res-failed' + (sel === "failed" ? " active" : "") + '" data-res="failed">✗ Failed</button>' +
-        valueFieldHtml(rt, state.value, sel === "failed") +
+        fields +
         '<button class="btn btn-primary" data-record="1">Record</button>' +
       "</div>" +
       '<p class="import-result" id="resMsg"></p>'
     );
   }
-  function swapValueField(rt, val, disabled) {
-    var wrap = document.getElementById("resValueWrap");
-    if (!wrap) return;
-    wrap.outerHTML = valueFieldHtml(rt, val, disabled);
+  // Fills the field for `type` if the editor already has one; otherwise injects a new one
+  // just before the Record button (e.g. a paste implies a measurement the game isn't
+  // formally tracking yet — handleRecord will add it to the game's active types on Record).
+  function upsertValueField(type, val, disabled) {
+    var input = document.querySelector('#resFields .res-value-input[data-restype="' + type + '"]');
+    if (input) {
+      input.value = val != null ? formatResultValue(type, val) : "";
+      input.disabled = disabled;
+      return;
+    }
+    var recordBtn = document.querySelector("#resFields [data-record]");
+    if (recordBtn) recordBtn.insertAdjacentHTML("beforebegin", valueFieldHtml(type, val, disabled));
   }
   function setResSelection(sel) {
     var s = document.querySelector(".res-solved"), f = document.querySelector(".res-failed");
     if (!s || !f) return;
     s.classList.toggle("active", sel === "solved");
     f.classList.toggle("active", sel === "failed");
-    var wrap = document.getElementById("resValueWrap");
-    var rt = wrap ? wrap.dataset.restype : "guesses";
-    var val = document.getElementById("resValue");
-    swapValueField(rt, sel === "failed" ? null : (val ? val.value : null), sel === "failed");
+    document.querySelectorAll("#resFields .res-value-input").forEach(function (inp) {
+      inp.disabled = sel === "failed";
+    });
   }
   function populateFromPaste(text) {
     var p = parseShareText(text);
     var prev = document.getElementById("resPreview");
     if (!p) { if (prev) prev.textContent = text.trim() ? "Couldn’t read a result from that yet…" : ""; return; }
     setResSelection(p.solved ? "solved" : "failed");
-    swapValueField(p.resultType, p.value, !p.solved);
+    if (p.value != null) upsertValueField(p.resultType, p.value, !p.solved);
     var name = currentDetailId ? (gameById[currentDetailId] || {}).name : (matchGameByName(p.nameHint) || {}).name;
     var valTxt = p.solved && p.value != null ? " " + describeResultValue(p.resultType, p.value) : "";
     if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + valTxt : "failed") + " — fix below if wrong.";
@@ -1588,10 +1642,6 @@
     var msg = document.getElementById("resMsg");
     var solvedBtn = document.querySelector(".res-solved");
     var solved = solvedBtn && solvedBtn.classList.contains("active");
-    var wrap = document.getElementById("resValueWrap");
-    var rt = wrap ? wrap.dataset.restype : "guesses";
-    var vi = document.getElementById("resValue");
-    var value = solved && vi ? parseResultValueInput(rt, vi.value) : null;
     var g;
     if (currentDetailId) {
       g = gameById[currentDetailId];
@@ -1603,14 +1653,23 @@
       if (!g) { if (msg) msg.textContent = "Couldn’t match a game from that text. Open it in the hub and log it from its ⓘ."; return; }
     }
     if (!g) return;
-    rememberResultType(g.id, rt);
+    var recordedBits = [];
+    if (solved) {
+      document.querySelectorAll("#resFields .res-value-input").forEach(function (inp) {
+        var type = inp.dataset.restype;
+        var val = parseResultValueInput(type, inp.value);
+        if (val == null) return;
+        setValueToday(g.id, type, val);
+        ensureTypeActive(g.id, type);
+        recordedBits.push(formatResultValue(type, val) + (type === "correct" ? " correct" : type === "score" ? " pts" : type === "guesses" ? " guesses" : ""));
+      });
+    }
     removePending(g.id);
-    if (solved) { markDoneToday(g.id); if (value != null) setGuessToday(g.id, value); }
-    else markFailedToday(g.id);
+    if (solved) markDoneToday(g.id); else markFailedToday(g.id);
     patchCard(g.id);
     if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
     if (currentDetailId) { refreshDetail(); }
-    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (value != null ? " (" + formatResultValue(rt, value) + ")" : "") : "failed") + ".";
+    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (recordedBits.length ? " (" + recordedBits.join(", ") + ")" : "") : "failed") + ".";
   }
   function pasteBody() {
     return (
@@ -1688,7 +1747,7 @@
     removePending(g.id);
     if (payload.solved) {
       markDoneToday(g.id);
-      if (payload.guesses > 0) setGuessToday(g.id, payload.guesses);
+      if (payload.guesses > 0) { setValueToday(g.id, "guesses", payload.guesses); ensureTypeActive(g.id, "guesses"); }
     } else {
       markFailedToday(g.id);
     }

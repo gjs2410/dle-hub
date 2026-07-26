@@ -193,17 +193,24 @@ top of `games.json` without touching the generated dataset:
   trackable games (own streak, favorite, daily completion, and page) — e.g.
   Brawldle becomes "Brawldle: Classic", "Brawldle: Gadget", etc., each its
   own card in the grid rather than nested behind a single "N modes" card.
-- `resultType` (per game or per mode) is one of `guesses` (default — a count,
+- `resultType` sets a game's *default* measurement: `guesses` (a count,
   Wordle-style), `winloss` (no number, just solved/failed), `score` (a plain
   number), `time` (formatted mm:ss), or `correct` (an "N/M correct" pair, e.g.
   trivia grids or category games — stored as `{n, m}` instead of a single
-  number). It controls how the detail view's stats and "log a result" field
-  are labeled/formatted. Games also silently *learn* a different type the
-  first time a pasted result clearly implies one (e.g. pasting "1:23", or
-  "3/6 correct", for a game with no override).
-- Games tracked as `score` get an extra **Score** tab on their page (next to
-  **Overview**), showing your recorded scores by date as a bar chart. This
-  tab only appears when it's relevant — other result types don't get it.
+  number). Unset defaults to `guesses`.
+- A game isn't limited to one measurement, and you don't need to edit
+  `overrides.json` to change it: every game's page has a **Track** row of
+  toggle chips (Guesses / Score / Time / Accuracy) — click any combination on
+  or off. A game can track several at once (e.g. both Score and Guesses),
+  each gets its own stat tile, history section, and input field in "Log
+  today's result". A pasted result that clearly implies a type not yet
+  tracked (e.g. pasting "1:23" for a guesses-only game) turns that type on
+  automatically, on top of whatever's already tracked — it never replaces one
+  type with another. This is stored per game in `dlehub:activeTypes`, and
+  once set it overrides the static default from `overrides.json`.
+- Games tracking `score` get an extra **Score** tab on their page (next to
+  **Overview**), showing recorded scores by date as a bar chart. This tab
+  only appears when it's relevant — other measurements don't get it.
 
 After hand-editing `data/overrides.json`, regenerate `overrides.js` (the
 `window.GAMES_OVERRIDES` script the app actually loads):

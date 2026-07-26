@@ -898,6 +898,32 @@
     });
     return { dist: dist, max: max, total: total };
   }
+  // Every recorded score for one game, newest first — backs the "Score" tab.
+  function gameScoreHistory(id) {
+    var rows = [];
+    Object.keys(guesses).forEach(function (date) {
+      var v = guesses[date][id];
+      if (v != null) rows.push({ date: date, value: v });
+    });
+    rows.sort(function (a, b) { return b.date.localeCompare(a.date); });
+    return rows;
+  }
+  function scoreHistoryHtml(id) {
+    var rows = gameScoreHistory(id);
+    if (!rows.length) {
+      return '<p class="stats-empty">No scores recorded yet — captured automatically when you share this game (or add one below).</p>';
+    }
+    var max = rows.reduce(function (m, r) { return Math.max(m, r.value); }, 0) || 1;
+    return (
+      '<div class="score-history">' +
+      rows.map(function (r) {
+        var pct = Math.max(Math.round((r.value / max) * 100), 10);
+        return '<div class="sh-row"><span class="sh-date">' + escapeHtml(r.date) + "</span>" +
+          '<div class="sh-track"><div class="sh-bar" style="width:' + pct + '%">' + escapeHtml(String(r.value)) + "</div></div></div>";
+      }).join("") +
+      "</div>"
+    );
+  }
 
   function openStats() {
     if (!statsModal) {
@@ -961,6 +987,8 @@
     if (rel) { openDetail(rel.dataset.relatedId); return; }
     var d = e.target.closest("[data-detail-act]");
     if (d && currentDetailId) { handleDetailAct(d.dataset.detailAct); return; }
+    var tab = e.target.closest("[data-tab]");
+    if (tab && currentDetailId) { currentDetailTab = tab.dataset.tab; refreshDetail(); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -985,6 +1013,7 @@
   // multi-mode game, has its own). Bookmarkable/shareable, and the browser's own
   // back/forward buttons work with it.
   var currentDetailId = null;
+  var currentDetailTab = "overview"; // "overview" | "score" — reset whenever a new game page opens
   var pageBodyEl = null, pageTitleEl = null;
 
   function parseRoute() {
@@ -1064,6 +1093,11 @@
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
     var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).slice(0, 6);
+    var resType = resultTypeOf(g);
+    // A "Score" tab (score history over time) only makes sense — and only appears —
+    // for games actually tracked as the "score" result type.
+    var hasScoreTab = resType === "score";
+    if (!hasScoreTab) currentDetailTab = "overview";
 
     var icon = fIco
       ? '<img src="' + fIco + '" alt="" class="detail-ico">'
@@ -1084,7 +1118,6 @@
         "<span>" + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
         (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
       (function () {
-        var resType = resultTypeOf(g);
         var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
         var avgLabel, avgVal;
         if (resType === "correct") {
@@ -1110,46 +1143,58 @@
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
         '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
       "</div>" +
-      (function () {
-        var resType = resultTypeOf(g);
-        var heading, body;
-        if (resType === "guesses") {
-          var gd = gameGuessDistribution(g.id);
-          heading = "Guess distribution";
-          body = gd.total
-            ? distBarsHtml(gd, gd.total + " solves recorded")
-            : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
-        } else if (resType === "winloss") {
-          heading = "History";
-          body = '<p class="stats-empty">This game is tracked as solved/failed only — no score or guess count.</p>';
-        } else if (resType === "correct") {
-          var avgC = gameAvgCorrect(g.id);
-          heading = "Accuracy";
-          body = avgC != null
-            ? '<p class="stats-empty">Average: ' + formatResultValue("correct", avgC) + " correct</p>"
-            : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
-        } else {
-          var avg = gameAvgGuesses(g.id);
-          heading = resType === "time" ? "Times" : "Scores";
-          body = avg != null
-            ? '<p class="stats-empty">Average ' + (resType === "time" ? "time" : "score") + ": " + formatResultValue(resType, avg) + "</p>"
-            : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
-        }
-        var editor = resultEditorHtml({ solved: done, failed: failed, value: guessToday(g.id), resultType: resType });
-        return '<h3 class="stats-h">' + heading + '</h3>' + body +
-          '<h3 class="stats-h">Log today\'s result</h3>' + editor;
-      })() +
-      (related.length
-        ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
-          '<div class="related">' +
-          related.map(function (r) {
-            var rc = colorFor(r.category);
-            var ri = faviconUrl(r.url);
-            var rl = escapeHtml((r.name[0] || "?").toUpperCase());
-            return '<button class="rel" data-related-id="' + r.id + '">' +
-              (ri ? '<img src="' + ri + '" alt="">' : '<span class="rel-fb" style="background:' + rc + '">' + rl + "</span>") +
-              '<span class="rel-name">' + escapeHtml(r.name) + "</span></button>";
-          }).join("") +
+      (hasScoreTab
+        ? '<div class="detail-tabs" role="tablist">' +
+            '<button class="detail-tab' + (currentDetailTab === "overview" ? " active" : "") + '" data-tab="overview" role="tab" aria-selected="' + (currentDetailTab === "overview") + '">Overview</button>' +
+            '<button class="detail-tab' + (currentDetailTab === "score" ? " active" : "") + '" data-tab="score" role="tab" aria-selected="' + (currentDetailTab === "score") + '">Score</button>' +
+          "</div>"
+        : "") +
+      '<div class="tab-panel"' + (hasScoreTab && currentDetailTab !== "overview" ? " hidden" : "") + '>' +
+        (function () {
+          var heading, body;
+          if (resType === "guesses") {
+            var gd = gameGuessDistribution(g.id);
+            heading = "Guess distribution";
+            body = gd.total
+              ? distBarsHtml(gd, gd.total + " solves recorded")
+              : '<p class="stats-empty">No guesses recorded yet — captured automatically when you share this game (or add one below).</p>';
+          } else if (resType === "winloss") {
+            heading = "History";
+            body = '<p class="stats-empty">This game is tracked as solved/failed only — no score or guess count.</p>';
+          } else if (resType === "correct") {
+            var avgC = gameAvgCorrect(g.id);
+            heading = "Accuracy";
+            body = avgC != null
+              ? '<p class="stats-empty">Average: ' + formatResultValue("correct", avgC) + " correct</p>"
+              : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+          } else {
+            var avg = gameAvgGuesses(g.id);
+            heading = resType === "time" ? "Times" : "Scores";
+            body = avg != null
+              ? '<p class="stats-empty">Average ' + (resType === "time" ? "time" : "score") + ": " + formatResultValue(resType, avg) + "</p>"
+              : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
+          }
+          var editor = resultEditorHtml({ solved: done, failed: failed, value: guessToday(g.id), resultType: resType });
+          return '<h3 class="stats-h">' + heading + '</h3>' + body +
+            '<h3 class="stats-h">Log today\'s result</h3>' + editor;
+        })() +
+        (related.length
+          ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
+            '<div class="related">' +
+            related.map(function (r) {
+              var rc = colorFor(r.category);
+              var ri = faviconUrl(r.url);
+              var rl = escapeHtml((r.name[0] || "?").toUpperCase());
+              return '<button class="rel" data-related-id="' + r.id + '">' +
+                (ri ? '<img src="' + ri + '" alt="">' : '<span class="rel-fb" style="background:' + rc + '">' + rl + "</span>") +
+                '<span class="rel-name">' + escapeHtml(r.name) + "</span></button>";
+            }).join("") +
+            "</div>"
+          : "") +
+      "</div>" +
+      (hasScoreTab
+        ? '<div class="tab-panel"' + (currentDetailTab !== "score" ? " hidden" : "") + '>' +
+            '<h3 class="stats-h">Score history</h3>' + scoreHistoryHtml(g.id) +
           "</div>"
         : "")
     );
@@ -1160,6 +1205,7 @@
   function renderGamePage(id) {
     var g = gameById[id] || DATA.find(function (x) { return x.id === id; });
     if (!g) { navigateTo(""); return; }
+    if (id !== currentDetailId) currentDetailTab = "overview";
     currentDetailId = id;
     showPage(g.name, detailBody(g));
   }

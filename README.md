@@ -201,6 +201,9 @@ top of `games.json` without touching the generated dataset:
   are labeled/formatted. Games also silently *learn* a different type the
   first time a pasted result clearly implies one (e.g. pasting "1:23", or
   "3/6 correct", for a game with no override).
+- Games tracked as `score` get an extra **Score** tab on their page (next to
+  **Overview**), showing your recorded scores by date as a bar chart. This
+  tab only appears when it's relevant — other result types don't get it.
 
 After hand-editing `data/overrides.json`, regenerate `overrides.js` (the
 `window.GAMES_OVERRIDES` script the app actually loads):

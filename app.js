@@ -919,6 +919,11 @@
             '<label for="guessInput">Guesses today</label>' +
             '<input type="number" min="1" max="20" step="1" id="guessInput" class="guess-input" placeholder="e.g. 4" value="' + (todayG || "") + '">' +
             '<button class="btn" data-detail-act="logguess">Save</button>' +
+          "</div>" +
+          '<div class="detail-paste">' +
+            '<textarea id="detailPaste" class="paste-input" rows="2" placeholder="…or paste this game\'s Share text — reads solved/failed + guesses"></textarea>' +
+            '<div class="settings-row"><button class="btn" data-detail-act="pasteHere">Record from paste</button></div>' +
+            '<p class="import-result" id="detailPasteMsg"></p>' +
           "</div>";
         return '<h3 class="stats-h">Guess distribution</h3>' + body + entry;
       })() +
@@ -974,6 +979,18 @@
     } else if (act === "routine") {
       toggleRoutine(id);
       if (prefs.routineOnly) render();
+    } else if (act === "pasteHere") {
+      var ta = document.getElementById("detailPaste");
+      var pr = ta && parseShareText(ta.value);
+      if (!pr) {
+        var m = document.getElementById("detailPasteMsg");
+        if (m) m.textContent = "That doesn't look like a game result — paste the game's Share text.";
+        return; // keep the box + message (don't refresh)
+      }
+      if (pr.solved) { markDoneToday(id); if (pr.guesses) setGuessToday(id, pr.guesses); }
+      else markFailedToday(id);
+      patchCard(id);
+      if (prefs.completion !== "all" || prefs.routineOnly || prefs.favOnly) render();
     }
     refreshDetail();
   }

@@ -1087,6 +1087,12 @@
     if (r.type === "game") renderGamePage(r.id);
     else hidePage();
   }
+  // Remembers where the grid was scrolled to before opening a game page, so returning to
+  // it lands back on the game you came from instead of wherever the detail page's own
+  // scroll happened to end up. Only captured when the grid is the thing being left (not
+  // when hopping from one game page to another via "related games") so a chain of those
+  // still returns to the original spot in the grid.
+  var savedGridScroll = 0;
   function showPage(title, bodyHtml) {
     if (!pageBodyEl) {
       pageBodyEl = $("pageBody");
@@ -1095,6 +1101,7 @@
       pageBodyEl.addEventListener("change", onModalChange);
       pageBodyEl.addEventListener("input", onPasteInput);
     }
+    if (!$("mainGrid").hidden) savedGridScroll = window.scrollY;
     pageTitleEl.textContent = title;
     pageBodyEl.innerHTML = bodyHtml;
     document.body.classList.add("page-open");
@@ -1107,6 +1114,7 @@
     $("pageView").hidden = true;
     $("mainGrid").hidden = false;
     currentDetailId = null;
+    window.scrollTo(0, savedGridScroll);
   }
   function copyPageLink() {
     var btn = $("pageShare");

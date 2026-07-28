@@ -5,19 +5,23 @@
 -- down with Row-Level Security so each person can only read/write their own row.
 
 create table if not exists public.user_state (
-  user_id    uuid primary key references auth.users(id) on delete cascade,
-  favorites  jsonb not null default '[]'::jsonb,
-  history    jsonb not null default '{}'::jsonb,
-  fails      jsonb not null default '{}'::jsonb,
-  guesses    jsonb not null default '{}'::jsonb,
-  routine    jsonb not null default '[]'::jsonb,
-  updated_at timestamptz not null default now()
+  user_id      uuid primary key references auth.users(id) on delete cascade,
+  favorites    jsonb not null default '[]'::jsonb,
+  history      jsonb not null default '{}'::jsonb,
+  fails        jsonb not null default '{}'::jsonb,
+  guesses      jsonb not null default '{}'::jsonb,
+  routine      jsonb not null default '[]'::jsonb,
+  "activeTypes" jsonb not null default '{}'::jsonb,
+  updated_at   timestamptz not null default now()
 );
 
 -- If you created the table before these features, add the columns:
 alter table public.user_state add column if not exists fails   jsonb not null default '{}'::jsonb;
 alter table public.user_state add column if not exists guesses jsonb not null default '{}'::jsonb;
 alter table public.user_state add column if not exists routine jsonb not null default '[]'::jsonb;
+-- Which measurement(s) each game tracks (e.g. score AND guesses at once) — quoted because
+-- it's camelCase; Postgres would otherwise fold it to lowercase and the app couldn't find it.
+alter table public.user_state add column if not exists "activeTypes" jsonb not null default '{}'::jsonb;
 
 alter table public.user_state enable row level security;
 

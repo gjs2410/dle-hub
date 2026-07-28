@@ -304,7 +304,7 @@
   // type ("winloss" meaning none). The user can override this per game (manualTypes, possibly
   // more than one type, or none at all) — that always wins once set, even to an empty list.
   var manualTypes = read(LS.activeTypes, {});
-  function saveManualTypes() { write(LS.activeTypes, manualTypes); }
+  function saveManualTypes() { write(LS.activeTypes, manualTypes); dleDirty(); }
   function defaultTypesOf(g) {
     if (!g || !g.resultType || g.resultType === "winloss") return [];
     return [g.resultType];
@@ -1322,6 +1322,7 @@
       fails: fails,
       guesses: guesses,
       routine: routine,
+      activeTypes: manualTypes,
     };
   }
   function applyBackup(obj) {
@@ -1378,6 +1379,18 @@
     if (Array.isArray(obj.routine)) {
       obj.routine.forEach(function (id) { if (routine.indexOf(id) === -1) routine.push(id); });
       saveRoutine();
+    }
+    if (obj.activeTypes && typeof obj.activeTypes === "object") {
+      // Union per game — if one device tracks "score" and another independently started
+      // tracking "guesses" for the same game, both devices should end up tracking both.
+      Object.keys(obj.activeTypes).forEach(function (id) {
+        var incoming = obj.activeTypes[id];
+        if (!Array.isArray(incoming)) return;
+        var local = manualTypes[id] || [];
+        incoming.forEach(function (t) { if (local.indexOf(t) === -1) local.push(t); });
+        manualTypes[id] = local;
+      });
+      saveManualTypes();
     }
     return { favAdd: favAdd, days: days };
   }

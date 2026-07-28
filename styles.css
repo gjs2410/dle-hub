@@ -200,8 +200,12 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
   color: #fff; padding: 2px 7px; border-radius: 7px; opacity: .92; white-space: nowrap;
 }
 .card-desc {
-  margin: 4px 0 0; font-size: 13px; color: var(--text-dim);
+  margin: 4px 0 0; font-size: 13px; line-height: 1.35; color: var(--text-dim);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  /* Reserves exactly 2 lines' worth of height even when the text is shorter, so a card
+     with a one-line description isn't shorter than its neighbors — without this, grid
+     view's rows size to their tallest card and a mix of 1-line/2-line cards looks jagged. */
+  height: 2.7em;
 }
 .card-desc.empty { font-style: italic; opacity: .7; }
 
@@ -400,7 +404,13 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; }
   border-bottom: 1px solid var(--border);
 }
 .grid.view-grid .card-body { padding: 10px 12px 4px; }
-.grid.view-grid .card-title { font-size: 15px; }
+/* Long titles wrapping to 2 lines was the last source of uneven card heights in grid view
+   (rows size to their tallest card) — truncate instead, matching the fixed-height description. */
+.grid.view-grid .card-line { flex-wrap: nowrap; }
+.grid.view-grid .card-title {
+  font-size: 15px; flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .grid.view-grid .card-acts { padding: 4px 10px 9px; margin-top: auto; }
 .grid.view-grid .group-head { grid-column: 1 / -1; }
 .grid.view-grid .card.is-done { border-left-width: 2px; }

@@ -51,6 +51,15 @@ const PLAYLIN_CATEGORIES = [
   "animal", "arcade", "food", "geography", "logic", "math", "movies-and-tv",
   "music", "other", "sports", "trivia", "visual", "weird", "word",
 ];
+// The category pill's visible text isn't always reachable near a given card occurrence
+// (see parsePlaylinCards), but since each page IS a specific category, its own label is a
+// reliable fallback — maps each slug above to the exact visible label text it uses.
+const PLAYLIN_CATEGORY_LABELS = {
+  animal: "animal", arcade: "arcade game", food: "food", geography: "geography",
+  logic: "logic & deduction", math: "math game", "movies-and-tv": "movies & tv",
+  music: "music", other: "other", sports: "sports", trivia: "trivia & knowledge",
+  visual: "visual & pattern", weird: "weird & wonderful", word: "word game",
+};
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -256,8 +265,9 @@ async function fetchListdle() {
 
 // Parses the repeated "game card" markup that appears on every playlin.io page: a run of
 // hidden <input> fields (title/slug/icon/url) immediately followed by the visible category
-// pill and a one-line "hook" description.
-function parsePlaylinCards(html) {
+// pill and a one-line "hook" description. fallbackCategoryLabel covers cards where that
+// pill isn't reachable near this particular occurrence (see fetchPlaylin).
+function parsePlaylinCards(html, fallbackCategoryLabel) {
   const games = [];
   const cardRe =
     /<input type="hidden" data-game-title value="([^"]*)">\s*<input type="hidden" data-game-slug value="([^"]*)">\s*<input type="hidden" data-game-icon-url value="([^"]*)">\s*<input type="hidden" data-game-url value="([^"]*)">/g;
@@ -265,15 +275,20 @@ function parsePlaylinCards(html) {
   while ((m = cardRe.exec(html)) !== null) {
     const [, title, slug, icon, url] = m;
     if (!title || !slug || !url) continue;
-    const window_ = html.slice(m.index, m.index + 2000);
-    const catLabel = (window_.match(/whitespace-nowrap[^>]*>([^<]+)</) || [])[1];
+    // The inline SVG icons in the like-button and category pill push the actual category/
+    // hook text well past a naive short window (up to ~2,750 chars away in practice).
+    const window_ = html.slice(m.index, m.index + 4500);
+    // Anchor the category label to an actual /category/ link, not just any element with
+    // the "whitespace-nowrap" class — a compact "already played" card variant reuses that
+    // same class on its Free/Paid badge, which would otherwise be misread as the category.
+    const catLabel = (window_.match(/\/category\/[a-z0-9-]+-games\/[^>]*>[\s\S]{0,600}?whitespace-nowrap[^>]*>([^<]+)</) || [])[1];
     const hook = (window_.match(/data-game-hook[^>]*>([^<]*)</) || [])[1];
     games.push({
       slug,
       name: decodeEntities(title),
       url: url.trim(),
       description: hook ? decodeEntities(hook) : "",
-      category: normCategory(catLabel || "other"),
+      category: normCategory(catLabel || fallbackCategoryLabel),
       thumbnail: icon || "",
       unlimited: false,
       popularity: 0,
@@ -290,6 +305,16 @@ async function fetchPlaylin() {
     const CONCURRENCY = 5;
     const queue = PLAYLIN_CATEGORIES.slice();
     let failures = 0;
+    // A game can appear more than once across category pages (or more than once on the same
+    // page, e.g. also in a compact "recently played" rail) with a weaker card each time —
+    // enrich instead of keeping only the first occurrence, so the best data available for
+    // that slug wins regardless of which occurrence happened to be parsed first.
+    function enrich(existing, incoming) {
+      if (!existing) return incoming;
+      if (!existing.description && incoming.description) existing.description = incoming.description;
+      if (!existing.thumbnail && incoming.thumbnail) existing.thumbnail = incoming.thumbnail;
+      return existing;
+    }
     const workers = Array.from({ length: CONCURRENCY }, async () => {
       while (queue.length) {
         const cat = queue.shift();
@@ -297,8 +322,8 @@ async function fetchPlaylin() {
           const res = await fetch(`https://playlin.io/category/${cat}-games/`, { headers: { "user-agent": UA } });
           if (!res.ok) throw new Error(`status ${res.status}`);
           const html = await res.text();
-          parsePlaylinCards(html).forEach((g) => {
-            if (!byId.has(g.slug)) byId.set(g.slug, g);
+          parsePlaylinCards(html, PLAYLIN_CATEGORY_LABELS[cat]).forEach((g) => {
+            byId.set(g.slug, enrich(byId.get(g.slug), g));
           });
         } catch (err) {
           failures++;

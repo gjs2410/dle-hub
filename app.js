@@ -298,8 +298,8 @@
 
   // ---------- result types (which measurements a game tracks) ----------
   // A game can track any combination of these at once (e.g. both "guesses" and "score").
-  var ALL_TYPES = ["guesses", "score", "time", "correct"];
-  var TYPE_LABELS = { guesses: "Guesses", score: "Score", time: "Time", correct: "Accuracy" };
+  var ALL_TYPES = ["guesses", "score", "time", "correct", "hints"];
+  var TYPE_LABELS = { guesses: "Guesses", score: "Score", time: "Time", correct: "Accuracy", hints: "Hints" };
   // Static default comes from the game's own `resultType` (set from overrides.json), a single
   // type ("winloss" meaning none). The user can override this per game (manualTypes, possibly
   // more than one type, or none at all) — that always wins once set, even to an empty list.
@@ -359,6 +359,7 @@
     if (rt === "time") return "in " + formatResultValue("time", v);
     if (rt === "score") return "scoring " + v;
     if (rt === "correct") return "with " + formatResultValue("correct", v) + " correct";
+    if (rt === "hints") return "using " + v + " hint" + (v === 1 ? "" : "s");
     return "in " + v;
   }
   // ---------- streak & stats computation ----------
@@ -903,6 +904,10 @@
     if (accuracy != null) {
       tiles += '<div class="stats-tile"><span class="st-big">' + accuracy + '%</span><span class="st-label">Accuracy</span></div>';
     }
+    var avgHints = overallAvgByType("hints");
+    if (avgHints != null) {
+      tiles += '<div class="stats-tile"><span class="st-big">' + avgHints + '</span><span class="st-label">Avg hints</span></div>';
+    }
     body.innerHTML =
       '<div class="stats-tiles">' + tiles + "</div>" +
       '<h3 class="stats-h">Guess distribution</h3>' + guessDistHtml() +
@@ -1115,6 +1120,9 @@
     $("mainGrid").hidden = false;
     currentDetailId = null;
     window.scrollTo(0, savedGridScroll);
+    // Clear the stale detail content so its #resFields editor (same id as the global paste
+    // modal's) can't linger in the DOM and get matched alongside the modal's own fields.
+    if (pageBodyEl) pageBodyEl.innerHTML = "";
   }
   function copyPageLink() {
     var btn = $("pageShare");
@@ -1228,9 +1236,10 @@
                 : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
             } else {
               var avg = gameAvgValue(g.id, t);
-              heading = t === "time" ? "Times" : "Scores";
+              heading = t === "time" ? "Times" : t === "hints" ? "Hints" : "Scores";
+              var avgNoun = t === "time" ? "time" : t === "hints" ? "hints used" : "score";
               body = avg != null
-                ? '<p class="stats-empty">Average ' + (t === "time" ? "time" : "score") + ": " + formatResultValue(t, avg) + "</p>"
+                ? '<p class="stats-empty">Average ' + avgNoun + ": " + formatResultValue(t, avg) + "</p>"
                 : '<p class="stats-empty">Nothing recorded yet — captured automatically when you share this game (or add one below).</p>';
             }
             return '<h3 class="stats-h">' + heading + '</h3>' + body;
@@ -1512,6 +1521,18 @@
     if (m) return parseInt(m[1].replace(/,/g, ""), 10);
     return null;
   }
+  function extractHints(text) {
+    // "Hints: 3" / "Hints used: 3" / "Hint 1"
+    var m = text.match(/hints?\s*(?:used)?[:\s]+(\d{1,3})\b/i);
+    if (m) return parseInt(m[1], 10);
+    // "3 hints used"
+    m = text.match(/\b(\d{1,3})\s*hints?\s*used\b/i);
+    if (m) return parseInt(m[1], 10);
+    // "used 3 hints"
+    m = text.match(/\bused\s*(\d{1,3})\s*hints?\b/i);
+    if (m) return parseInt(m[1], 10);
+    return null;
+  }
   function parseShareText(text) {
     if (!text || text.length > 8000) return null;
 
@@ -1543,10 +1564,12 @@
     }
 
     if (!hasGrid && fSolved === null) {
-      // No grid, no n/m — try a time, then a score, then plain solved/failed wording.
+      // No grid, no n/m — try a time, hints used, then a score, then plain solved/failed wording.
       var nameHint = extractNameHint(text);
       var timeSec = extractTimeSeconds(text);
       if (timeSec != null) return { solved: true, value: timeSec, resultType: "time", nameHint: nameHint };
+      var hints = extractHints(text);
+      if (hints != null) return { solved: true, value: hints, resultType: "hints", nameHint: nameHint };
       var score = extractScore(text);
       if (score != null) return { solved: true, value: score, resultType: "score", nameHint: nameHint };
       if (/\b(solved|won|win|success|complete|completed)\b/i.test(text)) {
@@ -1612,8 +1635,8 @@
     var isTime = type === "time";
     var isCorrect = type === "correct";
     var isText = isTime || isCorrect;
-    var prefix = type === "score" ? "scoring" : "in";
-    var unit = type === "score" ? "points" : type === "time" ? "" : type === "correct" ? "correct" : "guesses";
+    var prefix = type === "score" ? "scoring" : type === "hints" ? "using" : "in";
+    var unit = type === "score" ? "points" : type === "time" ? "" : type === "correct" ? "correct" : type === "hints" ? "hints" : "guesses";
     var display = val != null ? (isText ? formatResultValue(type, val) : val) : "";
     return (
       '<span class="res-g" data-restype="' + type + '">' + prefix + ' ' +
@@ -1697,7 +1720,7 @@
         if (val == null) return;
         setValueToday(g.id, type, val);
         ensureTypeActive(g.id, type);
-        recordedBits.push(formatResultValue(type, val) + (type === "correct" ? " correct" : type === "score" ? " pts" : type === "guesses" ? " guesses" : ""));
+        recordedBits.push(formatResultValue(type, val) + (type === "correct" ? " correct" : type === "score" ? " pts" : type === "guesses" ? " guesses" : type === "hints" ? " hints" : ""));
       });
     }
     removePending(g.id);

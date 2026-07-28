@@ -201,19 +201,20 @@ top of `games.json` without touching the generated dataset:
   own card in the grid rather than nested behind a single "N modes" card.
 - `resultType` sets a game's *default* measurement: `guesses` (a count,
   Wordle-style), `winloss` (no number, just solved/failed), `score` (a plain
-  number), `time` (formatted mm:ss), or `correct` (an "N/M correct" pair, e.g.
+  number), `time` (formatted mm:ss), `correct` (an "N/M correct" pair, e.g.
   trivia grids or category games — stored as `{n, m}` instead of a single
-  number). Unset defaults to `guesses`.
+  number), or `hints` (a count of hints used). Unset defaults to `guesses`.
 - A game isn't limited to one measurement, and you don't need to edit
   `overrides.json` to change it: every game's page has a **Track** row of
-  toggle chips (Guesses / Score / Time / Accuracy) — click any combination on
-  or off. A game can track several at once (e.g. both Score and Guesses),
-  each gets its own stat tile, history section, and input field in "Log
-  today's result". A pasted result that clearly implies a type not yet
-  tracked (e.g. pasting "1:23" for a guesses-only game) turns that type on
-  automatically, on top of whatever's already tracked — it never replaces one
-  type with another. This is stored per game in `dlehub:activeTypes`, and
-  once set it overrides the static default from `overrides.json`.
+  toggle chips (Guesses / Score / Time / Accuracy / Hints) — click any
+  combination on or off. A game can track several at once (e.g. both Score
+  and Guesses), each gets its own stat tile, history section, and input
+  field in "Log today's result". A pasted result that clearly implies a type
+  not yet tracked (e.g. pasting "1:23" for a guesses-only game, or "used 2
+  hints") turns that type on automatically, on top of whatever's already
+  tracked — it never replaces one type with another. This is stored per game
+  in `dlehub:activeTypes`, and once set it overrides the static default from
+  `overrides.json`.
 - Games tracking `score` get an extra **Score** tab on their page (next to
   **Overview**), showing recorded scores by date as a bar chart. This tab
   only appears when it's relevant — other measurements don't get it.

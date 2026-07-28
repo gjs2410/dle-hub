@@ -11,6 +11,9 @@
  *                           descriptions, THUMBNAILS, daily/unlimited flag, play counts.
  *   3. listdle.com        -> Svelte SSR page; cards carry name, category, domain AND a
  *                           short description.
+ *   4. playlin.io        -> Astro SSR; no single "all games" page, so every category
+ *                           page is crawled and de-duped by slug. Cards carry name,
+ *                           external URL, category, a one-line "hook", and a thumbnail.
  *
  * Merge is de-duplicating (by normalized URL and by name-slug) AND enriching:
  * a game found in several sources keeps the first source's category but back-fills
@@ -41,6 +44,13 @@ const AUKSPOT_JSON =
 const ALLDLE_API = "https://api.alldle.net/games?limit=2000";
 const SEEKDLE_URL = "https://seekdle.com/";
 const LISTDLE_URL = "https://listdle.com/";
+// playlin.io has no single "all games" page — each category page happens to also carry
+// (and it's the only reliable way to reach) its own slice of the full catalog, so this
+// crawls all of them and de-dupes by slug.
+const PLAYLIN_CATEGORIES = [
+  "animal", "arcade", "food", "geography", "logic", "math", "movies-and-tv",
+  "music", "other", "sports", "trivia", "visual", "weird", "word",
+];
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -102,6 +112,10 @@ const CANON = {
   "nature & science": "Science/Nature", "science & nature": "Science/Nature",
   food: "Food", "food & drink": "Food",
   vehicles: "Vehicles", vehicle: "Vehicles", cars: "Vehicles", transport: "Vehicles",
+  // playlin.io's own category labels
+  "arcade game": "Video Games", "word game": "Words", "math game": "Math/Logic",
+  "logic & deduction": "Math/Logic", "visual & pattern": "Shapes/Patterns",
+  "trivia & knowledge": "Trivia", animal: "Science/Nature", "weird & wonderful": "Novelty",
 };
 
 function normCategory(cat) {
@@ -240,6 +254,68 @@ async function fetchListdle() {
   }
 }
 
+// Parses the repeated "game card" markup that appears on every playlin.io page: a run of
+// hidden <input> fields (title/slug/icon/url) immediately followed by the visible category
+// pill and a one-line "hook" description.
+function parsePlaylinCards(html) {
+  const games = [];
+  const cardRe =
+    /<input type="hidden" data-game-title value="([^"]*)">\s*<input type="hidden" data-game-slug value="([^"]*)">\s*<input type="hidden" data-game-icon-url value="([^"]*)">\s*<input type="hidden" data-game-url value="([^"]*)">/g;
+  let m;
+  while ((m = cardRe.exec(html)) !== null) {
+    const [, title, slug, icon, url] = m;
+    if (!title || !slug || !url) continue;
+    const window_ = html.slice(m.index, m.index + 2000);
+    const catLabel = (window_.match(/whitespace-nowrap[^>]*>([^<]+)</) || [])[1];
+    const hook = (window_.match(/data-game-hook[^>]*>([^<]*)</) || [])[1];
+    games.push({
+      slug,
+      name: decodeEntities(title),
+      url: url.trim(),
+      description: hook ? decodeEntities(hook) : "",
+      category: normCategory(catLabel || "other"),
+      thumbnail: icon || "",
+      unlimited: false,
+      popularity: 0,
+      source: "playlin",
+    });
+  }
+  return games;
+}
+
+async function fetchPlaylin() {
+  console.log("→ Fetching playlin.io...");
+  try {
+    const byId = new Map();
+    const CONCURRENCY = 5;
+    const queue = PLAYLIN_CATEGORIES.slice();
+    let failures = 0;
+    const workers = Array.from({ length: CONCURRENCY }, async () => {
+      while (queue.length) {
+        const cat = queue.shift();
+        try {
+          const res = await fetch(`https://playlin.io/category/${cat}-games/`, { headers: { "user-agent": UA } });
+          if (!res.ok) throw new Error(`status ${res.status}`);
+          const html = await res.text();
+          parsePlaylinCards(html).forEach((g) => {
+            if (!byId.has(g.slug)) byId.set(g.slug, g);
+          });
+        } catch (err) {
+          failures++;
+          console.warn(`  ! playlin/${cat} failed (${err.message})`);
+        }
+      }
+    });
+    await Promise.all(workers);
+    const games = [...byId.values()].map(({ slug, ...g }) => g);
+    console.log(`  ✓ playlin: ${games.length} games${failures ? ` (${failures} category page(s) failed)` : ""}`);
+    return games;
+  } catch (err) {
+    console.warn(`  ! playlin scrape failed (${err.message}); continuing without it`);
+    return [];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // merge + enrich
 // ---------------------------------------------------------------------------
@@ -361,10 +437,10 @@ function parseArgs() {
 
 async function main() {
   const opts = parseArgs();
-  const [aukspot, alldle, seekdle, listdle] = await Promise.all([
-    fetchAukspot(), fetchAlldle(), fetchSeekdle(), fetchListdle(),
+  const [aukspot, alldle, seekdle, listdle, playlin] = await Promise.all([
+    fetchAukspot(), fetchAlldle(), fetchSeekdle(), fetchListdle(), fetchPlaylin(),
   ]);
-  const merged = mergeAll([aukspot, alldle, seekdle, listdle]);
+  const merged = mergeAll([aukspot, alldle, seekdle, listdle, playlin]);
   let games = finalize(merged);
 
   let linkReport = null;

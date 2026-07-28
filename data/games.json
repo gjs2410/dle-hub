@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-25T14:14:43.215Z",
-  "count": 1384,
+  "generatedAt": "2026-07-28T10:53:19.997Z",
+  "count": 1645,
   "categories": [
     "Card/Board Games",
     "Colors",
@@ -23,6 +23,46 @@
   ],
   "games": [
     {
+      "id": "0h-n0",
+      "name": "0h n0",
+      "url": "https://0hn0.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/0h-n0-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "18-words",
+      "name": "18 Words",
+      "url": "https://18words.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/18-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "2048",
+      "name": "2048",
+      "url": "https://play2048.co/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/2048-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "2048-cupcakes",
+      "name": "2048 Cupcakes",
+      "url": "https://0x0800.github.io/2048-CUPCAKES/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/2048-cupcakes-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "23-words",
       "name": "23 Words",
       "url": "https://wordnerd.co/23words",
@@ -40,7 +80,17 @@
       "description": "Spin an AFL club and era, then pick five eligible players across key positions to build an undefeated 23-0 team.",
       "thumbnail": "https://cdn.alldle.net/games/e3defe4576363d82f064d750569f97f205c58ab51f2c79a110af3fc985a1aa34.webp",
       "unlimited": true,
-      "popularity": 8
+      "popularity": 9
+    },
+    {
+      "id": "38-0",
+      "name": "38-0",
+      "url": "https://38nil.fun",
+      "category": "Sports",
+      "description": "Pick your side in the player duel, build your team, then simulate a full season chasing the perfect unbeaten campaign.",
+      "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "3doku",
@@ -53,12 +103,32 @@
       "popularity": 67
     },
     {
+      "id": "3fall",
+      "name": "3FALL",
+      "url": "https://3fallpuzzle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/3fall-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "4-x-3",
       "name": "4 x 3",
       "url": "https://www.hankgreen.com/fourbythree/",
       "category": "Words",
       "description": "Group the words into 4 categories of 3 words apiece. One word is shared by each group.",
-      "thumbnail": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/hank-green-4x3-screenshot.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "45-by-45-connections",
+      "name": "45 by 45 Connections",
+      "url": "https://thomaswc.com/2025.html",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/45-by-45-connections-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -83,6 +153,16 @@
       "popularity": 14
     },
     {
+      "id": "80s-music-chart-challenge",
+      "name": "80s Music Chart Challenge",
+      "url": "https://80smusicchartchallenge.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/80s-music-chart-challenge-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "82-0",
       "name": "82-0",
       "url": "https://www.82-0.com/",
@@ -100,7 +180,7 @@
       "description": "Find the hidden daily word between AARDVARK and ZYZZYVA in unlimited guesses. Each guess narrows down the alphabetical range.",
       "thumbnail": "https://storage.googleapis.com/gpt-engineer-file-uploads/VClxMwq27IOZKXTlQUtP9bxQS9D2/social-images/social-1758544827688-Twitter Post - Join the A to Z Daily Challenge! (1).png",
       "unlimited": false,
-      "popularity": 57
+      "popularity": 63
     },
     {
       "id": "absurdle",
@@ -140,6 +220,16 @@
       "description": "A word puzzle where you place given letters into a clue-less crossword to complete six valid 5-letter words.",
       "thumbnail": "https://cdn.alldle.net/games/726499e9fdd3f1b909a16af8fb3d30aa0064982b3d285a18003cf58076d0f395.webp",
       "unlimited": true,
+      "popularity": 0
+    },
+    {
+      "id": "acrostic",
+      "name": "Acrostic",
+      "url": "https://www.sporcle.com/acrostic/play",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/acrostic-screenshot.png",
+      "unlimited": false,
       "popularity": 0
     },
     {
@@ -203,6 +293,16 @@
       "popularity": 55
     },
     {
+      "id": "adverswordle",
+      "name": "Adverswordle",
+      "url": "https://adverswordle.doteye.online/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/adverswordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "afterglow",
       "name": "Afterglow",
       "url": "https://greatest.games/g/afterglow",
@@ -211,6 +311,16 @@
       "thumbnail": "https://cdn.alldle.net/games/1f865fbe4b565489c503875670637cc3473dc36ee4b3693da012a732feb339fa.webp",
       "unlimited": false,
       "popularity": 33
+    },
+    {
+      "id": "agent-caesar",
+      "name": "Agent Caesar",
+      "url": "https://agentcaesar.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/agent-caesar-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "airport-guessr",
@@ -250,7 +360,7 @@
       "description": "Guess the verdict of Reddit AITA posts.",
       "thumbnail": "https://cdn.alldle.net/games/977eefe9-5238-4382-9310-32d52a587c64.webp",
       "unlimited": false,
-      "popularity": 292
+      "popularity": 298
     },
     {
       "id": "alibi",
@@ -260,7 +370,27 @@
       "description": "A daily logic-deduction puzzle where you place suspects and evidence into rooms to solve the case.",
       "thumbnail": "https://cdn.alldle.net/games/44a0729a93e8568d8df6a630e9d6ec27887c4ded4e828e5c1c34a3cafacf61bf.webp",
       "unlimited": false,
-      "popularity": 69
+      "popularity": 72
+    },
+    {
+      "id": "alpha-bet",
+      "name": "Alpha-Bet",
+      "url": "https://alpha-bet.club",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/alpha-bet-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "alphadots",
+      "name": "Alphadots",
+      "url": "https://www.bloomberg.com/games/alphadots",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/alphadots-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "alphalock",
@@ -283,14 +413,24 @@
       "popularity": 18
     },
     {
+      "id": "amagrama",
+      "name": "Amagrama",
+      "url": "https://www.amagrama.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/amagrama-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "amountle",
       "name": "Amountle",
       "url": "https://amountle.dev",
       "category": "Estimation",
       "description": "Guess how many objects went into the container before time runs out, 5 rounds every day. (Previously called Ballpark)",
-      "thumbnail": "",
+      "thumbnail": "https://cdn.alldle.net/games/37077ce0baff31b5bd52f0c7d6921ddbb230c91c6dd8ea87d4a1f2f392e77dbd.webp",
       "unlimited": false,
-      "popularity": 0
+      "popularity": 4
     },
     {
       "id": "amsterdammed",
@@ -308,7 +448,7 @@
       "url": "https://anagardens.com",
       "category": "Words",
       "description": "Each answer anagrams the last one plus a new letter.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/anagardens-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -329,6 +469,26 @@
       "category": "Words",
       "description": "Wordle gameplay scored with Scrabble letter values.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "analogees",
+      "name": "Analogees",
+      "url": "https://analogees.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/analogees-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "anasquare",
+      "name": "AnaSquare",
+      "url": "https://anasquare.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ana-square-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -370,7 +530,7 @@
       "description": "Guess the Anime by its specifications.",
       "thumbnail": "https://cdn.alldle.net/games/8af75211-b6c9-4497-86c8-0a9de73e9d72.webp",
       "unlimited": false,
-      "popularity": 33
+      "popularity": 34
     },
     {
       "id": "anidoku",
@@ -390,7 +550,7 @@
       "description": "A collection of daily games related to Anime, or Japanese animation.",
       "thumbnail": "https://cdn.alldle.net/games/1bb8784d-f133-4ce6-93d1-920ab77f4871.webp",
       "unlimited": false,
-      "popularity": 464
+      "popularity": 467
     },
     {
       "id": "animdle",
@@ -478,7 +638,7 @@
       "url": "https://anthropeum.com",
       "category": "History",
       "description": "Guess the right time and region in which each human artifact is from.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/anthropeum-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -610,7 +770,7 @@
       "description": "Guess the Joker from the game Balatro.",
       "thumbnail": "https://www.balatrodle.com/og.png",
       "unlimited": false,
-      "popularity": 37
+      "popularity": 38
     },
     {
       "id": "ball-don-t-cry",
@@ -623,6 +783,16 @@
       "popularity": 1
     },
     {
+      "id": "ball-sort-puzzle",
+      "name": "Ball Sort Puzzle",
+      "url": "https://playballsort.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ball-sort-puzzle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "ballast",
       "name": "Ballast",
       "url": "https://ballast.yukigames.workers.dev/",
@@ -630,7 +800,7 @@
       "description": "Daily balance-scale logic puzzle where you weigh crates and deduce their order from lightest to heaviest in as few weighings as possible.",
       "thumbnail": "https://cdn.alldle.net/games/65147ca2f3a554b4d86b65622be5e8e000544b6edb01098b228d0416d718f4df.webp",
       "unlimited": false,
-      "popularity": 3
+      "popularity": 6
     },
     {
       "id": "ballot-blocks",
@@ -693,6 +863,16 @@
       "popularity": 0
     },
     {
+      "id": "banish-your-fears",
+      "name": "Banish Your Fears",
+      "url": "https://onelook.com/byf",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/banish-your-fears-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "baseball-name-chain",
       "name": "Baseball Name Chain",
       "url": "https://baseballchaingame.com",
@@ -713,6 +893,56 @@
       "popularity": 10
     },
     {
+      "id": "basketball5",
+      "name": "Basketball5",
+      "url": "https://basketball-5.com/basketball-5",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/basketball5-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "basketball5-bingo",
+      "name": "Basketball5 Bingo",
+      "url": "https://basketball-5.com/basketball5-bingo",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/basketball5-bingo-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "basketball5-classic",
+      "name": "Basketball5 Classic",
+      "url": "https://basketball-5.com/basketball5-classic",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/basketball5-classic-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "basketball5-grid",
+      "name": "Basketball5 Grid",
+      "url": "https://basketball-5.com/basketball5-grid",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/basketball5-grid-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "basketball5-wordle",
+      "name": "Basketball5 Wordle",
+      "url": "https://basketball-5.com/basketball5-wordle",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/basketball5-wordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "batter-up",
       "name": "Batter Up",
       "url": "https://www.batter-up.app",
@@ -721,6 +951,16 @@
       "thumbnail": "https://dzt61qkjb3yz8.cloudfront.net/mlbswing/batter-up.png",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "battle-fm",
+      "name": "Battle.fm",
+      "url": "https://battle.fm",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/battle-fm-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "bazaar-doku",
@@ -743,12 +983,22 @@
       "popularity": 0
     },
     {
+      "id": "bean-connect",
+      "name": "Bean Connect",
+      "url": "https://coffeefirst.games/bean-connect",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bean-connect-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "bean-sort",
       "name": "Bean Sort",
       "url": "https://coffeefirst.games/bean-sort",
       "category": "Shapes/Patterns",
       "description": "Sort the colorful coffee beans so that each tube contains only one color.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bean-sort-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -830,7 +1080,7 @@
       "description": "Guess the secret word hidden between other words before running out of guesses.",
       "thumbnail": "https://betweenle.com/icon.png",
       "unlimited": false,
-      "popularity": 52
+      "popularity": 56
     },
     {
       "id": "bevel",
@@ -863,6 +1113,26 @@
       "popularity": 63
     },
     {
+      "id": "bingewatcher-france",
+      "name": "BingeWatcher France",
+      "url": "https://bingewatcher.org/fr/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/binge-watcher-france-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "bingewatcher-uk",
+      "name": "BingeWatcher UK",
+      "url": "https://bingewatcher.org/uk/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/binge-watcher-uk-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "bingle",
       "name": "Bingle",
       "url": "https://bingle.app/",
@@ -871,6 +1141,16 @@
       "thumbnail": "https://cdn.alldle.net/games/507a5d674863061d2fc039fc59292e567ad296e36116ae08392b3a34c1dd2a96.webp",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "bird-song",
+      "name": "Bird Song",
+      "url": "https://bird-song.org/guess-bird-song/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bird-song-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "birdie-game",
@@ -890,7 +1170,7 @@
       "description": "Identify today's bird in 6 guesses or less.",
       "thumbnail": "https://birdle.co.za/birdle_logo.png",
       "unlimited": false,
-      "popularity": 3
+      "popularity": 4
     },
     {
       "id": "birdle-uk",
@@ -970,7 +1250,7 @@
       "description": "A daily flash image quiz. An image flashes for 5 seconds. Can you identify what you saw?",
       "thumbnail": "https://cdn.alldle.net/games/f32f4e56-602b-4167-bff9-8dc662d85b5b.png",
       "unlimited": false,
-      "popularity": 133
+      "popularity": 136
     },
     {
       "id": "blockle",
@@ -1023,6 +1303,16 @@
       "popularity": 0
     },
     {
+      "id": "bluffpedia",
+      "name": "Bluffpedia",
+      "url": "https://bluffpedia.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bluffpedia-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "blunderwall",
       "name": "Blunderwall",
       "url": "https://bythomas.co.uk/blunderwall",
@@ -1060,7 +1350,7 @@
       "description": "Search for the best 3 words you can find in the Boggle grid.",
       "thumbnail": "https://cdn.alldle.net/games/5dfe0cde-4c37-49fb-9ccf-d4d32588cd7e.webp",
       "unlimited": false,
-      "popularity": 27
+      "popularity": 30
     },
     {
       "id": "bonedle",
@@ -1071,6 +1361,26 @@
       "thumbnail": "http://bonedle.rito.lol/images/bonedle-lol-preview.jpg",
       "unlimited": false,
       "popularity": 11
+    },
+    {
+      "id": "bookidle",
+      "name": "Bookidle",
+      "url": "https://bookidle.com/daily-cover/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bookidle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "bookidle-clues-guess",
+      "name": "Bookidle: Clues Guess",
+      "url": "https://bookidle.com/daily-words/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bookidle-clues-guess-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "booky",
@@ -1113,6 +1423,16 @@
       "popularity": 0
     },
     {
+      "id": "boston-globe-mini-crossword",
+      "name": "Boston Globe Mini Crossword",
+      "url": "https://www.bostonglobe.com/games/mini-crossword/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/boston-globe-mini-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "box-office-game",
       "name": "Box Office Game",
       "url": "https://boxofficega.me",
@@ -1129,6 +1449,16 @@
       "category": "Math/Logic",
       "description": "Daily puzzle game inspired by classic box-drawing strategy game. Place lines to complete boxes and score points indicated inside the box. Play the daily gambit, or a full game!",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "boxi",
+      "name": "BOXI",
+      "url": "https://www.motivick.com/puzzles/boxi",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/boxi-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1170,7 +1500,7 @@
       "description": "A weekday quiz show with creative questions from several categories.",
       "thumbnail": "https://gamebunny.app/img/opengraph.jpg",
       "unlimited": false,
-      "popularity": 188
+      "popularity": 191
     },
     {
       "id": "brandle",
@@ -1190,7 +1520,7 @@
       "description": "Daily Brawl Stars guessing game! Test your knowledge of brawlers, gadgets, hypercharges and more in this daily challenge!",
       "thumbnail": "https://cdn.alldle.net/games/a111e410-40b2-4454-bee8-b4378034d974.png",
       "unlimited": false,
-      "popularity": 321
+      "popularity": 322
     },
     {
       "id": "breadle",
@@ -1200,7 +1530,7 @@
       "description": "Solve the daily 5-letter word that is related to food.",
       "thumbnail": "https://breadle.us/images/wheat_stalkB620x536.png",
       "unlimited": false,
-      "popularity": 13
+      "popularity": 14
     },
     {
       "id": "brickdle",
@@ -1228,7 +1558,27 @@
       "url": "https://playbridgewords.com",
       "category": "Words",
       "description": "Word puzzle where each of the 5 clues on the left side of the river have one clue on the right side they match with. Move clues up/down until they align, then type the word that bridges them.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/bridge-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "broken-words",
+      "name": "Broken Words",
+      "url": "https://www.brokenwords.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/broken-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "brundle",
+      "name": "BRUNDLE",
+      "url": "https://brundle.co/",
+      "category": "Movies/TV",
+      "description": "Guess today's Jeff Goldblum movie in 3 clues. Start broad, get specific — can you name the film before running out of tries? A new puzzle every day. 90% of the time, the answer is The Fly.",
+      "thumbnail": "https://cdn.alldle.net/games/83dec3cf-3018-4b2a-8d0b-18e7d7d01a31.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1239,6 +1589,36 @@
       "category": "Music",
       "description": "A daily music guessing game built entirely around BTS. Read a bilingual lyric hint, listen to a growing snippet of the day's song, and name it in seven tries.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "buckets",
+      "name": "Buckets",
+      "url": "https://tehes.github.io/buckets/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/buckets-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "build-a-hooper",
+      "name": "Build a Hooper",
+      "url": "https://buildahooper.net/",
+      "category": "Sports",
+      "description": "Draft 13 basketball skills from real player seasons, build a custom hooper, and simulate an 82-game season in a shared daily challenge or free play.",
+      "thumbnail": "https://cdn.alldle.net/games/26ea6059315e31914d48ec9f5cb762d1b34ed5ae6d6b0aea0f71f6ebf67cef3b.webp",
+      "unlimited": false,
+      "popularity": 2
+    },
+    {
+      "id": "building-guessr",
+      "name": "Building Guessr",
+      "url": "https://buildingguessr.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/building-guessr-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1263,6 +1643,16 @@
       "popularity": 0
     },
     {
+      "id": "cabanagrams",
+      "name": "Cabanagrams",
+      "url": "https://cabanagrams.com/en",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cabanagrams-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "cadgy",
       "name": "Cadgy",
       "url": "https://cadgy.net",
@@ -1270,7 +1660,7 @@
       "description": "Make valid 5-letter words by selecting one letter from each column.",
       "thumbnail": "https://cdn.alldle.net/games/3d98a425-59ec-4e46-9e9b-a1a72fcb4c6c.png",
       "unlimited": false,
-      "popularity": 65
+      "popularity": 67
     },
     {
       "id": "cagey",
@@ -1303,6 +1693,16 @@
       "popularity": 17
     },
     {
+      "id": "canoku",
+      "name": "Canoku",
+      "url": "http://canoku.canucklegame.ca/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/canoku-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "canuckle",
       "name": "Canuckle",
       "url": "https://canuckle.pages.dev/",
@@ -1328,7 +1728,7 @@
       "url": "https://guessdash.com/capitalibrate",
       "category": "Geography",
       "description": "Guess the direction and distance from the starting capital to the target capital.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/capitalibrate-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1380,7 +1780,7 @@
       "description": "Guess the brand, model, and year of a car given pictures of parts of it.",
       "thumbnail": "https://cdn.alldle.net/games/89610a72-1a32-40cb-b8c3-15bdf167adc8.webp",
       "unlimited": false,
-      "popularity": 219
+      "popularity": 221
     },
     {
       "id": "cars-games",
@@ -1413,6 +1813,16 @@
       "popularity": 0
     },
     {
+      "id": "cartology",
+      "name": "Cartology",
+      "url": "https://cartologygame.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cartology-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "cartoonguessr",
       "name": "Cartoonguessr",
       "url": "https://cartoonguesser.pythonanywhere.com",
@@ -1421,6 +1831,16 @@
       "thumbnail": "https://cartoonguesser.pythonanywhere.com/static/favicon.ico",
       "unlimited": false,
       "popularity": 40
+    },
+    {
+      "id": "cascadle",
+      "name": "Cascadle",
+      "url": "https://cascadle.xyz/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cascadle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "castme",
@@ -1473,6 +1893,16 @@
       "popularity": 9
     },
     {
+      "id": "celeble",
+      "name": "Celeble",
+      "url": "https://celeble.io/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/celeble-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "cell-tower",
       "name": "Cell Tower",
       "url": "https://www.andrewt.net/puzzles/cell-tower",
@@ -1510,7 +1940,7 @@
       "description": "Guess the center of mass of all the shapes in the grid.",
       "thumbnail": "https://centroidgame.com/CentroidScreenshot.png",
       "unlimited": false,
-      "popularity": 269
+      "popularity": 272
     },
     {
       "id": "centumth",
@@ -1520,7 +1950,7 @@
       "description": "Guess the items ranked closest to #100 in today's category.",
       "thumbnail": "https://cdn.alldle.net/games/d882a657595b9be5c14043a0fe14c7c8802611b4369b825b71bbe710174f092c.webp",
       "unlimited": false,
-      "popularity": 29
+      "popularity": 31
     },
     {
       "id": "cfbordle",
@@ -1538,7 +1968,7 @@
       "url": "https://play.chainivore.com/",
       "category": "Trivia",
       "description": "Identify the restaurant chain from five clues.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/chain-reaction-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1551,6 +1981,16 @@
       "thumbnail": "https://puzzletrail.games/puzzles/chainagram/chainagram-og.jpg",
       "unlimited": false,
       "popularity": 2
+    },
+    {
+      "id": "chainwhich",
+      "name": "ChainWhich",
+      "url": "https://chainwhich.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/chain-which-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "chardle",
@@ -1580,7 +2020,7 @@
       "description": "Guess the country based on the chart.",
       "thumbnail": "https://chartle.cc/Chartle_web_preview.jpg",
       "unlimited": false,
-      "popularity": 647
+      "popularity": 655
     },
     {
       "id": "chemdle",
@@ -1620,7 +2060,7 @@
       "description": "Given a snapshot from a chess game, guess the next 5 moves played.",
       "thumbnail": "https://user-images.githubusercontent.com/1413265/179962925-46c12915-e99d-40c0-b92b-82960bdffb16.png",
       "unlimited": false,
-      "popularity": 192
+      "popularity": 197
     },
     {
       "id": "chessle",
@@ -1631,6 +2071,16 @@
       "thumbnail": "https://cdn.alldle.net/games/02d53a8a-3fab-4c8b-99e3-60a4eaad6c60.webp",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "chicago-sun-times-mini-crossword",
+      "name": "Chicago Sun-Times Mini Crossword",
+      "url": "https://chicago.suntimes.com/games/chicago-mini-crossword",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/chicago-sun-times-mini-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "chiddle",
@@ -1658,7 +2108,7 @@
       "url": "https://chordle.synthase.cc/",
       "category": "Music",
       "description": "Guess the four-note musical chord in four tries.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/chordle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1690,7 +2140,7 @@
       "description": "Put the events in chronological order in 3 tries or less.",
       "thumbnail": "https://chrono.quest/images/og-image.png",
       "unlimited": false,
-      "popularity": 93
+      "popularity": 95
     },
     {
       "id": "chrono-nba",
@@ -1748,7 +2198,7 @@
       "url": "https://chronoodle.com",
       "category": "History",
       "description": "Place each event in the correct spot on the timeline.",
-      "thumbnail": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/chronoodle-screenshot.webp",
       "unlimited": false,
       "popularity": 0
     },
@@ -1768,7 +2218,7 @@
       "url": "https://chronotrivia.com",
       "category": "Trivia",
       "description": "Order events chronologically across many categories.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/chrono-trivia-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1791,6 +2241,16 @@
       "thumbnail": "https://playcineline.com/og-default.png",
       "unlimited": false,
       "popularity": 2
+    },
+    {
+      "id": "cinelinkr",
+      "name": "CineLinkr",
+      "url": "https://cinelinkr.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cine-linkr-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "cinema-circuit",
@@ -1818,7 +2278,7 @@
       "url": "https://www.cinenerdle.app",
       "category": "Movies/TV",
       "description": "Rearrange the cells into groups that represent movies/themes. Includes Critical - a game where you guess a movie by revealing as few clues as you can.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cine-nerdle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1840,7 +2300,7 @@
       "description": "Solve puzzles by connecting elements in a grid to complete circuits using logic and strategy.",
       "thumbnail": "https://cdn.alldle.net/games/83eeddd0-3420-4dd6-bab9-96ce793f12a7.webp",
       "unlimited": false,
-      "popularity": 242
+      "popularity": 248
     },
     {
       "id": "city-guesser",
@@ -1933,6 +2393,26 @@
       "popularity": 0
     },
     {
+      "id": "clue-funnel",
+      "name": "Clue Funnel",
+      "url": "https://cluefunnel.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/clue-funnel-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "clue-funnel-timeline",
+      "name": "Clue Funnel Timeline",
+      "url": "https://cluefunnel.com/timeline",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/clue-funnel-timeline-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "clue-raider",
       "name": "Clue Raider",
       "url": "https://clueraider.com",
@@ -1968,7 +2448,7 @@
       "url": "https://clueday.com/",
       "category": "Words",
       "description": "Guess the mystery word from five daily clues.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/clue-day-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -1990,7 +2470,7 @@
       "description": "Use the clues to figure out which characters are innocent and which are criminals.",
       "thumbnail": "https://cluesbysam.com/images/1a117f7e6759.jpg",
       "unlimited": false,
-      "popularity": 284
+      "popularity": 285
     },
     {
       "id": "cluewords",
@@ -2010,7 +2490,7 @@
       "description": "Reveal clues one by one and guess the daily hidden word in up to ten chances.",
       "thumbnail": "https://cdn.alldle.net/games/6eb00c48-68c9-4cbc-bfc9-0c2e5b2c77f6.png",
       "unlimited": false,
-      "popularity": 19
+      "popularity": 22
     },
     {
       "id": "cluno",
@@ -2070,7 +2550,7 @@
       "description": "Free daily logic puzzle where you place items in a 3×3 grid by combining row and column clues. One shared puzzle per day, plus extra puzzles anytime, with no account required.",
       "thumbnail": "https://cdn.alldle.net/games/20d44c221c018a6dcee84ddc89892e4a97a014745f5dd2c1ccb7fe21f7361235.webp",
       "unlimited": false,
-      "popularity": 40
+      "popularity": 42
     },
     {
       "id": "codenames-daily",
@@ -2080,7 +2560,7 @@
       "description": "A daily set of puzzles from Codenames, a word association game.",
       "thumbnail": "https://cdn.alldle.net/games/8758f522-e668-4885-8b89-32e78ba5410b.webp",
       "unlimited": false,
-      "popularity": 63
+      "popularity": 67
     },
     {
       "id": "codepop",
@@ -2113,6 +2593,26 @@
       "popularity": 12
     },
     {
+      "id": "color-flood",
+      "name": "Color Flood",
+      "url": "https://ponderclub.co/color-flood",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/color-flood-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "color-flood-odyssey",
+      "name": "Color Flood: Odyssey",
+      "url": "https://greatest.games/g/color-flood-odyssey",
+      "category": "Math/Logic",
+      "description": "Help Odysseus sail home to Ithaca by flooding the map to create a single unbroken stretch of sea in this daily color-flood puzzle.",
+      "thumbnail": "https://cdn.alldle.net/games/25d062a2e0d1e1d7e992b9b6dede4a2296d8317324c00e657a920197575dc519.webp",
+      "unlimited": false,
+      "popularity": 1
+    },
+    {
       "id": "colordle",
       "name": "Colordle",
       "url": "https://colordle.ryantanen.com",
@@ -2141,6 +2641,16 @@
       "thumbnail": "https://cdn.alldle.net/games/1945b948-565f-4fdf-9ef0-88e94b5fd325.webp",
       "unlimited": false,
       "popularity": 30
+    },
+    {
+      "id": "colorgradle",
+      "name": "ColorGradle",
+      "url": "https://colorgradle.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/color-gradle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "colorguesser",
@@ -2191,6 +2701,16 @@
       "thumbnail": "https://cdn.alldle.net/games/c3e9b50e6e8a9b6eb89a171a1a6613730ec6eda235aaa29a763315b562469f15.webp",
       "unlimited": false,
       "popularity": 2
+    },
+    {
+      "id": "common-3",
+      "name": "Common 3",
+      "url": "https://ponderclub.co/common-3",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/common-3-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "commoner",
@@ -2250,7 +2770,7 @@
       "description": "Group words that share a common thread. Basically a copy of NYT Connections but with 3 difficulty modes and a good archive.",
       "thumbnail": "https://cdn.alldle.net/games/7dbcdd09-fb2e-491b-9b95-00ed599ba80b.webp",
       "unlimited": false,
-      "popularity": 177
+      "popularity": 182
     },
     {
       "id": "contexto",
@@ -2293,6 +2813,16 @@
       "popularity": 144
     },
     {
+      "id": "country-draw",
+      "name": "Country Draw",
+      "url": "https://country-draw.vercel.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/country-draw-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "country-heardle",
       "name": "Country Heardle",
       "url": "https://country.heardledecades.com/",
@@ -2321,6 +2851,16 @@
       "thumbnail": "https://cdn.alldle.net/games/16654e6f-5b49-4185-b692-1bfb4324f280.webp",
       "unlimited": false,
       "popularity": 10
+    },
+    {
+      "id": "couplecut",
+      "name": "CoupleCut",
+      "url": "https://couplecut.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/couple-cut-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "couples",
@@ -2370,7 +2910,7 @@
       "description": "Create groups of 4 Minecraft items that have something in common.",
       "thumbnail": "https://cdn.alldle.net/games/b7815521-7e4b-4a56-bad9-f8379aa6f333.webp",
       "unlimited": false,
-      "popularity": 1928
+      "popularity": 1948
     },
     {
       "id": "craftword",
@@ -2520,7 +3060,17 @@
       "description": "A music crossword puzzle where the clues include song audio.",
       "thumbnail": "https://crosstune.io/crosstune_share.jpg",
       "unlimited": false,
-      "popularity": 82
+      "popularity": 83
+    },
+    {
+      "id": "crossword-club",
+      "name": "Crossword Club",
+      "url": "https://crosswordclub.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/crossword-club-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "crossword-club-daily",
@@ -2583,6 +3133,16 @@
       "popularity": 1
     },
     {
+      "id": "cryptl",
+      "name": "Cryptl",
+      "url": "https://quizl.io/cryptl",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cryptl-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "cryptle",
       "name": "cryptle",
       "url": "https://cryptle.xyz",
@@ -2591,6 +3151,16 @@
       "thumbnail": "https://cdn.alldle.net/games/2e3677f2-3e63-4cd2-8f46-becba425b789.webp",
       "unlimited": false,
       "popularity": 2
+    },
+    {
+      "id": "cryptograms",
+      "name": "Cryptograms",
+      "url": "https://api.razzlepuzzles.com/cryptogram",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/cryptograms-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "cryptune",
@@ -2620,7 +3190,7 @@
       "description": "Cut today's shape as evenly as you can.",
       "thumbnail": "https://cdn.alldle.net/games/c178938e-df37-474e-9977-929bcf9eb514.webp",
       "unlimited": false,
-      "popularity": 846
+      "popularity": 859
     },
     {
       "id": "cyphr",
@@ -2660,7 +3230,7 @@
       "description": "A classic logic puzzle game where you must light up the grid.",
       "thumbnail": "https://dailyakari.com/assets/OGSmile.png",
       "unlimited": false,
-      "popularity": 145
+      "popularity": 146
     },
     {
       "id": "daily-analogy",
@@ -2760,7 +3330,7 @@
       "description": "A collection of twelve daily logic puzzles with a fresh set every day, plus practice mode, leaderboards, and streak tracking.",
       "thumbnail": "https://cdn.alldle.net/games/6a47b44103ecd380d210a880876b6fa65acd0aa899de4912570a3af127e6cd15.webp",
       "unlimited": false,
-      "popularity": 5
+      "popularity": 6
     },
     {
       "id": "daily-herd",
@@ -2830,7 +3400,7 @@
       "description": "Guess the daily mystery cheese.",
       "thumbnail": "https://cdn.alldle.net/games/dadd3cbf-4d3c-42e9-8e28-2c11e7f5991a.webp",
       "unlimited": false,
-      "popularity": 4
+      "popularity": 5
     },
     {
       "id": "daily-sleuth",
@@ -2860,7 +3430,7 @@
       "description": "Guess the top 10 items of today's category.",
       "thumbnail": "https://cdn.alldle.net/games/7cc19c09-2a31-4858-9c92-c666a832edd7.webp",
       "unlimited": false,
-      "popularity": 82
+      "popularity": 84
     },
     {
       "id": "daily-tents-and-trees",
@@ -2980,7 +3550,7 @@
       "description": "The daily Dead by Daylight guessing game with four modes: guess the killer from attribute clues, a silhouette, a power icon, or the daily map reveal. New puzzle every day, same for everyone.",
       "thumbnail": "https://cdn.alldle.net/games/703a99b1-1108-4e93-8b1c-ed488209bd01.jpg",
       "unlimited": false,
-      "popularity": 40
+      "popularity": 41
     },
     {
       "id": "dcdle",
@@ -3011,6 +3581,16 @@
       "thumbnail": "https://cdn.alldle.net/games/f693cab892d49cd4b64c37a6169c4886739ed565b9a65d89fc3606c80282b8c1.webp",
       "unlimited": false,
       "popularity": 3
+    },
+    {
+      "id": "debuggle",
+      "name": "Debuggle",
+      "url": "https://debuggle.net/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/debuggle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "decipher",
@@ -3049,6 +3629,16 @@
       "category": "Math/Logic",
       "description": "Find the hidden math sequence and its rule.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "dial-words",
+      "name": "Dial Words",
+      "url": "https://dial-words.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/dial-words-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -3103,6 +3693,26 @@
       "popularity": 0
     },
     {
+      "id": "diffle",
+      "name": "Diffle",
+      "url": "https://hedalu244.github.io/diffle/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/diffle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "digit-shift",
+      "name": "Digit Shift",
+      "url": "https://ponderclub.co/digit-shift",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/digit-shift-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "dimension-flux",
       "name": "Dimension Flux",
       "url": "https://dimensionflux.com",
@@ -3110,7 +3720,7 @@
       "description": "Solve the interdimensional mystery given the helpful clues.",
       "thumbnail": "https://dimensionflux.com/res.png?v=5",
       "unlimited": false,
-      "popularity": 13
+      "popularity": 14
     },
     {
       "id": "disney-heardle",
@@ -3120,7 +3730,7 @@
       "description": "Guess the Disney song from listening to small parts of it.",
       "thumbnail": "https://heardledecades.com/assets/heardle-disney_800x418v3.png",
       "unlimited": false,
-      "popularity": 45
+      "popularity": 48
     },
     {
       "id": "disorderly",
@@ -3200,7 +3810,7 @@
       "description": "Guess breed of the dog in the picture.",
       "thumbnail": "https://cdn.alldle.net/games/fb2ce1a1-c1c0-46fa-bd0e-9fa283f9933f.webp",
       "unlimited": false,
-      "popularity": 43
+      "popularity": 44
     },
     {
       "id": "domino-fit",
@@ -3209,6 +3819,16 @@
       "category": "Math/Logic",
       "description": "Fill the board with dominoes so that the dots add up in each row and column.",
       "thumbnail": "https://cdn.alldle.net/games/b2052d11-664c-41ad-94d5-d801070508da.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "don-t-be-an-idiom",
+      "name": "Don't Be an Idiom",
+      "url": "https://www.dontbeanidiom.fun/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/dont-be-an-idiom-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -3253,6 +3873,46 @@
       "popularity": 3
     },
     {
+      "id": "double-up",
+      "name": "Double Up",
+      "url": "https://ponderclub.co/double-up",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/double-up-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "double-dabble",
+      "name": "Double-Dabble",
+      "url": "https://double-dabble.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/double-dabble-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "draft-dawg",
+      "name": "Draft Dawg",
+      "url": "https://draftdawg.app",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/draft-dawg-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "drag-n-merge",
+      "name": "Drag N' Merge",
+      "url": "https://drag-n-merge.rf.gd/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/drag-n-merge-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "dragonballdle",
       "name": "DragonBalldle",
       "url": "https://dragonballdle.app/",
@@ -3261,6 +3921,16 @@
       "thumbnail": "https://media.alldle.net/thumbnails/dragonballdle-app.png",
       "unlimited": false,
       "popularity": 24
+    },
+    {
+      "id": "draw-a-perfect-circle",
+      "name": "Draw a Perfect Circle",
+      "url": "https://drawaperfectcircle.xyz/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/draw-a-perfect-circle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "drawdle",
@@ -3440,7 +4110,7 @@
       "description": "Use the emojis to guess the title of the movie.",
       "thumbnail": "https://www.emojiquiz.net/opengraph/opengraph-image-movies.png",
       "unlimited": false,
-      "popularity": 73
+      "popularity": 74
     },
     {
       "id": "emoji-quiz-tv",
@@ -3460,7 +4130,7 @@
       "description": "Use the emojis to guess the title of the video game.",
       "thumbnail": "https://www.emojiquiz.net/opengraph/opengraph-image-games.png",
       "unlimited": false,
-      "popularity": 49
+      "popularity": 50
     },
     {
       "id": "emoji-test",
@@ -3518,7 +4188,7 @@
       "url": "https://episodle.vercel.app/",
       "category": "Movies/TV",
       "description": "Guess the TV show from a random episode frame.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/episodle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -3530,7 +4200,7 @@
       "description": "Find 5 groups of 3 numbers, each of which represents an equation.",
       "thumbnail": "https://cdn.alldle.net/games/ded7a9d8-064a-4195-aac5-94e049630c9a.webp",
       "unlimited": false,
-      "popularity": 39
+      "popularity": 40
     },
     {
       "id": "eraguessr",
@@ -3538,7 +4208,7 @@
       "url": "https://eraguessr.ai",
       "category": "History",
       "description": "A daily history game built on the GeoGuessr idea: study an AI-rendered historical panorama, drop a pin on a map for where it is, and guess the year for when it is.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/era-guessr-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -3600,7 +4270,7 @@
       "description": "Test your intuition with 5 daily estimates. The closer the guess, the higher the points. Now with global leaderboard!",
       "thumbnail": "https://cdn.alldle.net/games/7371d294-3300-45e6-9093-4dedc03758a9.png",
       "unlimited": false,
-      "popularity": 165
+      "popularity": 169
     },
     {
       "id": "estimate-me",
@@ -3643,6 +4313,16 @@
       "popularity": 0
     },
     {
+      "id": "evil-wordle",
+      "name": "Evil Wordle",
+      "url": "https://swag.github.io/evil-wordle/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/evil-wordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "exodle",
       "name": "Exodle",
       "url": "https://exodle.astrelion.com",
@@ -3653,6 +4333,16 @@
       "popularity": 1
     },
     {
+      "id": "explainle",
+      "name": "Explainle",
+      "url": "https://explainle.org/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/explainle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "face-guessr",
       "name": "Face Guessr",
       "url": "https://www.faceguesser.com",
@@ -3660,7 +4350,7 @@
       "description": "Guess the pixelated face of today's notable figure.",
       "thumbnail": "https://cdn.alldle.net/games/3f83d876-bd1c-4c1b-a248-8161a8b7798d.webp",
       "unlimited": false,
-      "popularity": 162
+      "popularity": 164
     },
     {
       "id": "facedle",
@@ -3870,7 +4560,7 @@
       "description": "Fill in the 5x5 grid based on rules that change each day.",
       "thumbnail": "https://cdn.alldle.net/games/eed4962e-10ba-42d4-a853-21dfbd7a2708.webp",
       "unlimited": false,
-      "popularity": 171
+      "popularity": 174
     },
     {
       "id": "fivlet",
@@ -3879,6 +4569,16 @@
       "category": "Words",
       "description": "Guess the secret 5-letter word with a clue, that helps you figure out the word.",
       "thumbnail": "https://cdn.alldle.net/games/92721a50-6ce3-4061-9a03-b848cf79f834.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "fix-the-mix",
+      "name": "Fix the Mix",
+      "url": "https://playpocketpuzzles.com/fixthemix/home",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/fix-the-mix-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -3970,7 +4670,7 @@
       "description": "Guess the flag in 5 guesses or less.",
       "thumbnail": "https://cdn.alldle.net/games/01d897e4-7d3c-4776-8b6b-284a891a014f.webp",
       "unlimited": false,
-      "popularity": 308
+      "popularity": 312
     },
     {
       "id": "flagle-game",
@@ -3999,6 +4699,16 @@
       "category": "Geography",
       "description": "A free, repeatable multiple-choice quiz from World Geography Games that tests how many of the 197 national flags you can recognize.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "flashback",
+      "name": "Flashback",
+      "url": "https://www.nytimes.com/spotlight/flashback",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/flashback-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4043,6 +4753,16 @@
       "popularity": 0
     },
     {
+      "id": "flipping-letters",
+      "name": "Flipping Letters",
+      "url": "https://flippingletters.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/flipping-letters-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "flipple",
       "name": "Flipple",
       "url": "https://flipple.clevergoat.com",
@@ -4068,7 +4788,7 @@
       "url": "https://grid-flux.com/",
       "category": "Words",
       "description": "Clear the grid by spelling words from adjacent letters.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/flux-grid-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4081,6 +4801,16 @@
       "thumbnail": "https://cdn.theatlantic.com/media/games/TheAtlantic-Games-Fluxis-share.png",
       "unlimited": false,
       "popularity": 2
+    },
+    {
+      "id": "food-guesser-daily-crossword",
+      "name": "Food Guesser Daily Crossword",
+      "url": "https://www.foodiegame.org/daily-crossword",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/food-guesser-daily-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "foodguessr",
@@ -4100,7 +4830,7 @@
       "description": "Examine a food image and ingredients list, then guess which country the dish originates from. After each guess, see the distance and direction to the mystery country. Hints reveal after 3 guesses (food name) and 4 guesses (first letter of country).",
       "thumbnail": "https://cdn.alldle.net/games/d300a5d0-381d-4cc2-a725-5530a8b0799d.webp",
       "unlimited": false,
-      "popularity": 40
+      "popularity": 41
     },
     {
       "id": "foodle",
@@ -4193,12 +4923,32 @@
       "popularity": 21
     },
     {
+      "id": "four-square",
+      "name": "Four Square",
+      "url": "https://playpocketpuzzles.com/foursquare/home",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/four-square-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "four-word-grid",
+      "name": "Four Word Grid",
+      "url": "https://fourwordgrid.web.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/four-word-grid-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "fourbe",
       "name": "Fourbe",
       "url": "https://www.dailyworder.com/fourbe",
       "category": "Words",
       "description": "Four clues point to one answer, then name the link.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/fourbe-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4283,6 +5033,16 @@
       "popularity": 0
     },
     {
+      "id": "full-circle-friday",
+      "name": "Full Circle Friday",
+      "url": "https://fullcirclefriday.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/full-circle-friday-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "fumbll",
       "name": "Fumbll",
       "url": "https://fumbll.com/",
@@ -4305,12 +5065,12 @@
     {
       "id": "futbol-11",
       "name": "Futbol 11",
-      "url": "https://futbol-11.com/",
+      "url": "https://futbol11.com/",
       "category": "Sports",
       "description": "A collection of daily games related to Soccer (Fútbol).",
       "thumbnail": "https://cdn.alldle.net/games/bfc56f3a-65d7-46d8-ac7d-78b20cf487d4.webp",
       "unlimited": false,
-      "popularity": 23
+      "popularity": 24
     },
     {
       "id": "futdoku",
@@ -4321,6 +5081,16 @@
       "thumbnail": "https://cdn.alldle.net/games/ab07a912-db6e-4b80-8fa7-680ff658e679.webp",
       "unlimited": false,
       "popularity": 4
+    },
+    {
+      "id": "galactic-ascent",
+      "name": "Galactic Ascent",
+      "url": "https://ga.dbalabs.co.uk/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/galactic-ascent-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "gamedle",
@@ -4413,6 +5183,16 @@
       "popularity": 0
     },
     {
+      "id": "gauntletle",
+      "name": "Gauntletle",
+      "url": "https://theasylm.github.io/gauntletle/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/gauntletle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "gemdle",
       "name": "Gemdle",
       "url": "https://www.gemdle.com/",
@@ -4460,7 +5240,7 @@
       "description": "Free daily country-guessing game where you identify a mystery country in 8 tries using clues like continent, hemisphere, population, area, distance, and direction, with additional Quote, Emoji, Flag, and Picture modes.",
       "thumbnail": "https://cdn.alldle.net/games/000a7d60-741c-45f1-bdbb-038739931c25.png",
       "unlimited": false,
-      "popularity": 40
+      "popularity": 41
     },
     {
       "id": "geodle",
@@ -4530,7 +5310,7 @@
       "description": "Locate today's countries on the world map.",
       "thumbnail": "https://geoquest.gg/meta.png",
       "unlimited": false,
-      "popularity": 958
+      "popularity": 969
     },
     {
       "id": "geordle",
@@ -4560,7 +5340,7 @@
       "description": "Place each country in the category that fits it best. The better the match, the more points you get.",
       "thumbnail": "https://cdn.alldle.net/games/3e90cbea5e6f8085c44df40709c3382933db0a14f6fb1975076b06e1fffc4c38.webp",
       "unlimited": false,
-      "popularity": 5
+      "popularity": 6
     },
     {
       "id": "gerrymandle",
@@ -4570,7 +5350,7 @@
       "description": "Win the election for the given color by properly gerrymandering the grid into districts.",
       "thumbnail": "https://cdn.alldle.net/games/534915c407dd682fe5178a0250fd9965af20811a5e785c374ffba1107f6421ab.webp",
       "unlimited": false,
-      "popularity": 132
+      "popularity": 138
     },
     {
       "id": "giffle-friends",
@@ -4578,7 +5358,7 @@
       "url": "https://giffle.com/friends/",
       "category": "Movies/TV",
       "description": "Guess the Friends episode based on short gifs taken from it.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/giffle-friends-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4588,7 +5368,7 @@
       "url": "https://giffle.com/simpsons/",
       "category": "Movies/TV",
       "description": "Guess the Simpsons episode based on short gifs taken from it.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/giffle-simpsons-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4630,7 +5410,7 @@
       "description": "Guess the mystery country, given how close it is to each guessed country.",
       "thumbnail": "https://globle-game.com/globle-preview.png",
       "unlimited": false,
-      "popularity": 211
+      "popularity": 212
     },
     {
       "id": "globle-capitals",
@@ -4653,6 +5433,16 @@
       "popularity": 0
     },
     {
+      "id": "globs",
+      "name": "Globs",
+      "url": "https://threeemojis.com/en-US/play/globs",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/globs-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "glyph",
       "name": "Glyph",
       "url": "https://glyph.today",
@@ -4660,7 +5450,7 @@
       "description": "Guess the word based on its glyph, or all of its letters stacked together.",
       "thumbnail": "https://glyph.today/og.png",
       "unlimited": false,
-      "popularity": 350
+      "popularity": 354
     },
     {
       "id": "google-feud",
@@ -4669,6 +5459,36 @@
       "category": "Trivia",
       "description": "Guess how Google auto-completes the search query, click on \"Question of the Day\".",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "google-feudle",
+      "name": "Google Feudle",
+      "url": "https://googlefeud.com/feudle/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/google-feudle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "gordle",
+      "name": "Gordle",
+      "url": "https://www.unscrambleit.net/gordle/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/gordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "gossipdle",
+      "name": "Gossipdle",
+      "url": "https://www.gossipdle.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/gossipdle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4733,6 +5553,16 @@
       "popularity": 0
     },
     {
+      "id": "griddl",
+      "name": "GRIDDL",
+      "url": "https://www.motivick.com/puzzles/griddl",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/griddl-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "griddle",
       "name": "Griddle",
       "url": "https://griddlegame.io",
@@ -4741,6 +5571,26 @@
       "thumbnail": "https://cdn.alldle.net/games/35301dee-032c-4d91-a05a-50c49c59c744.webp",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "gridiron-grids",
+      "name": "Gridiron Grids",
+      "url": "https://gridirongrids.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/gridiron-grids-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "gridjoy",
+      "name": "GridJoy",
+      "url": "https://gridjoy.app/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/grid-joy-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "gridle",
@@ -4758,7 +5608,7 @@
       "url": "https://www.gridogram.com",
       "category": "Words",
       "description": "Reveal the quote by finding words in the grid of letters.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/gridogram-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4778,7 +5628,17 @@
       "url": "https://matchiq.online",
       "category": "Sports",
       "description": "A daily stadium-guessing challenge. You're dropped into a locked panoramic view of a ground and have to name the home club before time expires. Faster answers keep more points.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ground-iq-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "guess-hex",
+      "name": "Guess Hex",
+      "url": "https://guesshex.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/guess-hex-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4810,7 +5670,7 @@
       "description": "Guess the song from listening to small parts of it, getting a clue after each guess.",
       "thumbnail": "https://cdn.alldle.net/games/afffcb24-e7d0-4e2d-b264-3711e6d79b58.webp",
       "unlimited": false,
-      "popularity": 61
+      "popularity": 62
     },
     {
       "id": "guess-the-book",
@@ -4833,6 +5693,16 @@
       "popularity": 2
     },
     {
+      "id": "guess-the-country",
+      "name": "Guess The Country",
+      "url": "https://guessthecountry.org/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/guess-the-country-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "guess-the-game",
       "name": "Guess The Game",
       "url": "https://guessthe.game",
@@ -4840,7 +5710,7 @@
       "description": "Guess the video game by its cropped screenshots.",
       "thumbnail": "https://cdn.alldle.net/games/8f3ae74a-24c1-400a-8cf4-a27c3bd6d797.webp",
       "unlimited": false,
-      "popularity": 413
+      "popularity": 415
     },
     {
       "id": "guess-the-house",
@@ -4883,6 +5753,16 @@
       "popularity": 38
     },
     {
+      "id": "guess-the-nba-player",
+      "name": "Guess The NBA Player",
+      "url": "https://guesstheplayer.org",
+      "category": "Sports",
+      "description": "The NBA player guessing game. Try to guess the mystery player in 10 tries using hints. A new mystery player every day at midnight EST!",
+      "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "guess-the-phrase",
       "name": "Guess The Phrase",
       "url": "https://guessthephrase.xyz",
@@ -4910,7 +5790,7 @@
       "description": "Guess the top ten entries of today's category.",
       "thumbnail": "https://cdn.alldle.net/games/5ff03f27-2d28-4f7b-9832-1677b3433854.webp",
       "unlimited": false,
-      "popularity": 140
+      "popularity": 141
     },
     {
       "id": "guessthemovie-me",
@@ -4921,6 +5801,26 @@
       "thumbnail": "https://cdn.alldle.net/games/2e72f7d3-f80e-42d5-8784-0ebc7b875510.webp",
       "unlimited": false,
       "popularity": 17
+    },
+    {
+      "id": "halloween-pac-man",
+      "name": "Halloween Pac-Man",
+      "url": "https://searchplayground.google/pacman/halloween/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/halloween-pac-man-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "hang-five",
+      "name": "Hang Five",
+      "url": "https://playhangfive.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/hang-five-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "harmonies-music-connections",
@@ -4940,15 +5840,25 @@
       "description": "A collection of daily games related to Harry Potter.",
       "thumbnail": "https://cdn.alldle.net/games/0fb3e569-edb6-4ce5-83fa-7f25808f50b4.png",
       "unlimited": false,
-      "popularity": 258
+      "popularity": 266
+    },
+    {
+      "id": "hatetris",
+      "name": "Hatetris",
+      "url": "https://qntm.org/files/hatetris/hatetris.html",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/hatetris-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "headcount",
       "name": "Headcount",
-      "url": "https://flightq.app",
+      "url": "https://flightq.app/headcount",
       "category": "Geography",
-      "description": "Headcount gives you a target population each day, then asks you to draw a loop around exactly that many people on a live density map of the world. Read the glowing population dots, lock-in blind, and see how close you got!",
-      "thumbnail": "",
+      "description": "Headcount is a free daily population geography game where you draw one loop on a world map and try to capture exactly today’s target number of people. It is part map puzzle, part estimation challenge, with real population data.",
+      "thumbnail": "https://cdn.alldle.net/games/0ed0c1e6-dd2f-4c64-94ba-8a29c909c229.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -4968,7 +5878,7 @@
       "url": "https://headline.fromthethink.com",
       "category": "Geography",
       "description": "Guess the place tied to or missing from each headline.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/headline-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5163,12 +6073,32 @@
       "popularity": 1
     },
     {
+      "id": "her-trees-first-puzzle",
+      "name": "Her Trees: First Puzzle",
+      "url": "https://stonetreebook.itch.io/her-trees",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/her-trees-first-puzzle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "hertl",
       "name": "Hertl",
       "url": "https://www.hertl.app/",
       "category": "Sports",
       "description": "Guess the NHL player from revealed attributes.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "hex-wheel",
+      "name": "Hex Wheel",
+      "url": "https://musab-boaidani.github.io/Hex-Wheel/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/hex-wheel-screenshot.webp",
       "unlimited": false,
       "popularity": 0
     },
@@ -5199,6 +6129,16 @@
       "category": "Colors",
       "description": "Guess the 3-digit hex code of the shown color in 5 tries or less. Easier version of Hexcodle.",
       "thumbnail": "https://hexcodle.com/opengraph-image.png?24e70148b00bb810",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "hexes",
+      "name": "Hexes",
+      "url": "https://threeemojis.com/en-US/play/hexes",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/hexes-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5240,7 +6180,7 @@
       "description": "Daily English word game where each round hides a synonym inside a larger word in order; solve three kangaroo-word puzzles and unlock an etymology fact.",
       "thumbnail": "https://cdn.alldle.net/games/56ae6e5d4414d8f789d76361e4239858b51d7ba1322cccbe5d9612f8258522b2.webp",
       "unlimited": false,
-      "popularity": 9
+      "popularity": 10
     },
     {
       "id": "hidden-mirrors",
@@ -5288,7 +6228,7 @@
       "url": "https://playhistoricfirsts.com",
       "category": "History",
       "description": "Place famous “firsts” in chronological order, from groundbreaking inventions to major discoveries and historical milestones. A new history ranking challenge every day.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/historic-firsts-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5300,7 +6240,7 @@
       "description": "Daily history guessing game where you identify a historical figure from a blurred image and clues in up to five tries.",
       "thumbnail": "https://cdn.alldle.net/games/43614bf7-9290-4bba-88c5-dd31f98a5dfe.png",
       "unlimited": false,
-      "popularity": 3
+      "popularity": 4
     },
     {
       "id": "historydle",
@@ -5333,6 +6273,16 @@
       "popularity": 0
     },
     {
+      "id": "homicidle",
+      "name": "Homicidle",
+      "url": "https://bluequillstudios.com/homicidle/homicidle",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/homicidle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "hoopgrids",
       "name": "Hoopgrids",
       "url": "https://www.hoopgrids.com",
@@ -5343,12 +6293,32 @@
       "popularity": 95
     },
     {
+      "id": "horrordle",
+      "name": "Horrordle",
+      "url": "https://www.horrordle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/horrordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "horrordle-living-dead-co",
+      "name": "Horrordle (Living Dead Co.)",
+      "url": "https://www.horrordle.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/horrordle-living-dead-co-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "horsle",
       "name": "Horsle",
       "url": "https://cabletwo.net/horsle/",
       "category": "Novelty",
       "description": "Wordle except the answer is always Horse.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/horsle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5368,7 +6338,17 @@
       "url": "https://housle.house",
       "category": "Estimation",
       "description": "Guess the price of the house, given pictures of parts of the house.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/housle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "how-puzzling",
+      "name": "How Puzzling",
+      "url": "https://howpuzzling.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/how-puzzling-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5473,6 +6453,16 @@
       "popularity": 0
     },
     {
+      "id": "i-m-not-a-robot",
+      "name": "I'm Not a Robot",
+      "url": "https://neal.fun/not-a-robot/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/im-not-a-robot-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "idiomoji",
       "name": "Idiomoji",
       "url": "https://puzznest.com/idiomoji",
@@ -5493,6 +6483,26 @@
       "popularity": 1
     },
     {
+      "id": "immaculate-footy-english-football",
+      "name": "Immaculate Footy: English Football",
+      "url": "https://www.immaculatefooty.com/england",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/immaculate-footy-english-football-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "immaculate-footy-world-football",
+      "name": "Immaculate Footy: World Football",
+      "url": "https://www.immaculatefooty.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/immaculate-footy-world-football-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "immaculate-grid",
       "name": "Immaculate Grid",
       "url": "https://www.sports-reference.com",
@@ -5509,6 +6519,16 @@
       "category": "Sports",
       "description": "Fill out the grid with baseball players matching the criteria of each cell's row and column.",
       "thumbnail": "https://cdn.alldle.net/games/f5634bf2-2440-4bee-98e0-b9cbb440db45.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "immaculate-grid-football",
+      "name": "Immaculate Grid: Football",
+      "url": "https://www.immaculategrid.com/football",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/immaculate-grid-football-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5553,6 +6573,26 @@
       "popularity": 0
     },
     {
+      "id": "impossible-sudoku",
+      "name": "Impossible Sudoku",
+      "url": "https://www.latimes.com/games/impossible-sudoku",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/la-times-impossible-sudoku-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "infixion",
+      "name": "Infixion",
+      "url": "https://www.infixion.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/infixion-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "invertle",
       "name": "Invertle",
       "url": "https://www.dailyworder.com",
@@ -5580,7 +6620,7 @@
       "description": "Group items from The Binding of Isaac that share a common theme.",
       "thumbnail": "https://cdn.alldle.net/games/7777957b-fa37-426f-8059-9b1a668d54fc.webp",
       "unlimited": false,
-      "popularity": 243
+      "popularity": 245
     },
     {
       "id": "isekaidle",
@@ -5618,7 +6658,7 @@
       "url": "https://jeffgoldblumle.com",
       "category": "Novelty",
       "description": "Wordle except 90% of the time the answer is Jeff Goldblum.",
-      "thumbnail": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/jeffgoldblumle-screenshot.webp",
       "unlimited": false,
       "popularity": 0
     },
@@ -5630,7 +6670,7 @@
       "description": "Weekday jeopardy game where you answer 12 multiple choice questions.",
       "thumbnail": "https://www.jeopardy.com/sites/default/files/social_meta/2019-07-30.jpg",
       "unlimited": false,
-      "popularity": 15
+      "popularity": 16
     },
     {
       "id": "jetlagged",
@@ -5663,6 +6703,26 @@
       "popularity": 1
     },
     {
+      "id": "jimothy",
+      "name": "Jimothy",
+      "url": "https://arcade.pirillo.com/jimothy.html",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/jimothy-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "jingle-shower",
+      "name": "Jingle Shower",
+      "url": "https://shower.dailyjingle.me/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/jingle-shower-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "jingle-rs",
       "name": "Jingle.rs",
       "url": "https://jingle.rs",
@@ -5683,6 +6743,16 @@
       "popularity": 1
     },
     {
+      "id": "joined-words",
+      "name": "Joined Words",
+      "url": "https://joinedwords.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/joined-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "jojodle",
       "name": "Jojodle",
       "url": "https://www.jojodle.app",
@@ -5691,6 +6761,16 @@
       "thumbnail": "https://jojodle.nwcubeok.net/assets/preview_jojodle2.png",
       "unlimited": false,
       "popularity": 112
+    },
+    {
+      "id": "jourdle",
+      "name": "Jourdle",
+      "url": "https://jourdle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/jourdle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "journeys",
@@ -5753,6 +6833,16 @@
       "popularity": 5
     },
     {
+      "id": "kakuro-conquest",
+      "name": "Kakuro Conquest",
+      "url": "https://www.kakuroconquest.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/kakuro-conquest-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "karat",
       "name": "Karat",
       "url": "https://karat.auronymous.com",
@@ -5761,6 +6851,16 @@
       "thumbnail": "https://karat.auronymous.com/ogkarat.png",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "kesto",
+      "name": "Kesto",
+      "url": "https://kestopuzzle.com/play/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/kesto-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "keyboard-lines",
@@ -5803,12 +6903,52 @@
       "popularity": 0
     },
     {
+      "id": "killshot",
+      "name": "Killshot",
+      "url": "https://killshot.rip/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/killshot-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "killshot-gauntlet",
+      "name": "Killshot: Gauntlet",
+      "url": "https://killshot.rip/gauntlet",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/killshot-gauntlet-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "killshot-kill-count",
+      "name": "Killshot: Kill Count",
+      "url": "https://killshot.rip/killcount",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/killshot-kill-count-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "killshot-poster",
+      "name": "Killshot: Poster",
+      "url": "https://killshot.rip/poster",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/killshot-poster-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "kilordle",
       "name": "Kilordle",
       "url": "https://jonesnxt.github.io/kilordle/",
       "category": "Words",
       "description": "A Wordle variant that hides 1,000 five-letter words at once and checks every guess against all of them, clearing a word once all of its letters have been matched green by any guess.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/kilordle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5830,7 +6970,17 @@
       "description": "A challenging daily golf game.",
       "thumbnail": "https://kindahardgolf.com/hero.jpg",
       "unlimited": false,
-      "popularity": 56
+      "popularity": 58
+    },
+    {
+      "id": "kino",
+      "name": "KINO",
+      "url": "https://dailykino.com/",
+      "category": "Movies/TV",
+      "description": "A movie and TV show guessing game. Free to play, with a new puzzle each day",
+      "thumbnail": "https://cdn.alldle.net/games/667574bd-cb6a-429e-9219-8145a2b43f44.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "kino-wtf",
@@ -5840,7 +6990,7 @@
       "description": "Solve daily cinema puzzles across three challenging modes: Actors, Movies, and Directors. Guess from clues, track your streaks, and share your results. New rounds drop daily for Actors & Movies, with fresh Directors challenges each week.",
       "thumbnail": "https://cdn.alldle.net/games/39953052-315a-465b-b208-c8323278680f.png",
       "unlimited": false,
-      "popularity": 176
+      "popularity": 177
     },
     {
       "id": "knotilus",
@@ -5889,6 +7039,16 @@
       "category": "Music",
       "description": "A daily K-pop guessing game where you listen to a short song snippet and try to name the track in six tries, with a second mode that has you guess the album from a cropped cover.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "krypticle",
+      "name": "Krypticle",
+      "url": "https://krypticle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/krypticle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -5980,7 +7140,7 @@
       "description": "Guess the daily landmark based on a zoomed-in picture.",
       "thumbnail": "https://upload.wikimedia.org/wikipedia/commons/4/49/Golden_Gate_Bridge_at_Purple_sunset_%28cropped%29.jpg",
       "unlimited": false,
-      "popularity": 39
+      "popularity": 40
     },
     {
       "id": "landmarkr",
@@ -6003,6 +7163,16 @@
       "popularity": 0
     },
     {
+      "id": "languageguessr",
+      "name": "LanguageGuessr",
+      "url": "https://languageguessr.io/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/language-guessr-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "lastcontrol",
       "name": "LastControl",
       "url": "https://game.last-control.com/play",
@@ -6010,7 +7180,7 @@
       "description": "A daily timed cognitive audit with math, pattern, memory, and sequence multiple-choice puzzles set in the dystopian world of LastControl.",
       "thumbnail": "https://cdn.alldle.net/games/537732341582a8b4355b23734d7c9d19cc003540cb82cfdb60109304c9ca80ae.webp",
       "unlimited": false,
-      "popularity": 8
+      "popularity": 9
     },
     {
       "id": "layover",
@@ -6028,7 +7198,7 @@
       "url": "https://inkwellgames.com/games/lazy-river",
       "category": "Shapes/Patterns",
       "description": "Draw a single continuous loop that flows through every cell.",
-      "thumbnail": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/lazy-river-screenshot.webp",
       "unlimited": false,
       "popularity": 0
     },
@@ -6063,6 +7233,16 @@
       "popularity": 1
     },
     {
+      "id": "letter-boxed",
+      "name": "Letter Boxed",
+      "url": "https://www.nytimes.com/puzzles/letter-boxed",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/letter-boxed-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "letter-flick",
       "name": "Letter Flick",
       "url": "https://letterflick.com/",
@@ -6073,12 +7253,42 @@
       "popularity": 0
     },
     {
+      "id": "letter-griddle",
+      "name": "Letter Griddle",
+      "url": "https://lettergriddle.com/play",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/letter-griddle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "letter-trap",
+      "name": "Letter Trap",
+      "url": "https://lettertrap.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/letter-trap-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "letteracy",
       "name": "Letteracy",
       "url": "https://www.skillexplosion.com/games/letteracy/",
       "category": "Words",
       "description": "Create as many words as possible from given letters. Earn points for each word in scrabble style scoring.",
       "thumbnail": "https://cdn.alldle.net/games/70294154-b3e1-4a42-8843-c20bd9cabef2.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "letterage",
+      "name": "Letterage",
+      "url": "https://letteragegame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/letterage-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6100,7 +7310,7 @@
       "description": "Guess the movie based on the Letterboxd reviews.",
       "thumbnail": "https://cdn.alldle.net/games/047223f7-da04-4239-8885-b96d39126524.png",
       "unlimited": false,
-      "popularity": 175
+      "popularity": 177
     },
     {
       "id": "lettered",
@@ -6119,6 +7329,26 @@
       "category": "Words",
       "description": "Form words from falling letters",
       "thumbnail": "https://letterfall.lovable.app/lovable-uploads/c05c70e0-9b18-4b3c-be49-72907b65b1a4.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "lettergrams",
+      "name": "Lettergrams",
+      "url": "https://puzzlist.com/lettergrams/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/lettergrams-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "letterheads",
+      "name": "Letterheads",
+      "url": "https://playpocketpuzzles.com/letterheads/home",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/letterheads-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6273,6 +7503,16 @@
       "popularity": 1
     },
     {
+      "id": "lexido",
+      "name": "Lexido",
+      "url": "https://lexido.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/lexido-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "lichess-org-daily-puzzle",
       "name": "lichess.org Daily Puzzle",
       "url": "https://lichess.org/training/daily",
@@ -6308,7 +7548,7 @@
       "url": "https://lineup.day/",
       "category": "Trivia",
       "description": "Arrange five items into the correct order.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/lineup-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6350,7 +7590,7 @@
       "description": "A daily word-grouping puzzle where you sort sixteen words into four hidden categories before you run out of mistakes.",
       "thumbnail": "https://cdn.alldle.net/games/45018c77-5e6a-4ccd-b89a-1b3a10a2308a.png",
       "unlimited": false,
-      "popularity": 4
+      "popularity": 5
     },
     {
       "id": "linkedin-crossclimb",
@@ -6378,7 +7618,7 @@
       "url": "https://www.linkedin.com/games/patches/",
       "category": "Shapes/Patterns",
       "description": "Partition the grid so that each number lies within a rectangle of that area. Does not require a LinkedIn account.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/patches-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6418,7 +7658,7 @@
       "url": "https://www.linkedin.com/games/wend/",
       "category": "Words",
       "description": "Find the hidden words that partition the grid of letters. Does not require a LinkedIn account.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wend-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6440,7 +7680,7 @@
       "description": "Link each pair of numbered points together in three daily puzzles.",
       "thumbnail": "https://linkpuzzle.github.io/logo_1200x630.png",
       "unlimited": false,
-      "popularity": 40
+      "popularity": 41
     },
     {
       "id": "linkygrid-world-cup",
@@ -6503,6 +7743,16 @@
       "popularity": 1
     },
     {
+      "id": "llamagrama",
+      "name": "Llamagrama",
+      "url": "https://www.llamagrama.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/llamagrama-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "locabulary",
       "name": "Locabulary",
       "url": "https://locabulary.fun/",
@@ -6558,7 +7808,7 @@
       "url": "https://logohue.app/",
       "category": "Colors",
       "description": "Guess a brand's colour from its grayscale logo.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/logohue-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6570,7 +7820,27 @@
       "description": "A bunch of daily games where you guess the champion from League of Legends.",
       "thumbnail": "https://cdn.alldle.net/games/06c79ace-fe57-4434-ba7c-67052e0b9e18.webp",
       "unlimited": false,
-      "popularity": 49
+      "popularity": 51
+    },
+    {
+      "id": "long-jump",
+      "name": "Long Jump",
+      "url": "https://www.longjump.co.za/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/long-jump-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "loop",
+      "name": "Loop",
+      "url": "https://dailyloop.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/loop-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "looplink",
@@ -6670,7 +7940,7 @@
       "description": "A daily estimation-trivia challenge, but you only get one guess. Final score is based on magnitude.",
       "thumbnail": "https://cdn.alldle.net/games/7de5dc1f-da83-43f8-979f-6d6060382cbe.png",
       "unlimited": false,
-      "popularity": 496
+      "popularity": 501
     },
     {
       "id": "mahjong-handle",
@@ -6691,6 +7961,16 @@
       "thumbnail": "https://media.alldle.net/thumbnails/mangadle-net.png",
       "unlimited": false,
       "popularity": 29
+    },
+    {
+      "id": "mapfold",
+      "name": "MapFold",
+      "url": "https://flightq.app",
+      "category": "Geography",
+      "description": "Find one hidden country a day. Each clue is a fact that cuts the possibilities in half, and the ruled-out part of the map literally folds away until you can name it.",
+      "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "mapgame",
@@ -6739,6 +8019,16 @@
       "category": "Video Games",
       "description": "Daily guessing games related to Marathon.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "marc-andreessen-egg-game",
+      "name": "Marc Andreessen Egg Game",
+      "url": "https://marc-egg.eieio.games/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/marc-andreessen-egg-game-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6840,7 +8130,7 @@
       "description": "A collection of daily games related to Minecraft.",
       "thumbnail": "https://cdn.alldle.net/games/8a845e0a-ad9e-4336-91bb-1cf5308a772b.webp",
       "unlimited": false,
-      "popularity": 1020
+      "popularity": 1029
     },
     {
       "id": "meloguessr",
@@ -6849,6 +8139,16 @@
       "category": "Music",
       "description": "Click the geographic origin of the song that's playing, 5 rounds every day.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "memory-matching-game",
+      "name": "Memory Matching Game",
+      "url": "https://memorygamesforadults.net/memory-matching-game/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/memory-matching-game-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -6910,7 +8210,7 @@
       "description": "Guess animals to see where they share common ancestors with the mystery animal, eventually guessing the mystery animal.",
       "thumbnail": "https://metazooa.com/Metazooa-open-graph.png",
       "unlimited": false,
-      "popularity": 56
+      "popularity": 57
     },
     {
       "id": "metrosquest",
@@ -6960,7 +8260,7 @@
       "description": "Guess the crafting recipe from the game Minecraft.",
       "thumbnail": "https://cdn.alldle.net/games/959c2fbd-bee3-44e3-b62a-66026e41841e.webp",
       "unlimited": false,
-      "popularity": 85
+      "popularity": 86
     },
     {
       "id": "mineracer-daily",
@@ -6970,7 +8270,7 @@
       "description": "A daily shared Minesweeper board where everyone races the clock and compares results on the leaderboard.",
       "thumbnail": "https://cdn.alldle.net/games/7ac9bcd4b6bb04f7bc12b8df48ccf68deafde304d069ba140045689099af3ba7.webp",
       "unlimited": false,
-      "popularity": 7
+      "popularity": 10
     },
     {
       "id": "minesweepdle",
@@ -7023,12 +8323,42 @@
       "popularity": 4
     },
     {
+      "id": "mini-hunt",
+      "name": "Mini Hunt",
+      "url": "https://wordnerd.co/minihunt/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/mini-hunt-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "mini-mahj",
       "name": "Mini Mahj",
       "url": "https://minimahjdaily.com",
       "category": "Math/Logic",
       "description": "Solve the same daily mahjong board as everyone.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "mini-nerdle",
+      "name": "Mini Nerdle",
+      "url": "https://mini.nerdlegame.com/game",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/mini-nerdle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "mini-polygonle",
+      "name": "Mini Polygonle",
+      "url": "https://www.polygonle.com/mini",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/mini-polygonle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7108,7 +8438,7 @@
       "url": "https://moneyline.fromthethink.com",
       "category": "Estimation",
       "description": "Pick over/under the given line for each fact or statistic.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/moneyline-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7140,7 +8470,7 @@
       "description": "Decide which option has more or less, and keep going until you get one wrong. There are 3 categories to play.",
       "thumbnail": "https://lessgames.com/wordmark.jpg?v=1",
       "unlimited": false,
-      "popularity": 418
+      "popularity": 425
     },
     {
       "id": "morning-mystery",
@@ -7208,7 +8538,7 @@
       "url": "https://movie-quiz.com",
       "category": "Movies/TV",
       "description": "A daily movie guessing game where players try to recognise movies from their posters.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/movie-poster-quiz-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7320,7 +8650,7 @@
       "description": "Solve today's murder-mystery logic puzzle.",
       "thumbnail": "https://murdle.com/murdle-bookdesign.png",
       "unlimited": false,
-      "popularity": 81
+      "popularity": 83
     },
     {
       "id": "musicle",
@@ -7330,7 +8660,7 @@
       "description": "Match the song audio to the correct album art. Lots of categories.",
       "thumbnail": "https://cdn.alldle.net/games/960a9ca6-d4d5-4b86-a570-8948f46301ed.webp",
       "unlimited": false,
-      "popularity": 29
+      "popularity": 30
     },
     {
       "id": "musicle-fun",
@@ -7373,6 +8703,26 @@
       "popularity": 0
     },
     {
+      "id": "mystery-o-matic",
+      "name": "mystery-o-matic",
+      "url": "https://mystery-o-matic.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/mystery-o-matic-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "name-that-song",
+      "name": "Name That Song",
+      "url": "https://namethatsong.org/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/name-that-song-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "narutodle",
       "name": "Narutodle",
       "url": "https://narutodle.net",
@@ -7381,6 +8731,16 @@
       "thumbnail": "https://cdn.alldle.net/games/c3f22abc-9fe3-479a-9f4e-cf675032d935.webp",
       "unlimited": false,
       "popularity": 25
+    },
+    {
+      "id": "nba-connections",
+      "name": "NBA Connections",
+      "url": "https://connections.hoopgrids.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nba-connections-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "nba-guess",
@@ -7403,6 +8763,26 @@
       "popularity": 0
     },
     {
+      "id": "nbagrid",
+      "name": "NBAGrid",
+      "url": "https://www.nbagr.id",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nba-grid-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "nearly-nothing",
+      "name": "Nearly Nothing",
+      "url": "https://nearlynothing.io",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nearly-nothing-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "neighborle",
       "name": "Neighborle",
       "url": "https://neighborle.com",
@@ -7411,6 +8791,66 @@
       "thumbnail": "https://cdn.alldle.net/games/418d714f-0ed3-475c-affa-8323b0c9a92b.webp",
       "unlimited": false,
       "popularity": 7
+    },
+    {
+      "id": "neighborle-brazil",
+      "name": "Neighborle Brazil",
+      "url": "https://neighborle.com/brazil",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-brazil-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "neighborle-flags",
+      "name": "Neighborle Flags",
+      "url": "https://neighborle.com/flags",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-flags-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "neighborle-france",
+      "name": "Neighborle France",
+      "url": "https://neighborle.com/france",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-france-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "neighborle-germany",
+      "name": "Neighborle Germany",
+      "url": "https://neighborle.com/germany",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-germany-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "neighborle-great-britain",
+      "name": "Neighborle Great Britain",
+      "url": "https://neighborle.com/gb",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-great-britain-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "neighborle-usa",
+      "name": "Neighborle USA",
+      "url": "https://neighborle.com/usa",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/neighborle-usa-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "nerdcube-carom",
@@ -7498,7 +8938,7 @@
       "url": "https://www.netflix.com/tudum/puzzled/starstruck/daily",
       "category": "Math/Logic",
       "description": "Place a star in each row, column, and color area. Does not require a Netflix account.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/starstruck-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7508,7 +8948,7 @@
       "url": "https://www.netflix.com/tudum/puzzled/sudoku/daily",
       "category": "Math/Logic",
       "description": "A daily sudoku puzzle on Netflix, 3 difficulties. Does not require a Netflix account.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/daily-sudoku-netflix-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7590,7 +9030,7 @@
       "description": "Fill a daily nonogram grid from numbered clues to reveal the hidden picture.",
       "thumbnail": "https://cdn.alldle.net/games/9bd751d1c026bb4e1284bbfa5053265a27938dba2cfb41e2dd80d81e69319586.webp",
       "unlimited": false,
-      "popularity": 9
+      "popularity": 10
     },
     {
       "id": "nookle",
@@ -7601,6 +9041,16 @@
       "thumbnail": "https://cdn.alldle.net/games/43f20439-5089-4490-9e2c-29b244161720.webp",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "nounable",
+      "name": "Nounable",
+      "url": "http://nounable.me/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nounable-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "nounsense",
@@ -7631,6 +9081,36 @@
       "thumbnail": "https://cdn.alldle.net/games/134523a4-7c5c-4cf8-9568-dcba6894c2ee.webp",
       "unlimited": false,
       "popularity": 3
+    },
+    {
+      "id": "number-salad",
+      "name": "Number Salad",
+      "url": "https://numbersalad.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/number-salad-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "number-waffle",
+      "name": "Number Waffle",
+      "url": "https://wafflegame.net/numberwaffle",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/number-waffle-screenshot.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "numberglyph",
+      "name": "NumberGlyph",
+      "url": "https://numberglyph.com/?nosplash=1",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/number-glyph-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "numberle",
@@ -7693,6 +9173,16 @@
       "popularity": 0
     },
     {
+      "id": "numbword",
+      "name": "Numbword",
+      "url": "https://numbword.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/numbword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "numcue",
       "name": "NumCue",
       "url": "https://www.linerko.com/math",
@@ -7700,7 +9190,7 @@
       "description": "Daily 4-digit code-breaking game where you crack a secret code in 8 tries using right-spot, misplaced, and absent digit feedback.",
       "thumbnail": "https://cdn.alldle.net/games/9e9fcdbd-5628-4a3c-a87d-16e8a5923f50.png",
       "unlimited": false,
-      "popularity": 3
+      "popularity": 5
     },
     {
       "id": "nurdle",
@@ -7709,6 +9199,16 @@
       "category": "Words",
       "description": "Guess the hidden word in a limited number of tries using logic and deduction, similar to a word puzzle.",
       "thumbnail": "https://cdn.alldle.net/games/0caa9cbd-4921-47b1-8213-da5a2877479e.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "nurikabe",
+      "name": "Nurikabe",
+      "url": "https://coffeefirst.games/nurikabe",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nurikabe-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7729,6 +9229,26 @@
       "category": "Sports",
       "description": "Group sports terms that share a common thread.",
       "thumbnail": "https://cdn.alldle.net/games/bea0801d-d4e2-4737-8b2f-32266e781e24.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "nyt-games-daily-crossword",
+      "name": "NYT Games Daily Crossword",
+      "url": "https://www.nytimes.com/crosswords/game/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nytimes-daily-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "nyt-games-midi",
+      "name": "NYT Games Midi",
+      "url": "https://www.nytimes.com/crosswords/game/midi",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/nyt-games-midi-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7780,7 +9300,7 @@
       "description": "Guess the 5-letter word in six or fewer attempts.",
       "thumbnail": "https://www.nytimes.com/games-assets/v2/assets/wordle/wordle_og_1200x630.png",
       "unlimited": false,
-      "popularity": 85
+      "popularity": 87
     },
     {
       "id": "octordle",
@@ -7848,7 +9368,7 @@
       "url": "https://omitten.com",
       "category": "Words",
       "description": "Find the one word that fits every sentence.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/omitten-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7871,6 +9391,16 @@
       "thumbnail": "https://cdn.alldle.net/games/29529bf5-9390-421c-bf15-026f48d63a20.webp",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "one-frame",
+      "name": "One Frame",
+      "url": "https://framed.wtf/one-frame",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/one-frame-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "one-up-puzzle",
@@ -7910,7 +9440,7 @@
       "description": "Guess One Piece characters in these daily games.",
       "thumbnail": "https://cdn.alldle.net/games/49967b85-c357-4b25-b881-95a6cac43f5e.webp",
       "unlimited": false,
-      "popularity": 54
+      "popularity": 55
     },
     {
       "id": "openguessr",
@@ -7918,7 +9448,17 @@
       "url": "https://openguessr.com/",
       "category": "Geography",
       "description": "A free geography guessing game that drops you into a real Google Street View panorama and challenges you to pinpoint the location on a world map, solo or against other players.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/open-guessr-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "opglyph",
+      "name": "OpGlyph",
+      "url": "https://numberglyph.com/opglyph/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/op-glyph-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -7970,7 +9510,7 @@
       "description": "OverwatchDLE is a free daily guessing game for Overwatch fans, with four modes: guess the day's hero from attribute clues, a silhouette, or an ability — or guess the map from a slowly revealed image. A new puzzle every day, the same for everyone.",
       "thumbnail": "https://cdn.alldle.net/games/6dd4795b-f639-454d-818d-d69827573a0a.jpg",
       "unlimited": false,
-      "popularity": 114
+      "popularity": 124
     },
     {
       "id": "owdle",
@@ -7980,7 +9520,7 @@
       "description": "Daily games related to Overwatch 2. Guess the character or guess the conversation between two characters.",
       "thumbnail": "https://cdn.alldle.net/games/55a039e1-4f82-4633-b9ce-38f1bc937fc2.png",
       "unlimited": false,
-      "popularity": 6
+      "popularity": 7
     },
     {
       "id": "packle",
@@ -8063,12 +9603,22 @@
       "popularity": 1
     },
     {
+      "id": "pandergram",
+      "name": "Pandergram",
+      "url": "https://onelook.com/pandergram",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pandergram-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "pangramathon",
       "name": "Pangramathon",
       "url": "https://www.pangramathon.com",
       "category": "Words",
       "description": "Find three pangrams daily as quickly as possible. Letters can be reused, and each pangram involves a different set of letters.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pangramathon-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8103,6 +9653,16 @@
       "popularity": 10
     },
     {
+      "id": "parithmetic",
+      "name": "Parithmetic",
+      "url": "https://parithmetic.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/parithmetic-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "parley",
       "name": "Parley",
       "url": "https://parley.humanoidapplications.com",
@@ -8128,7 +9688,17 @@
       "url": "https://www.parseword.com",
       "category": "Words",
       "description": "Solve today's cryptic clue through careful deduction. Great for those new to cryptics.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/parseword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "passcodes",
+      "name": "Passcodes",
+      "url": "https://playpocketpuzzles.com/passcodes/home",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/passcodes-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8179,6 +9749,16 @@
       "category": "History",
       "description": "Guess the invention from a real patent drawing. One mystery patent a day from the US archives, six guesses, with clues straight from the file, filing date, scale, class, and the redacted claim.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "pazuko",
+      "name": "Pazuko",
+      "url": "https://pazuko.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pazuko-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8248,7 +9828,7 @@
       "url": "https://www.phoodle.net/",
       "category": "Food",
       "description": "A daily food word game in the Wordle mold. Guess the hidden five-letter culinary word in six tries, then read a food fact tied to the answer.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/phoodle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8319,6 +9899,16 @@
       "category": "Words",
       "description": "Guess words to see how close they are to the secret word on a graph, and see where others are guessing as well!",
       "thumbnail": "https://semantle.pimanrul.es/banner.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "pintercept",
+      "name": "PINTERCEPT",
+      "url": "https://pintercept.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pintercept-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8498,7 +10088,7 @@
       "url": "https://www.pokecryptic.com",
       "category": "Video Games",
       "description": "A daily cryptic crossword clue, but with Pokémon-related answers such as Pokémon names, move names, and towns.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/poke-cryptic-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8510,7 +10100,7 @@
       "description": "Daily Pokémon guessing game with classic stat comparisons plus silhouette, pixel, and cry modes.",
       "thumbnail": "https://cdn.alldle.net/games/574e9a962525e1153b4716b92bd8b0fb853d9bd9f8c4e263b318e85a2591dcc8.webp",
       "unlimited": false,
-      "popularity": 33
+      "popularity": 34
     },
     {
       "id": "pokedle-com",
@@ -8590,7 +10180,7 @@
       "description": "Guess an unknown Pokemon based on its in game information and how popular it is, using the ratings of other people.",
       "thumbnail": "https://cdn.alldle.net/games/e022e3a3-3cae-4196-96b0-b76e8680cd3f.webp",
       "unlimited": false,
-      "popularity": 37
+      "popularity": 38
     },
     {
       "id": "pokle",
@@ -8623,6 +10213,46 @@
       "popularity": 0
     },
     {
+      "id": "ponder-club-mahjong-solitaire",
+      "name": "Ponder Club Mahjong Solitaire",
+      "url": "https://ponderclub.co/mahjong-solitaire",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ponder-club-mahjong-solitaire-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "ponder-club-mini-5x5",
+      "name": "Ponder Club Mini 5x5",
+      "url": "https://ponderclub.co/mini-5x5",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ponder-club-mini-5x5-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "ponder-club-solitaire",
+      "name": "Ponder Club Solitaire",
+      "url": "https://ponderclub.co/solitaire",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ponder-club-solitaire-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "ponder-club-word-search",
+      "name": "Ponder Club Word Search",
+      "url": "https://ponderclub.co/word-search",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ponder-club-word-search-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "poopguessr",
       "name": "Poopguessr",
       "url": "https://poopguessr.com",
@@ -8640,7 +10270,7 @@
       "description": "Get to 'POOP' in as few steps as possible!",
       "thumbnail": "https://cdn.alldle.net/games/455b7bfe-4f71-4396-932c-48726cb64ba3.png",
       "unlimited": false,
-      "popularity": 53
+      "popularity": 57
     },
     {
       "id": "popcultured",
@@ -8680,7 +10310,7 @@
       "description": "Guess the daily 2000s album from its pixelated cover art.",
       "thumbnail": "https://cdn.alldle.net/games/7944955811400427f29875c9c4eaad25b4848b77366a36cfdab998566818cee9.webp",
       "unlimited": false,
-      "popularity": 0
+      "popularity": 1
     },
     {
       "id": "popidle80s",
@@ -8701,6 +10331,16 @@
       "thumbnail": "https://cdn.alldle.net/games/3363c9d0393668cde7505b2bea46d2c16026515a4bdaaa3410254275f2835f15.webp",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "poster",
+      "name": "Poster",
+      "url": "https://framed.wtf/poster",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/poster-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "posterdle",
@@ -8738,7 +10378,17 @@
       "url": "https://pricedin.online/",
       "category": "Estimation",
       "description": "Guess what things cost across six different years.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/priced-in-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "pricetag",
+      "name": "PriceTag",
+      "url": "https://matchiq.online/pricetag",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/price-tag-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -8793,6 +10443,16 @@
       "popularity": 11
     },
     {
+      "id": "puckdoku-pyramid",
+      "name": "Puckdoku Pyramid",
+      "url": "https://www.puckdoku.com/pyramid",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/puckdoku-pyramid-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "pufferdle",
       "name": "Pufferdle",
       "url": "https://pufferdle.com",
@@ -8821,6 +10481,16 @@
       "thumbnail": "https://cdn.alldle.net/games/acb148cf534e5162ec8875ddde28c56c5eb8bcd9108d5ba4bc2b1ff2c2d28a1b.webp",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "punfiction-box-office-blunders",
+      "name": "PunFiction: Box Office Blunders",
+      "url": "https://iwandres.github.io/PunFiction/boxofficeblunders/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pun-fiction-box-office-blunders-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "putt-day",
@@ -8983,12 +10653,42 @@
       "popularity": 0
     },
     {
+      "id": "pyramids",
+      "name": "Pyramids",
+      "url": "https://www.pyramids.game/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/pyramids-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "qiyaas",
+      "name": "Qiyaas",
+      "url": "https://www.qiyaasgame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/qiyaas-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "quackle",
       "name": "Quackle",
       "url": "https://mincalc.com/quackle",
       "category": "Math/Logic",
       "description": "Group ducks by pond following the touch rules.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "quadragonle",
+      "name": "Quadragonle",
+      "url": "https://quadragonle.com/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/quadragonle-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -9023,12 +10723,32 @@
       "popularity": 2
     },
     {
+      "id": "queerty-crossword",
+      "name": "Queerty Crossword",
+      "url": "https://www.queerty.com/tag/crossword/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/queerty-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "questle",
       "name": "Questle",
       "url": "https://questle.vercel.app/",
       "category": "Video Games",
       "description": "Guess the video game from revealed attributes.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "quickcross",
+      "name": "QuickCross",
+      "url": "https://puzzles.usatoday.com/quick-cross",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/quick-cross-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -9063,6 +10783,16 @@
       "popularity": 1
     },
     {
+      "id": "quipbits",
+      "name": "Quipbits",
+      "url": "https://quipbits.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/quipbits-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "quiple",
       "name": "Quiple",
       "url": "https://quiple.xyz",
@@ -9093,6 +10823,16 @@
       "popularity": 0
     },
     {
+      "id": "quizingo-vocabulary",
+      "name": "Quizingo Vocabulary",
+      "url": "https://www.quizingo.app/vocabulary",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/quizingo-vocabulary-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "quizl",
       "name": "Quizl",
       "url": "https://quizl.io",
@@ -9100,7 +10840,7 @@
       "description": "Answer today's 5 trivia questions.",
       "thumbnail": "https://cdn.alldle.net/games/751350b9-051e-4b28-ac05-e97cb92f7f3d.webp",
       "unlimited": false,
-      "popularity": 161
+      "popularity": 164
     },
     {
       "id": "quizmoji",
@@ -9173,6 +10913,16 @@
       "popularity": 0
     },
     {
+      "id": "qwertle",
+      "name": "Qwertle",
+      "url": "https://qwertle.friedman.in/#/daily",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/qwertle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "qwrtl",
       "name": "QWRTL",
       "url": "https://limpet.net/qwrtl/",
@@ -9199,6 +10949,16 @@
       "category": "Words",
       "description": "Solve the word ladder by transforming each word in some way, with the scrambled clues as guidance.",
       "thumbnail": "https://cdn.alldle.net/games/52c14cb37f9c9c465f58458ac6c046ccef23c37b82b4e819b3f7e23288a2c15d.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "radical-radio-recall",
+      "name": "Radical Radio Recall",
+      "url": "https://g33z3r.com/games/radio-recall",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/radical-radio-recall-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -9280,7 +11040,7 @@
       "description": "Guess the ingredients of a dish using hints and reveal options, based on recipes from TheMealDB.",
       "thumbnail": "https://cdn.alldle.net/games/2f9ec531-08ed-44bd-818f-e3bdfbc8863d.webp",
       "unlimited": false,
-      "popularity": 66
+      "popularity": 68
     },
     {
       "id": "redacted",
@@ -9323,6 +11083,16 @@
       "popularity": 1
     },
     {
+      "id": "references",
+      "name": "References",
+      "url": "https://referencesgame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/references-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "refiner",
       "name": "Refiner",
       "url": "https://nibble.games/refiner/",
@@ -9363,6 +11133,36 @@
       "popularity": 8
     },
     {
+      "id": "reheardle-80s",
+      "name": "ReHeardle 80s",
+      "url": "https://reheardle.com/80s",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/reheardle-80s-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "reheardle-90s",
+      "name": "ReHeardle 90s",
+      "url": "https://reheardle.com/90s",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/reheardle-90s-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "reheardle-themes",
+      "name": "ReHeardle Themes",
+      "url": "https://reheardle.com/themes",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/reheardle-themes-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "reheardle-video-games",
       "name": "ReHeardle Video Games",
       "url": "https://reheardle.com/videogames",
@@ -9370,7 +11170,7 @@
       "description": "Guess the video game track from listening to small parts of it.",
       "thumbnail": "https://cdn.alldle.net/games/bdc64940-ea02-44a9-850e-8a09102b1adb.webp",
       "unlimited": false,
-      "popularity": 1
+      "popularity": 2
     },
     {
       "id": "relatle-io",
@@ -9401,6 +11201,16 @@
       "thumbnail": "https://retrotrivia.games/og-image.png",
       "unlimited": false,
       "popularity": 4
+    },
+    {
+      "id": "reunion",
+      "name": "Reunion",
+      "url": "https://www.merriam-webster.com/games/reunion",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/reunion-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "revealed",
@@ -9463,6 +11273,16 @@
       "popularity": 1
     },
     {
+      "id": "ribbit",
+      "name": "Ribbit",
+      "url": "https://www.puzzmo.com/play/ribbit",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/ribbit-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "riddl-ing",
       "name": "riddl.ing",
       "url": "https://riddl.ing",
@@ -9513,6 +11333,16 @@
       "popularity": 0
     },
     {
+      "id": "right-words",
+      "name": "Right Words",
+      "url": "https://www.rightwords.io/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/right-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "ripple",
       "name": "Ripple",
       "url": "https://ripplegame.app",
@@ -9530,7 +11360,7 @@
       "description": "A bunch of daily games where you guess the character from Marvel Rivals.",
       "thumbnail": "https://cdn.alldle.net/games/e63aef6c-07c2-4ee8-9d82-dc29f2de77e8.webp",
       "unlimited": false,
-      "popularity": 46
+      "popularity": 48
     },
     {
       "id": "rivaldle",
@@ -9550,7 +11380,7 @@
       "description": "Daily guess Marvel Rivals heroes with clues, abilities, quotes, origins, and more...",
       "thumbnail": "https://media.alldle.net/thumbnails/rivalsdle-net.png",
       "unlimited": false,
-      "popularity": 107
+      "popularity": 108
     },
     {
       "id": "rngdle",
@@ -9628,7 +11458,7 @@
       "url": "https://roughdraft.hindsightgames.com/",
       "category": "Sports",
       "description": "Order an NBA or NFL draft class and guess the year.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/rough-draft-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -9680,7 +11510,7 @@
       "description": "Daily Clash Royale puzzle hub with multiple card-guessing modes based on stats, pixels, descriptions, emojis, and sounds, plus Card Blitz, Higher or Lower, and an Ultimate Challenge.",
       "thumbnail": "https://cdn.alldle.net/games/34d12de2-6e1a-401c-8b1f-c4426baa00a4.png",
       "unlimited": false,
-      "popularity": 7
+      "popularity": 8
     },
     {
       "id": "rule34dle",
@@ -9703,6 +11533,16 @@
       "popularity": 1
     },
     {
+      "id": "runes",
+      "name": "Runes",
+      "url": "https://dailyrunes.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/runes-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "rushdle",
       "name": "Rushdle",
       "url": "https://minigame-mania.com/rushdle",
@@ -9720,7 +11560,7 @@
       "description": "It's a daily word puzzle. 26 words, one for each letter A through Z. You guess a word for a row, and when you get letters right, they automatically cascade across every other row that shares them. That moment when the board starts solving itself.... that's the RUSH.",
       "thumbnail": "https://cdn.alldle.net/games/7f94e164-65ea-4c23-b7bc-5182bbb78b21.png",
       "unlimited": false,
-      "popularity": 76
+      "popularity": 77
     },
     {
       "id": "sampledle",
@@ -9773,12 +11613,42 @@
       "popularity": 7
     },
     {
+      "id": "scaredle",
+      "name": "Scaredle",
+      "url": "https://scaredle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/scaredle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "scentle",
       "name": "Scentle",
       "url": "https://scentle.cc/",
       "category": "Miscellaneous",
       "description": "Name the daily fragrance from its notes.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "scooch",
+      "name": "Scooch",
+      "url": "https://playscooch.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/scooch-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "scorewords",
+      "name": "ScoreWords",
+      "url": "https://scorewords.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/score-words-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -9800,7 +11670,7 @@
       "description": "Guess which scran (stadium food) is more popular based on their pictures and prices.",
       "thumbnail": "https://cdn.alldle.net/games/04994362dbea70905059f3206fc57ef0a700e36f11f3464af4e87a3bf2f252b8.webp",
       "unlimited": false,
-      "popularity": 27
+      "popularity": 28
     },
     {
       "id": "scraple",
@@ -9923,6 +11793,26 @@
       "popularity": 33
     },
     {
+      "id": "seattle-wordy",
+      "name": "Seattle Wordy",
+      "url": "https://www.seattletimes.com/games-seattle-wordy/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/seattle-wordy-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "secret-quote",
+      "name": "Secret Quote",
+      "url": "https://wordnerd.co/secretquote/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/secret-quote-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "secret-roomle",
       "name": "Secret Roomle",
       "url": "https://roomle.net/",
@@ -9933,6 +11823,16 @@
       "popularity": 8
     },
     {
+      "id": "secret-word",
+      "name": "Secret Word",
+      "url": "https://wordnerd.co/secretword/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/secret-word-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "sections-puzzle",
       "name": "Sections Puzzle",
       "url": "https://www.sectionspuzzle.com/welcome/alldle",
@@ -9940,7 +11840,7 @@
       "description": "Free daily number logic puzzle. Fill each horizontal and vertical section with numbers 1 to its length, with no repeats. Includes 5 exclusive welcome puzzles for AllDle players.",
       "thumbnail": "https://cdn.alldle.net/games/423d8af2-d9e8-4003-9252-6476fa01dc77.png",
       "unlimited": false,
-      "popularity": 5
+      "popularity": 8
     },
     {
       "id": "sedecordle",
@@ -9960,7 +11860,7 @@
       "description": "Grow the perfect garden by properly placing tiles that complement each other.",
       "thumbnail": "https://cdn.alldle.net/games/7c473165-4553-4809-b028-f6b9e87801fa.png",
       "unlimited": false,
-      "popularity": 138
+      "popularity": 145
     },
     {
       "id": "seldom",
@@ -10080,7 +11980,7 @@
       "description": "Solve 64 Wordle puzzles at the same time.",
       "thumbnail": "https://64ordle.au/screenshot.png",
       "unlimited": false,
-      "popularity": 101
+      "popularity": 102
     },
     {
       "id": "sf6dle",
@@ -10130,7 +12030,7 @@
       "description": "5 daily Shikaku puzzles where you partition a grid into rectangles whose areas match the number inside them.",
       "thumbnail": "https://shikakuofthe.day/image.png",
       "unlimited": false,
-      "popularity": 355
+      "popularity": 367
     },
     {
       "id": "showdle",
@@ -10183,6 +12083,16 @@
       "popularity": 0
     },
     {
+      "id": "shuntle",
+      "name": "Shuntle",
+      "url": "https://shuntle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/shuntle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "silksongdle",
       "name": "Silksongdle",
       "url": "https://silksongdle.com",
@@ -10213,6 +12123,16 @@
       "popularity": 0
     },
     {
+      "id": "six-degrees",
+      "name": "Six Degrees",
+      "url": "https://six-degrees.md/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/six-degrees-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "sixty",
       "name": "SIXTY",
       "url": "https://sixty.redvectorgames.com",
@@ -10223,11 +12143,21 @@
       "popularity": 0
     },
     {
+      "id": "skill-check",
+      "name": "Skill Check",
+      "url": "https://skillcheckgame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/skill-check-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "skyq",
       "name": "SkyQ",
       "url": "https://flightq.app/skyq",
-      "category": "Geography",
-      "description": "Identify a real flight from progressive clues.",
+      "category": "Vehicles",
+      "description": "SkyQ is a free daily flight geography game where you guess the origin and destination of a real flight route. Each guess gives clues that help narrow the map, making it a quick daily puzzle for people who like travel, airports, and geography.",
       "thumbnail": "",
       "unlimited": false,
       "popularity": 0
@@ -10239,6 +12169,56 @@
       "category": "Words",
       "description": "Make words using the letters around the pear. Every 4 words, reveal the pear and try to make the longest word.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "slate-mini-crossword",
+      "name": "Slate Mini Crossword",
+      "url": "https://slate.com/tag/slate-games",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/slate-mini-crossword-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "slate-soundbites",
+      "name": "Slate SoundBites",
+      "url": "https://slate.com/tag/soundbites",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/slate-sound-bites-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "slidemoji",
+      "name": "Slidemoji",
+      "url": "https://slidemoji.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/slidemoji-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "slideways",
+      "name": "Slideways",
+      "url": "https://ponderclub.co/slideways",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/slideways-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "slideways-original",
+      "name": "Slideways (Original)",
+      "url": "https://ponderclub.co/slideways-v1",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/slideways-original-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -10310,7 +12290,7 @@
       "description": "Guess the artist, title, and year of the song that's playing.",
       "thumbnail": "https://cdn.alldle.net/games/085df717-b247-466b-8cae-262c9a2891ce.png",
       "unlimited": false,
-      "popularity": 905
+      "popularity": 913
     },
     {
       "id": "songle",
@@ -10330,7 +12310,7 @@
       "description": "Guess the song from listening to small parts of it.",
       "thumbnail": "https://lessgames.com/wordmark.jpg?v=1",
       "unlimited": false,
-      "popularity": 106
+      "popularity": 107
     },
     {
       "id": "songless-game",
@@ -10410,7 +12390,7 @@
       "description": "Daily sorting trivia game where you drag countries, cities, foods, and more into the correct order.",
       "thumbnail": "https://cdn.alldle.net/games/7de898303842c9806bee50a57683c610167cc36142c67668c6460b5a62aca499.webp",
       "unlimited": false,
-      "popularity": 50
+      "popularity": 51
     },
     {
       "id": "sortl",
@@ -10426,9 +12406,9 @@
       "id": "sortwise",
       "name": "Sortwise",
       "url": "https://sortwise.fun",
-      "category": "History",
-      "description": "Drag to sort the events in chronological order.",
-      "thumbnail": "",
+      "category": "Trivia",
+      "description": "Sort the answers into the correct order.",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/sort-wise-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -10440,7 +12420,7 @@
       "description": "Souldle is a fun and challenging guessing game where you guess a daily Soulslike boss from Demon's Souls, Dark Souls 1, Dark Souls 2, Dark Souls 3, Bloodborne, and Elden Ring. Test your knowledge of the iconic bosses in this engaging twist on the popular guessing game.",
       "thumbnail": "https://cdn.alldle.net/games/eb6d7f8f65f22d990530422b2c6978ee6c3a7ff649363df1e1f360085c7f0e87.webp",
       "unlimited": true,
-      "popularity": 25
+      "popularity": 29
     },
     {
       "id": "soulsborndle",
@@ -10553,6 +12533,16 @@
       "popularity": 11
     },
     {
+      "id": "spellslide",
+      "name": "SpellSlide",
+      "url": "https://spellslide.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/spell-slide-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "spindle",
       "name": "Spindle",
       "url": "https://playspindle.com",
@@ -10561,6 +12551,16 @@
       "thumbnail": "https://cdn.alldle.net/games/1e4a1550-7458-45e0-83da-6afce2000784.webp",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "spinning-pipes",
+      "name": "Spinning Pipes",
+      "url": "https://puzzlebun.co/rotational-pipes",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/spinning-pipes-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "spiredle",
@@ -10643,6 +12643,16 @@
       "popularity": 0
     },
     {
+      "id": "sports-funnel",
+      "name": "Sports Funnel",
+      "url": "https://cluefunnel.com/sports",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/sports-funnel-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "sportsdle",
       "name": "Sportsdle",
       "url": "https://www.sportsdle.com/",
@@ -10680,7 +12690,7 @@
       "description": "Guess the music artist in 10 tries, gaining new information based on each guess.",
       "thumbnail": "https://spotle.io/spotle_share.jpg",
       "unlimited": false,
-      "popularity": 356
+      "popularity": 358
     },
     {
       "id": "spotle-movie",
@@ -10798,7 +12808,7 @@
       "url": "https://squishybilliards.com",
       "category": "Miscellaneous",
       "description": "A daily Pool/Billiards game with special ball types. Avoid the balls with the caution triangle, sink the rest.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/squishy-billiards-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -10850,7 +12860,7 @@
       "description": "Guess the hidden Star Wars character from clues, a pixelated image, or character traits in daily and freeplay modes.",
       "thumbnail": "https://cdn.alldle.net/games/e685153f-f902-477b-9ff3-fb2f92dec07e.png",
       "unlimited": false,
-      "popularity": 42
+      "popularity": 43
     },
     {
       "id": "star-wordle",
@@ -10870,7 +12880,7 @@
       "description": "Guess today's mystery crop from Stardew Valley.",
       "thumbnail": "https://cdn.alldle.net/games/72937e8e-4eea-4a14-b1fe-15aa49657d93.webp",
       "unlimited": false,
-      "popularity": 111
+      "popularity": 114
     },
     {
       "id": "stardle",
@@ -10891,6 +12901,16 @@
       "thumbnail": "https://inkwellgames.com/opengraph-image.png?8a70ebace114a852",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "starwords",
+      "name": "StarWords",
+      "url": "https://actorle.com/starwords/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/star-words-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "stat-mini-crossword",
@@ -10980,7 +13000,17 @@
       "description": "Guess the game based on the Steam review.",
       "thumbnail": "https://steamdle.com/images/steamdle-og-image.png",
       "unlimited": false,
-      "popularity": 828
+      "popularity": 833
+    },
+    {
+      "id": "steks",
+      "name": "Steks",
+      "url": "https://steks.net/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/steks-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "stepdle",
@@ -11023,6 +13053,16 @@
       "popularity": 28
     },
     {
+      "id": "stick-figure-movie-trivia",
+      "name": "Stick Figure Movie Trivia",
+      "url": "https://stickfiguremovietrivia.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/stick-figure-movie-trivia-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "stockle",
       "name": "Stockle",
       "url": "https://stockle.fun/",
@@ -11039,6 +13079,16 @@
       "category": "Miscellaneous",
       "description": "Guess the name of the book based on a short summary. More info is given after each guess.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "storylines",
+      "name": "Storylines",
+      "url": "https://storylines.redividers.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/storylines-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11063,6 +13113,16 @@
       "popularity": 0
     },
     {
+      "id": "string-theory",
+      "name": "String Theory",
+      "url": "https://playpocketpuzzles.com/stringtheory/home",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/string-theory-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "strumdle",
       "name": "Strumdle",
       "url": "https://strumdle.com/",
@@ -11070,7 +13130,17 @@
       "description": "A daily music puzzle. Guess the song from a Guitar Hero-style note chart.",
       "thumbnail": "https://cdn.alldle.net/games/f886c1b32cce8b9d92e4b08ac97af1cd0c26e6da596fe80c56b7e360b57fb49a.webp",
       "unlimited": false,
-      "popularity": 68
+      "popularity": 69
+    },
+    {
+      "id": "subtext",
+      "name": "Subtext",
+      "url": "https://wordwormdormdork.com/subtext/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/subtext-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "subwaydle",
@@ -11081,6 +13151,16 @@
       "thumbnail": "https://www.subwaydle.com/screenshot.png",
       "unlimited": false,
       "popularity": 1
+    },
+    {
+      "id": "sudogoose",
+      "name": "Sudogoose",
+      "url": "https://ponderclub.co/sudo-goose",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/sudogoose-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "sudoker",
@@ -11101,6 +13181,16 @@
       "thumbnail": "https://cdn.alldle.net/games/385540597bca9bff07a0a1dbf87ca363fb765cd22173e4e6594d70b3422e7ea9.webp",
       "unlimited": false,
       "popularity": 8
+    },
+    {
+      "id": "sudoku-conquest",
+      "name": "Sudoku Conquest",
+      "url": "https://www.sudokuconquest.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/sudoku-conquest-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "sudoku-shift",
@@ -11128,7 +13218,7 @@
       "url": "https://puzzlelab.dev/games/summit/",
       "category": "Math/Logic",
       "description": "Arrange numbers so each equals the two below it.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/puzzle-lab-summit-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11203,6 +13293,26 @@
       "popularity": 1
     },
     {
+      "id": "susie",
+      "name": "Susie",
+      "url": "https://susie.rbrignall.org.uk/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/susie-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "swapdle",
+      "name": "Swapdle",
+      "url": "https://swapdle.org/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/swapdle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "swapple",
       "name": "Swapple",
       "url": "https://nibble.games/swapple/swapple-easy.html",
@@ -11263,6 +13373,16 @@
       "popularity": 2
     },
     {
+      "id": "synapse-swap",
+      "name": "Synapse Swap",
+      "url": "https://synapse-swap.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/synapse-swap-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "syndles",
       "name": "Syndles",
       "url": "https://syndles.com",
@@ -11300,7 +13420,7 @@
       "description": "Sort the famous people from shortest to tallest.",
       "thumbnail": "https://cdn.alldle.net/games/553a46e7-160e-462b-b497-0f3a1152a00f.webp",
       "unlimited": false,
-      "popularity": 37
+      "popularity": 38
     },
     {
       "id": "tally",
@@ -11318,7 +13438,7 @@
       "url": "https://tally-game.com",
       "category": "Math/Logic",
       "description": "Partition the board of numbers such that each group sums to 10.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/tally-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11340,7 +13460,7 @@
       "description": "Daily food guessing game where you identify a mystery dish's country of origin from its photo and unlockable clues.",
       "thumbnail": "https://cdn.alldle.net/games/29daad0f9048377ae6a0d5bc6531ec74c73fa910061d0db5f213d8dd3c656fc9.webp",
       "unlimited": false,
-      "popularity": 49
+      "popularity": 54
     },
     {
       "id": "taylor-swift-heardle-heardlepedia",
@@ -11413,6 +13533,16 @@
       "popularity": 5
     },
     {
+      "id": "telematrix",
+      "name": "Telematrix",
+      "url": "https://www.vulture.com/tags/telematrix/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/telematrix-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "temple",
       "name": "Temple",
       "url": "https://tck.mn/temple",
@@ -11430,7 +13560,7 @@
       "description": "Guess 5 letter word in Portuguese in 6 attempts",
       "thumbnail": "https://cdn.alldle.net/games/2b7b525b-a41a-41ec-9007-2eda126b9f53.webp",
       "unlimited": false,
-      "popularity": 4
+      "popularity": 5
     },
     {
       "id": "terradle",
@@ -11463,6 +13593,26 @@
       "popularity": 3
     },
     {
+      "id": "tessera",
+      "name": "Tessera",
+      "url": "https://tessera.day/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/tessera-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "tessera-daily-word-puzzle",
+      "name": "Tessera: Daily Word Puzzle",
+      "url": "https://www.tesserapuzzle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/tessera-daily-word-puzzle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "tf2dle",
       "name": "TF2dle",
       "url": "https://www.tf2dle.com",
@@ -11470,7 +13620,7 @@
       "description": "Guess the Team Fortress 2 weapon, map, cosmetic or unusual effect based on attributes.",
       "thumbnail": "https://cdn.alldle.net/games/36698b1a-1326-44ff-9da9-1d2047169f0c.webp",
       "unlimited": false,
-      "popularity": 24
+      "popularity": 27
     },
     {
       "id": "tftdle",
@@ -11481,6 +13631,26 @@
       "thumbnail": "https://cdn.alldle.net/games/ffbc30de-090c-4ef2-8b3f-a67a39f9b72f.webp",
       "unlimited": false,
       "popularity": 8
+    },
+    {
+      "id": "the-67-number-game",
+      "name": "The 67 Number Game",
+      "url": "https://the67numbergame.github.io/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/the-67-number-game-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "the-6th-degree",
+      "name": "The 6th Degree",
+      "url": "https://the6th.degree/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/the-6th-degree-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "the-atlantic-crossword",
@@ -11513,6 +13683,16 @@
       "popularity": 1
     },
     {
+      "id": "the-chronology-game",
+      "name": "The Chronology Game",
+      "url": "https://chronologygame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/the-chronology-game-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "the-daily-baffle",
       "name": "The Daily Baffle",
       "url": "https://dailybaffle.com",
@@ -11539,6 +13719,16 @@
       "category": "Colors",
       "description": "Match a famous painting's colour with HSL sliders.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "the-daily-investor",
+      "name": "The Daily Investor",
+      "url": "https://www.The-Daily-Investor.com",
+      "category": "Trivia",
+      "description": "The Daily Investor is a quick daily business and investing game with trivia, geography-style company clues, and a final stock ticker challenge. Play in under two minutes, test your market knowledge, and challenge friends to beat your score.",
+      "thumbnail": "https://cdn.alldle.net/games/e6a54b57-a6cb-4ca1-9a1a-384de2b48b6e.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11663,6 +13853,16 @@
       "popularity": 11
     },
     {
+      "id": "themery",
+      "name": "Themery",
+      "url": "https://themerygame.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/themery-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "thingdle",
       "name": "thingdle",
       "url": "https://thingdle.app/thingdle",
@@ -11678,7 +13878,7 @@
       "url": "https://thinkygames.com/dailies/today/",
       "category": "Miscellaneous",
       "description": "Handcrafted daily puzzles of all different kinds with a fun connected story.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/thinky-dailies-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11738,7 +13938,7 @@
       "url": "https://cyllibi.com/thruline",
       "category": "Trivia",
       "description": "Determine the word that connects the four images.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/thruline-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -11760,7 +13960,7 @@
       "description": "Rank a new daily topic into S-F tiers, submit your list, and compare with the community.",
       "thumbnail": "https://cdn.alldle.net/games/13bdcee4fe76f9264f14d3f2e31fa7fc6d854143caa07e65d1cf02d186a9f9c9.webp",
       "unlimited": false,
-      "popularity": 69
+      "popularity": 75
     },
     {
       "id": "tightrope",
@@ -11770,7 +13970,7 @@
       "description": "Answer 9 timed trivia questions without running out of lives!",
       "thumbnail": "https://cdn.alldle.net/games/33a3006d-1f5a-4081-acb8-397131dfa718.png",
       "unlimited": false,
-      "popularity": 107
+      "popularity": 109
     },
     {
       "id": "tilbo",
@@ -11800,7 +14000,7 @@
       "description": "Move and rotate tiles to find clues, connect words, and rebuild a broken crossword.",
       "thumbnail": "https://tiledwords.com/meta/sharing-image.jpg",
       "unlimited": false,
-      "popularity": 24
+      "popularity": 25
     },
     {
       "id": "tiler",
@@ -11823,6 +14023,16 @@
       "popularity": 71
     },
     {
+      "id": "tiles",
+      "name": "Tiles",
+      "url": "https://www.nytimes.com/puzzles/tiles",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/tiles-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "timdle",
       "name": "Timdle",
       "url": "https://www.timdle.com",
@@ -11830,7 +14040,7 @@
       "description": "Place 8 historical events in chronological order.",
       "thumbnail": "https://www.timdle.com/timdle-thumbnail.png",
       "unlimited": false,
-      "popularity": 340
+      "popularity": 343
     },
     {
       "id": "timdle-math",
@@ -11860,7 +14070,7 @@
       "description": "Guess the right time and location of each historical photo.",
       "thumbnail": "https://cdn.alldle.net/games/60fbf488-8ca5-414f-bac6-ffc75219e5c3.webp",
       "unlimited": false,
-      "popularity": 320
+      "popularity": 323
     },
     {
       "id": "timeline",
@@ -11881,6 +14091,16 @@
       "thumbnail": "https://cdn.alldle.net/games/99e16062-4f26-4a6c-a37d-ffefe72f7aeb.webp",
       "unlimited": false,
       "popularity": 3
+    },
+    {
+      "id": "timelineup",
+      "name": "TimeLineup",
+      "url": "https://matchiq.online/timelineup",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/time-lineup-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "timeplacer",
@@ -11910,7 +14130,17 @@
       "description": "Try to time when the countdown reaches 0. Each day the beat is different.",
       "thumbnail": "https://cdn.alldle.net/games/bce886e4-a456-49cf-ae1d-a081dec79234.webp",
       "unlimited": false,
-      "popularity": 159
+      "popularity": 161
+    },
+    {
+      "id": "titleshot",
+      "name": "Titleshot",
+      "url": "https://framed.wtf/titleshot",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/titleshot-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "toadle",
@@ -11953,6 +14183,16 @@
       "popularity": 42
     },
     {
+      "id": "toon-tone-fun",
+      "name": "Toon Tone Fun",
+      "url": "https://toon-tone.fun/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/toon-tone-fun-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "top-5",
       "name": "Top 5",
       "url": "https://topfivetrivia.com",
@@ -11961,6 +14201,16 @@
       "thumbnail": "https://cdn.alldle.net/games/08b1708f-c504-4678-bff3-42a86df8d205.webp",
       "unlimited": false,
       "popularity": 3
+    },
+    {
+      "id": "topic9",
+      "name": "Topic9",
+      "url": "https://topic9.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/topic9-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "toppled",
@@ -12018,7 +14268,7 @@
       "url": "https://g33z3r.com",
       "category": "Music",
       "description": "Name the artist from a blurry album cover. 6 tries daily and the cover reveals bit by bit with each guess.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/trackdyl-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -12063,6 +14313,16 @@
       "popularity": 0
     },
     {
+      "id": "traversle",
+      "name": "Traversle",
+      "url": "https://traversle.io/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/traversle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "travle",
       "name": "travle",
       "url": "https://travle.earth",
@@ -12070,7 +14330,7 @@
       "description": "Connect the starting country to the ending country by naming countries in between them.",
       "thumbnail": "https://travle.earth/images/previews/countries_preview.png",
       "unlimited": false,
-      "popularity": 252
+      "popularity": 254
     },
     {
       "id": "treasure-guessr",
@@ -12099,6 +14359,26 @@
       "category": "Math/Logic",
       "description": "A daily sliding puzzle where three pieces move as one. Slide the trio onto their goal squares — the movement rule changes each weekday, building a weekly arc.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "trigram",
+      "name": "Trigram",
+      "url": "https://trigram.netlify.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/trigram-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "trika",
+      "name": "Trika",
+      "url": "https://www.playtrika.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/trika-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -12163,6 +14443,16 @@
       "popularity": 18
     },
     {
+      "id": "tunetwist",
+      "name": "TuneTwist",
+      "url": "https://tunetwist.io",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/tune-twist-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "turdle",
       "name": "Turdle",
       "url": "https://turdle.scritch.net/",
@@ -12181,6 +14471,16 @@
       "thumbnail": "https://www.wfhgames.com/tv-circuit/opengraph-image.jpg?1ed655faf8ab94ff",
       "unlimited": false,
       "popularity": 3
+    },
+    {
+      "id": "twisteroo",
+      "name": "Twisteroo",
+      "url": "https://twisteroo.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/twisteroo-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "twofer-goofer",
@@ -12280,7 +14580,7 @@
       "description": "Deduce the daily five-dot unlock pattern in six tries using Wordle-style color feedback.",
       "thumbnail": "https://cdn.alldle.net/games/d914914280efd551a1a578d6b0007d09693a4c7258952fd030d69c59b864894a.webp",
       "unlimited": false,
-      "popularity": 122
+      "popularity": 123
     },
     {
       "id": "unodle",
@@ -12303,6 +14603,36 @@
       "popularity": 0
     },
     {
+      "id": "unshuffle",
+      "name": "Unshuffle",
+      "url": "https://unshuffle.io/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/unshuffle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "untravl",
+      "name": "UNTRAVL",
+      "url": "https://www.motivick.com/puzzles/untravl",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/untravl-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "unwordle",
+      "name": "UnWordle",
+      "url": "https://unwordle.org/?daily=1",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/unwordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "unzoomed",
       "name": "Unzoomed",
       "url": "https://www.unzoomed.com/en",
@@ -12320,7 +14650,7 @@
       "description": "A free daily Valorant guessing game with four modes: identify the daily agent from attribute clues, silhouette, or ability icon, or guess the map from a gradually revealed image. The same puzzles refresh daily for all players.",
       "thumbnail": "https://cdn.alldle.net/games/e485b689-8f2b-47db-a919-f321c143fdb4.jpg",
       "unlimited": false,
-      "popularity": 111
+      "popularity": 112
     },
     {
       "id": "valodle",
@@ -12330,7 +14660,7 @@
       "description": "Test your Valorant knowledge in these daily games.",
       "thumbnail": "https://cdn.alldle.net/games/b9553b37-703d-45a4-a1ce-27718010c419.webp",
       "unlimited": false,
-      "popularity": 100
+      "popularity": 103
     },
     {
       "id": "vendy",
@@ -12343,12 +14673,32 @@
       "popularity": 16
     },
     {
+      "id": "venn-puzzle",
+      "name": "Venn Puzzle",
+      "url": "https://www.vennpuzzle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/venn-puzzle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "venndle",
+      "name": "Venndle",
+      "url": "https://www.venndle.app",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/venndle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "vennections",
       "name": "Vennections",
       "url": "https://vennections.com",
       "category": "Words",
       "description": "A daily word puzzle game created by an education consultant. Categorize similar words into three sections of a Venn diagram, and then solve by guessing the one word that connects them all!",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/vennections-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -12388,7 +14738,7 @@
       "url": "https://vexle.org",
       "category": "Geography",
       "description": "Draw the country's flag from memory, and see how close you get!",
-      "thumbnail": "",
+      "thumbnail": "https://assets.playlin.io/renditions/screenshot_card/vexle-screenshot.webp",
       "unlimited": false,
       "popularity": 0
     },
@@ -12503,6 +14853,16 @@
       "popularity": 2
     },
     {
+      "id": "vulture-10x10",
+      "name": "Vulture 10x10",
+      "url": "https://www.vulture.com/tags/vulture-10x10/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/vulture-10-x-10-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "waffle",
       "name": "Waffle",
       "url": "https://wafflegame.net/daily",
@@ -12610,7 +14970,7 @@
       "description": "Guess the Pokemon type based on its weaknesses to the attacking types.",
       "thumbnail": "https://dentotino.com/weakdle_banner.png",
       "unlimited": false,
-      "popularity": 176
+      "popularity": 178
     },
     {
       "id": "weakdoku",
@@ -12653,6 +15013,16 @@
       "popularity": 0
     },
     {
+      "id": "weaver-x",
+      "name": "Weaver X",
+      "url": "https://wordwormdormdork.com/weaver-x/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/weaver-x-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "weddle",
       "name": "Weddle",
       "url": "https://www.weddlegame.com",
@@ -12677,10 +15047,10 @@
       "name": "Well Duel",
       "url": "https://wellduel.yukigames.workers.dev/",
       "category": "Miscellaneous",
-      "description": "Orbital sumo browser game for 1 or 2 players. Hold to orbit gravity wells, release to slingshot, and knock your rival out of the shrinking ring. Play solo against AI or on a shared keyboard or screen.",
+      "description": "Orbital sumo for 1-2 players with a Daily Duel: everyone gets the same 3-duel gauntlet vs AI levels 2/5/8 each day — build a daily streak. Hold to orbit gravity wells, release to slingshot, knock your rival out of the shrinking ring. Solo AI ladder, or 2 players on one keyboard or screen.",
       "thumbnail": "https://cdn.alldle.net/games/2d6f4d656a29981cd5e818ae51c019cbef633f89d8c4f2bcf823115110dd11cd.webp",
       "unlimited": true,
-      "popularity": 4
+      "popularity": 6
     },
     {
       "id": "well-putt",
@@ -12690,7 +15060,7 @@
       "description": "Daily gravity golf game where you slingshot putts through space gravity wells and try to finish a shared 3-hole course in as few strokes as possible.",
       "thumbnail": "https://cdn.alldle.net/games/c09f12a89d75bee5a4943793f3aed03586c1666e59916f45bdee06185fef6bd9.webp",
       "unlimited": false,
-      "popularity": 2
+      "popularity": 3
     },
     {
       "id": "wellspring",
@@ -12700,7 +15070,7 @@
       "description": "Daily one-button gravity arcade game where you orbit wells, slingshot through sparks, and avoid cores and walls.",
       "thumbnail": "https://cdn.alldle.net/games/a0aa91c97bf0ab9f3252f43bea7339e7511285308b058b99fc77f113bd9a277f.webp",
       "unlimited": false,
-      "popularity": 4
+      "popularity": 5
     },
     {
       "id": "werdel",
@@ -12923,6 +15293,16 @@
       "popularity": 3
     },
     {
+      "id": "winding-path",
+      "name": "Winding Path",
+      "url": "https://puzzlebun.co/winding-path",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/winding-path-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "wodrs",
       "name": "WODRS",
       "url": "https://wodrs.gargy.top/",
@@ -12939,6 +15319,16 @@
       "category": "Words",
       "description": "Guess the hidden word in a limited number of tries using logic and letter feedback.",
       "thumbnail": "https://cdn.alldle.net/games/bbf29649-3520-477b-9bdb-f224bb8f669a.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "woostersheer",
+      "name": "Woostersheer",
+      "url": "https://woostersheer.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/woostersheer-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13023,6 +15413,16 @@
       "popularity": 0
     },
     {
+      "id": "word-escalator",
+      "name": "Word Escalator",
+      "url": "https://wordescalator.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-escalator-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "word-grid",
       "name": "Word Grid",
       "url": "https://wordgrid.clevergoat.com",
@@ -13030,7 +15430,17 @@
       "description": "Fill the cells in the grid with words matching the criteria of both their row and column",
       "thumbnail": "https://cdn.alldle.net/games/3e3adebf-fab9-4656-8419-0cbf359bcc49.webp",
       "unlimited": false,
-      "popularity": 31
+      "popularity": 32
+    },
+    {
+      "id": "word-hunt",
+      "name": "Word Hunt",
+      "url": "https://wordnerd.co/wordhunt/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-hunt-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "word-hurdle",
@@ -13108,7 +15518,7 @@
       "url": "https://playwordspill.com",
       "category": "Words",
       "description": "Spell words, spill tiles, and clear the rearranging 5x5 board (6x6 on Sundays). Tap or drag connecting letters in any direction, chase longer words for bigger bonuses, and swap neighboring tiles to help out.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-spill-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13129,6 +15539,16 @@
       "category": "Words",
       "description": "Swap letters to create words both horizontally and vertically.",
       "thumbnail": "https://cdn.alldle.net/games/1ce1830f-a33d-45fa-8dce-129d063ec9f8.webp",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "word-weld",
+      "name": "Word Weld",
+      "url": "https://wordweld.redividers.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-weld-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13189,6 +15609,16 @@
       "category": "Words",
       "description": "Solve three stacked words crossed by an axle word.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordbridge",
+      "name": "WordBridge",
+      "url": "https://wordbridge.danielgallab.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-bridge-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13273,6 +15703,16 @@
       "popularity": 1
     },
     {
+      "id": "wordforge",
+      "name": "WordForge",
+      "url": "https://word-forge.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-forge-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "wordga",
       "name": "Wordga",
       "url": "https://wordga.com/daily",
@@ -13293,12 +15733,42 @@
       "popularity": 0
     },
     {
+      "id": "wordhuntle",
+      "name": "Wordhuntle",
+      "url": "https://www.wordhuntle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordhuntle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordie",
+      "name": "Wordie",
+      "url": "https://ponderclub.co/wordie",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordie-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "wordiply",
       "name": "Wordiply",
       "url": "https://www.wordiply.com",
       "category": "Words",
       "description": "Try to make the longest word that contains the given word in 5 tries or less.",
       "thumbnail": "https://wordiply.com/share.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordishi",
+      "name": "Wordishi",
+      "url": "https://wordishi.com",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordishi-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13359,6 +15829,36 @@
       "category": "Sports",
       "description": "Guess the athlete from clues in three sports modes.",
       "thumbnail": "",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordlecup-basketball",
+      "name": "Wordlecup Basketball",
+      "url": "https://wordlecup.today/en/nba/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordlecup-basketball-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordlecup-football",
+      "name": "Wordlecup Football",
+      "url": "https://wordlecup.today/en/football/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordlecup-football-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordlecup-nfl",
+      "name": "Wordlecup NFL",
+      "url": "https://wordlecup.today/en/nfl/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wordlecup-nfl-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13427,10 +15927,10 @@
       "name": "Wordpull",
       "url": "https://wordpull.yukigames.workers.dev/",
       "category": "Words",
-      "description": "Typing tug-of-war against an AI: pick one of three words to type, build HEAT with flawless streaks, and beat 10 AI levels in quick free browser matches.",
+      "description": "Typing tug-of-war vs an AI typist: pick one of three words to type, flawless words build HEAT. NEW Daily Gauntlet: 3 seeded duels vs AI levels 2/5/8 — same for everyone each day, streak + share trail — plus an endless AI ladder. Free, no signup.",
       "thumbnail": "https://cdn.alldle.net/games/5036a731-58c3-4469-a3a2-cea2dfcc691c.png",
       "unlimited": true,
-      "popularity": 0
+      "popularity": 5
     },
     {
       "id": "wordpyramid",
@@ -13518,7 +16018,17 @@
       "url": "https://wordwavr.app",
       "category": "Words",
       "description": "Guess the 5 letter word that's been transformed into a wave.",
-      "thumbnail": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-wavr-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wordwise",
+      "name": "WordWise",
+      "url": "https://www.wordwise.fyi/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/word-wise-screenshot.png",
       "unlimited": false,
       "popularity": 0
     },
@@ -13603,6 +16113,16 @@
       "popularity": 0
     },
     {
+      "id": "worwordle",
+      "name": "Worwordle",
+      "url": "https://worwordle.netlify.app/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/worwordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "wourdle",
       "name": "Wourdle",
       "url": "https://wourdle.com",
@@ -13621,6 +16141,16 @@
       "thumbnail": "https://cdn.alldle.net/games/87e5111c-90da-4743-844d-86bac744bcc8.webp",
       "unlimited": false,
       "popularity": 5
+    },
+    {
+      "id": "wrcdle",
+      "name": "WRCdle",
+      "url": "https://www.wrcdle.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrcdle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "wrdail",
@@ -13643,6 +16173,26 @@
       "popularity": 1
     },
     {
+      "id": "wreflecto-cross",
+      "name": "Wreflecto Cross",
+      "url": "https://wreflecto.com/cross",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wreflecto-cross-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wreflecto-mirror",
+      "name": "Wreflecto Mirror",
+      "url": "https://wreflecto.com/mirror",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wreflecto-mirror-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "wrestleplay",
       "name": "WrestlePlay",
       "url": "https://wrestleplay.com",
@@ -13651,6 +16201,56 @@
       "thumbnail": "https://cdn.alldle.net/games/a7182566-02b6-40e7-b630-29bcd782ccda.webp",
       "unlimited": false,
       "popularity": 7
+    },
+    {
+      "id": "wrestleplay-bingo",
+      "name": "WrestlePlay Bingo",
+      "url": "https://wrestleplay.com/wrestling-bingo",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrestle-play-bingo-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wrestleplay-connections",
+      "name": "WrestlePlay Connections",
+      "url": "https://wrestleplay.com/wrestling-connections",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrestle-play-connections-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wrestleplay-grid",
+      "name": "WrestlePlay Grid",
+      "url": "https://wrestleplay.com/wrestling-grid",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrestle-play-grid-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wrestleplay-ladder",
+      "name": "WrestlePlay Ladder",
+      "url": "https://wrestleplay.com/wrestling-ladder",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrestle-play-ladder-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
+      "id": "wrestleplay-wordle",
+      "name": "WrestlePlay Wordle",
+      "url": "https://wrestleplay.com/wrestling-wordle",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/wrestle-play-wordle-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
     },
     {
       "id": "wridges",
@@ -13783,6 +16383,16 @@
       "popularity": 5
     },
     {
+      "id": "zanagrams",
+      "name": "Zanagrams",
+      "url": "https://zanagrams.com/",
+      "category": "Miscellaneous",
+      "description": "",
+      "thumbnail": "https://res.cloudinary.com/playlin/image/upload/w_350,f_auto,q_auto/zanagrams-screenshot.png",
+      "unlimited": false,
+      "popularity": 0
+    },
+    {
       "id": "zebra-puzzles",
       "name": "Zebra Puzzles",
       "url": "https://www.zebrapuzzles.com",
@@ -13800,7 +16410,7 @@
       "description": "Guess the Zelda song in as few tries as possible.",
       "thumbnail": "https://media.alldle.net/thumbnails/zelda-heardle-glitch-me.png",
       "unlimited": true,
-      "popularity": 7
+      "popularity": 8
     },
     {
       "id": "zeldadle",
@@ -13820,7 +16430,7 @@
       "description": "A collection of daily games related to Zelda.",
       "thumbnail": "https://cdn.alldle.net/games/22c1cb4a-caea-43a4-8fe5-d50c283eef1a.webp",
       "unlimited": false,
-      "popularity": 18
+      "popularity": 19
     },
     {
       "id": "zigzag",
@@ -13860,7 +16470,7 @@
       "description": "Guess the video game from the zoomed-in screenshot.",
       "thumbnail": "https://zoomout.videoludid.com/common/social.png",
       "unlimited": false,
-      "popularity": 1042
+      "popularity": 1060
     }
   ]
 }

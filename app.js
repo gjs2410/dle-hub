@@ -1356,7 +1356,22 @@
       Object.keys(obj.guesses).forEach(function (date) {
         var incoming = obj.guesses[date] || {};
         var day = guesses[date] || (guesses[date] = {});
-        Object.keys(incoming).forEach(function (id) { if (day[id] == null) day[id] = incoming[id]; });
+        Object.keys(incoming).forEach(function (id) {
+          var incomingEntry = incoming[id];
+          if (incomingEntry == null) return;
+          // Merge per measurement type, not per game — a game can track more than one type
+          // at once (e.g. score AND guesses), so a naive "skip if anything's there locally"
+          // would silently drop whichever type wasn't already recorded on this device.
+          if (typeof incomingEntry !== "object") {
+            if (day[id] == null) day[id] = incomingEntry; // very old export, type unknown
+            return;
+          }
+          if ("n" in incomingEntry && "m" in incomingEntry) incomingEntry = { correct: incomingEntry };
+          var localEntry = (day[id] && typeof day[id] === "object") ? day[id] : (day[id] = {});
+          Object.keys(incomingEntry).forEach(function (type) {
+            if (localEntry[type] == null) localEntry[type] = incomingEntry[type];
+          });
+        });
       });
       saveGuesses();
     }
@@ -1999,6 +2014,7 @@
       savePending();
       hidePrompt();
       render(); // done-today statuses now recompute against the new date
+      if (currentDetailId) refreshDetail(); // an open game page also needs a fresh "today"
     }
   }, 60 * 1000);
 

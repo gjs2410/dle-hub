@@ -39,40 +39,61 @@
   // Games with `modes` are expanded into one synthetic entry per mode (id "parentId::modeId").
   // These share the parent's URL host, so the existing same-host hub grouping below renders
   // them as a single card with one row per mode — no separate UI path needed.
+  // Expands a game into one entry per mode (if it has any), or returns it as-is with its
+  // resultType set. Shared by catalog games (modes from overrides.json) and user-added
+  // custom games (modes entered directly in the "Add a game" form) — same shape either way.
+  function expandGameWithModes(g, modesInfo) {
+    var modes = modesInfo && modesInfo.modes;
+    if (Array.isArray(modes) && modes.length) {
+      var baseType = (modesInfo && modesInfo.resultType) || "guesses";
+      return modes.map(function (mode) {
+        var url = g.url;
+        if (mode.path) {
+          try { url = new URL(mode.path, g.url).href; } catch (e) {}
+        } else if (mode.url) {
+          url = mode.url;
+        }
+        return {
+          id: g.id + "::" + mode.id,
+          // Each mode is its own standalone card (no hub grouping), so it needs the parent
+          // game's name for context — "Classic" alone wouldn't mean anything on its own.
+          name: g.name + ": " + mode.label,
+          url: url,
+          category: g.category,
+          description: g.description,
+          thumbnail: g.thumbnail,
+          unlimited: g.unlimited,
+          popularity: g.popularity,
+          resultType: mode.resultType || baseType,
+          custom: g.custom,
+        };
+      });
+    }
+    g.resultType = (modesInfo && modesInfo.resultType) || g.resultType || "guesses";
+    return [g];
+  }
   (function applyOverrides() {
     var overrides = window.GAMES_OVERRIDES || {};
     var out = [];
     DATA.forEach(function (g) {
-      var ov = overrides[g.id];
-      if (ov && Array.isArray(ov.modes) && ov.modes.length) {
-        var baseType = ov.resultType || "guesses";
-        ov.modes.forEach(function (mode) {
-          var url = g.url;
-          if (mode.path) {
-            try { url = new URL(mode.path, g.url).href; } catch (e) {}
-          } else if (mode.url) {
-            url = mode.url;
-          }
-          out.push({
-            id: g.id + "::" + mode.id,
-            // Each mode is now its own standalone card (no hub grouping), so it needs the
-            // parent game's name for context — "Classic" alone wouldn't mean anything on its own.
-            name: g.name + ": " + mode.label,
-            url: url,
-            category: g.category,
-            description: g.description,
-            thumbnail: g.thumbnail,
-            unlimited: g.unlimited,
-            popularity: g.popularity,
-            resultType: mode.resultType || baseType,
-          });
-        });
-      } else {
-        g.resultType = (ov && ov.resultType) || "guesses";
-        out.push(g);
-      }
+      out = out.concat(expandGameWithModes(g, overrides[g.id]));
     });
     DATA = out;
+  })();
+
+  // ---------- user-added custom games ----------
+  // Games the user adds themselves via the "Add a game" form (Settings). Stored locally
+  // (and synced like everything else) rather than in the generated catalog, and expanded
+  // through the same modes pipeline as any overrides.json game.
+  var LS_CUSTOM_GAMES = "dlehub:customGames";
+  var customGames = read(LS_CUSTOM_GAMES, []);
+  function saveCustomGames() { write(LS_CUSTOM_GAMES, customGames); dleDirty(); }
+  (function applyCustomGames() {
+    customGames.forEach(function (cg) {
+      var base = Object.assign({ unlimited: false, popularity: 0, custom: true }, cg);
+      DATA = DATA.concat(expandGameWithModes(base, { modes: cg.modes, resultType: cg.resultType }));
+      if (ALL_CATEGORIES.indexOf(cg.category) === -1) ALL_CATEGORIES.push(cg.category);
+    });
   })();
 
   // ---------- storage ----------
@@ -587,6 +608,34 @@
     });
   })();
 
+  // Adds freshly-created game entries (already expanded into 1+ mode entries, if any) to
+  // every live structure buildItems() populated at boot, then refreshes the grid — lets a
+  // custom game show up immediately, no reload needed.
+  function addGamesToLiveData(entries) {
+    entries.forEach(function (g) {
+      DATA.push(g);
+      gameById[g.id] = g;
+      itemById[g.id] = g;
+      ITEMS.push(g);
+      var h = hostOf(g.url);
+      (gamesByHost[h] = gamesByHost[h] || []).push(g);
+    });
+    buildChips();
+    render();
+  }
+  function removeGamesFromLiveData(ids) {
+    var idSet = {};
+    ids.forEach(function (id) { idSet[id] = true; });
+    DATA = DATA.filter(function (g) { return !idSet[g.id]; });
+    ITEMS = ITEMS.filter(function (it) { return !idSet[it.id]; });
+    ids.forEach(function (id) { delete gameById[id]; delete itemById[id]; });
+    Object.keys(gamesByHost).forEach(function (h) {
+      gamesByHost[h] = gamesByHost[h].filter(function (g) { return !idSet[g.id]; });
+    });
+    buildChips();
+    render();
+  }
+
   // One-time migration: each day's recorded value used to be a single number (or, for the
   // "correct" type, a bare { n, m } pair) with the type inferred from the game's one-and-only
   // resultType. Now that a game can track several types at once, values live under their type's
@@ -1046,6 +1095,10 @@
       refreshDetail();
       return;
     }
+    var rm = e.target.closest("[data-remove-mode-row]");
+    if (rm) { rm.closest(".ag-mode-row").remove(); return; }
+    var rc = e.target.closest("[data-remove-custom-game]");
+    if (rc) { removeCustomGame(rc.dataset.removeCustomGame); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -1208,6 +1261,9 @@
         '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
         '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
+        (g.custom
+          ? '<button class="btn" data-remove-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Remove this game you added">🗑 Remove</button>'
+          : "") +
       "</div>" +
       (hasScoreTab
         ? '<div class="detail-tabs" role="tablist">' +
@@ -1332,6 +1388,7 @@
       guesses: guesses,
       routine: routine,
       activeTypes: manualTypes,
+      customGames: customGames,
     };
   }
   function applyBackup(obj) {
@@ -1401,6 +1458,23 @@
       });
       saveManualTypes();
     }
+    if (Array.isArray(obj.customGames)) {
+      // Union by id — a game one device added that this device doesn't have yet gets pulled
+      // in and shown immediately, same as anything else that only ever adds, never deletes.
+      var existingIds = {};
+      customGames.forEach(function (cg) { existingIds[cg.id] = true; });
+      var newGames = obj.customGames.filter(function (cg) { return cg && cg.id && cg.url && !existingIds[cg.id]; });
+      if (newGames.length) {
+        customGames = customGames.concat(newGames);
+        saveCustomGames();
+        newGames.forEach(function (cg) {
+          addGamesToLiveData(expandGameWithModes(
+            Object.assign({ unlimited: false, popularity: 0, custom: true }, cg),
+            { modes: cg.modes, resultType: cg.resultType }
+          ));
+        });
+      }
+    }
     return { favAdd: favAdd, days: days };
   }
   function downloadBackup() {
@@ -1431,6 +1505,10 @@
   function handleSetAct(act) {
     if (act === "export") { downloadBackup(); return; }
     if (act === "import") { var f = modalBody().querySelector("#importFile"); if (f) f.click(); return; }
+    if (act === "openAddGame") { openAddGame(); return; }
+    if (act === "fetchGameInfo") { fetchGameInfoIntoForm(); return; }
+    if (act === "addModeRow") { addModeRowToForm(); return; }
+    if (act === "saveCustomGame") { saveCustomGameFromForm(); return; }
     if (act === "link") {
       var url = shareLink();
       var out = modalBody().querySelector(".link-out");
@@ -1464,6 +1542,10 @@
       '<input type="file" accept="application/json,.json" id="importFile" hidden>' +
       '<p class="import-result"></p>' +
       '<div class="link-out" hidden><input type="text" readonly><p class="link-note"></p></div>' +
+      '<h3 class="stats-h">Games</h3>' +
+      '<p class="settings-note">Missing a game? Add it yourself — I\'ll try to pull its name ' +
+      "and description automatically.</p>" +
+      '<div class="settings-row"><button class="btn" data-set-act="openAddGame">➕ Add a game</button></div>' +
       '<h3 class="stats-h">Keyboard shortcuts</h3>' +
       '<ul class="shortcuts">' +
         "<li><kbd>/</kbd><span>Focus search</span></li>" +
@@ -1474,6 +1556,130 @@
     );
   }
   function openSettings() { showModal("Settings & backup", settingsBody()); }
+
+  // ---------- add a custom game ----------
+  // Fetches a public metadata API (built for link-preview style embeds, so it works from the
+  // browser without hitting CORS the way fetching the target site directly would) to try to
+  // auto-fill name/description. Best-effort: most sites work, some block it entirely, and it
+  // can't see modes — those still need to be told about by hand, same as overrides.json games.
+  function categoryOptionsHtml() {
+    return ALL_CATEGORIES.slice().sort().map(function (c) {
+      return '<option value="' + escapeHtml(c) + '">';
+    }).join("");
+  }
+  function modeRowFormHtml(label, path) {
+    return (
+      '<div class="settings-row ag-mode-row">' +
+        '<input type="text" class="sync-email ag-mode-label" placeholder="Mode label (e.g. Hard)" value="' + escapeHtml(label || "") + '">' +
+        '<input type="text" class="sync-email ag-mode-path" placeholder="/hard or full URL" value="' + escapeHtml(path || "") + '">' +
+        '<button class="btn" data-remove-mode-row title="Remove this mode" aria-label="Remove this mode">✕</button>' +
+      "</div>"
+    );
+  }
+  function addGameBody() {
+    return (
+      '<p class="settings-note">Add any daily game by its URL. I\'ll try to fetch its name and ' +
+      "description automatically — some sites block that, so double-check before saving. " +
+      "If it has more than one daily mode, add those by hand below.</p>" +
+      '<div class="settings-row">' +
+        '<input type="url" id="agUrl" class="sync-email" placeholder="https://example.com/daily-game" style="flex:2 1 240px">' +
+        '<button class="btn" data-set-act="fetchGameInfo">Fetch info</button>' +
+      "</div>" +
+      '<p class="import-result" id="agFetchMsg"></p>' +
+      '<div class="settings-row"><input type="text" id="agName" class="sync-email" placeholder="Game name" style="flex:1 1 100%"></div>' +
+      '<div class="settings-row"><input type="text" id="agCategory" class="sync-email" list="agCategoryList" placeholder="Category (e.g. Words)" style="flex:1 1 100%">' +
+        '<datalist id="agCategoryList">' + categoryOptionsHtml() + "</datalist>" +
+      "</div>" +
+      '<textarea id="agDesc" class="paste-input" rows="2" placeholder="Short description (optional)"></textarea>' +
+      '<h3 class="stats-h">Modes (optional)</h3>' +
+      '<p class="settings-note">Only if this game has more than one daily mode (like a Classic ' +
+      "and a Hard version) — give each its own label and path or URL.</p>" +
+      '<div id="agModes"></div>' +
+      '<div class="settings-row"><button class="btn" data-set-act="addModeRow">+ Add a mode</button></div>' +
+      '<div class="settings-row" style="margin-top:16px"><button class="btn btn-primary" data-set-act="saveCustomGame">Add game</button></div>' +
+      '<p class="import-result" id="agMsg"></p>'
+    );
+  }
+  function openAddGame() {
+    showModal("Add a game", addGameBody());
+    var u = document.getElementById("agUrl");
+    if (u) u.focus();
+  }
+  function addModeRowToForm() {
+    var container = document.getElementById("agModes");
+    if (container) container.insertAdjacentHTML("beforeend", modeRowFormHtml());
+  }
+  function fetchGameInfoIntoForm() {
+    var urlInput = document.getElementById("agUrl");
+    var msg = document.getElementById("agFetchMsg");
+    var url = urlInput ? urlInput.value.trim() : "";
+    if (!url) { if (msg) msg.textContent = "Enter a URL first."; return; }
+    try { new URL(url); } catch (e) { if (msg) msg.textContent = "That doesn't look like a valid URL (include https://)."; return; }
+    if (msg) msg.textContent = "Fetching…";
+    fetch("https://api.microlink.io/?url=" + encodeURIComponent(url))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res || res.status !== "success" || !res.data) throw new Error("no data");
+        var data = res.data;
+        var nameEl = document.getElementById("agName");
+        var descEl = document.getElementById("agDesc");
+        if (nameEl && !nameEl.value.trim() && data.title) nameEl.value = data.title;
+        if (descEl && !descEl.value.trim() && data.description) descEl.value = data.description;
+        if (msg) msg.textContent = (nameEl && nameEl.value ? "Fetched ✓ " : "Fetched, but no name/description came back ") + "— check the details below before saving.";
+      })
+      .catch(function () {
+        if (msg) msg.textContent = "Couldn't fetch details automatically (the site may block it) — fill them in yourself below.";
+      });
+  }
+  function removeCustomGame(id) {
+    var idx = customGames.findIndex(function (cg) { return cg.id === id; });
+    if (idx === -1) return;
+    var cg = customGames[idx];
+    customGames.splice(idx, 1);
+    saveCustomGames();
+    var ids = [cg.id];
+    if (Array.isArray(cg.modes)) cg.modes.forEach(function (mode) { ids.push(cg.id + "::" + mode.id); });
+    removeGamesFromLiveData(ids);
+    navigateTo("");
+  }
+  function saveCustomGameFromForm() {
+    var msg = document.getElementById("agMsg");
+    var url = ((document.getElementById("agUrl") || {}).value || "").trim();
+    var name = ((document.getElementById("agName") || {}).value || "").trim();
+    var category = ((document.getElementById("agCategory") || {}).value || "").trim() || "Miscellaneous";
+    var description = ((document.getElementById("agDesc") || {}).value || "").trim();
+    if (!name) { if (msg) msg.textContent = "Give it a name."; return; }
+    var validUrl;
+    try { validUrl = new URL(url).href; } catch (e) { if (msg) msg.textContent = "Enter a valid URL (include https://)."; return; }
+
+    var modes = [];
+    document.querySelectorAll(".ag-mode-row").forEach(function (row) {
+      var label = ((row.querySelector(".ag-mode-label") || {}).value || "").trim();
+      var path = ((row.querySelector(".ag-mode-path") || {}).value || "").trim();
+      if (!label || !path) return;
+      var modeId = normName(label) || ("mode" + (modes.length + 1));
+      if (/^https?:\/\//i.test(path)) modes.push({ id: modeId, label: label, url: path });
+      else modes.push({ id: modeId, label: label, path: path });
+    });
+
+    var id = normName(name) || "game";
+    var base = id, n = 2;
+    while (gameById[id]) { id = base + "-" + n++; }
+
+    var rawGame = {
+      id: id, name: name, url: validUrl, category: category, description: description,
+      thumbnail: "", resultType: "guesses", modes: modes.length ? modes : undefined,
+    };
+    customGames.push(rawGame);
+    saveCustomGames();
+    var expanded = expandGameWithModes(
+      Object.assign({ unlimited: false, popularity: 0, custom: true }, rawGame),
+      { modes: rawGame.modes, resultType: rawGame.resultType }
+    );
+    addGamesToLiveData(expanded);
+    hideModal();
+    navigateTo("g=" + encodeURIComponent(expanded[0].id));
+  }
 
   // ---------- paste-a-result modal ----------
   // Analyse a share string. Reads the emoji grid ("the picture") for guesses/win,

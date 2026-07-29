@@ -12,6 +12,7 @@ create table if not exists public.user_state (
   guesses      jsonb not null default '{}'::jsonb,
   routine      jsonb not null default '[]'::jsonb,
   "activeTypes" jsonb not null default '{}'::jsonb,
+  "customGames" jsonb not null default '[]'::jsonb,
   updated_at   timestamptz not null default now()
 );
 
@@ -22,6 +23,8 @@ alter table public.user_state add column if not exists routine jsonb not null de
 -- Which measurement(s) each game tracks (e.g. score AND guesses at once) — quoted because
 -- it's camelCase; Postgres would otherwise fold it to lowercase and the app couldn't find it.
 alter table public.user_state add column if not exists "activeTypes" jsonb not null default '{}'::jsonb;
+-- Games the user added themselves via "Add a game" (Settings), so they sync across devices.
+alter table public.user_state add column if not exists "customGames" jsonb not null default '[]'::jsonb;
 
 alter table public.user_state enable row level security;
 

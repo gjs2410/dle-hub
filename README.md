@@ -110,6 +110,26 @@ subpath, and the service worker (network-first) picks up changes on the next vis
 Once it's on https, open it on your phone and **Add to Home Screen** to install it
 as an app (see PWA section above).
 
+## Adding a game yourself
+
+Missing game? **Settings → ➕ Add a game** — enter its URL and hit **Fetch info** to try
+auto-filling the name and description via [microlink.io](https://microlink.io)'s link-preview
+API. This is a static site with no backend, so it can't fetch an arbitrary site's HTML
+directly from the browser (CORS blocks that for virtually every external site) — microlink
+is a metadata API built for exactly this "give me a URL, get me its title/description" case,
+and works from the browser without hitting that wall. Some sites (heavy antibot protection,
+like nytimes.com) block even that; when it can't fetch, just fill in the name/description
+by hand.
+
+It can't see a game's internal modes at all (same limitation `scan-modes.mjs` has, just
+without a headless browser to try harder) — add those by hand too, one label + path/URL per
+mode, same shape as a `data/overrides.json` entry.
+
+Games you add this way live in your browser's storage (`dlehub:customGames`), sync across
+devices the same way everything else does if you've set up cloud sync below, and show up
+immediately — no rebuild or redeploy needed. Remove one from its own page (🗑 button, only
+shown on games you added).
+
 ## Cloud accounts & sync (optional)
 
 By default all data is local. To sync streaks / done-games / favorites across devices
@@ -129,11 +149,11 @@ nothing is ever deleted; un-favoriting on one device won't remove it on another.
 The anon key is safe to commit (public by design; data is protected by row-level
 security). Never commit the `service_role` key.
 
-If you set up sync before per-game measurement tracking (Guesses/Score/Time/Accuracy)
-existed, re-run [`supabase-setup.sql`](supabase-setup.sql) — it now adds an
-`"activeTypes"` column, and without it the app falls back to syncing everything
-*except* which measurements each game tracks (the recorded values themselves still
-sync fine either way).
+If you set up sync before per-game measurement tracking or custom games existed, re-run
+[`supabase-setup.sql`](supabase-setup.sql) (safe to run again — it only adds columns that
+don't already exist) — it now also adds `"activeTypes"` and `"customGames"` columns. Without
+them the app falls back to syncing everything else as normal; it just won't carry across
+which measurements a game tracks, or games you've added yourself, until you do.
 
 ## Refreshing the game list
 

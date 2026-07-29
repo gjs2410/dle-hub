@@ -32,7 +32,10 @@ function initSync(createClient) {
   async function pull() {
     if (!user) return;
     // Try with optional columns; fall back if the DB hasn't been migrated.
-    let res = await supabase.from("user_state").select('favorites,history,fails,guesses,routine,"activeTypes"').eq("user_id", user.id).maybeSingle();
+    let res = await supabase.from("user_state").select('favorites,history,fails,guesses,routine,"activeTypes","customGames"').eq("user_id", user.id).maybeSingle();
+    if (res.error && /fails|guesses|routine|activeTypes|customGames/.test(res.error.message)) {
+      res = await supabase.from("user_state").select('favorites,history,fails,guesses,routine,"activeTypes"').eq("user_id", user.id).maybeSingle();
+    }
     if (res.error && /fails|guesses|routine|activeTypes/.test(res.error.message)) {
       res = await supabase.from("user_state").select("favorites,history,fails,guesses,routine").eq("user_id", user.id).maybeSingle();
     }
@@ -45,6 +48,7 @@ function initSync(createClient) {
       window.DLEHub.applyRemote({
         favorites: data.favorites || [], history: data.history || {}, fails: data.fails || {},
         guesses: data.guesses || {}, routine: data.routine || [], activeTypes: data.activeTypes || {},
+        customGames: data.customGames || [],
       });
     }
     await push(true); // upload the merged union so remote has everything too
@@ -64,17 +68,22 @@ function initSync(createClient) {
         guesses: s.guesses || {},
         routine: s.routine || [],
         activeTypes: s.activeTypes || {},
+        customGames: s.customGames || [],
         updated_at: new Date().toISOString(),
       };
       let { error } = await supabase.from("user_state").upsert(row);
-      if (error && /activeTypes/.test(error.message)) {
+      if (error && /customGames/.test(error.message)) {
         // DB not migrated for this column yet — sync everything else.
+        delete row.customGames;
+        ({ error } = await supabase.from("user_state").upsert(row));
+      }
+      if (error && /activeTypes/.test(error.message)) {
         delete row.activeTypes;
         ({ error } = await supabase.from("user_state").upsert(row));
       }
       if (error && /fails|guesses|routine/.test(error.message)) {
         // DB not migrated for the extra columns yet — sync the essentials.
-        delete row.fails; delete row.guesses; delete row.routine; delete row.activeTypes;
+        delete row.fails; delete row.guesses; delete row.routine; delete row.activeTypes; delete row.customGames;
         ({ error } = await supabase.from("user_state").upsert(row));
       }
       if (error) console.warn("sync push:", error.message);

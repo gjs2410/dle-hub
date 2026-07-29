@@ -96,6 +96,7 @@ function initSync(createClient) {
 
   function onAuth(justSignedIn) {
     window.__dleOnDirty = user ? () => push(false) : null;
+    if (window.DLEHub && window.DLEHub.setSyncUser) window.DLEHub.setSyncUser(user ? { email: user.email } : null);
     updateBtn();
     if (modal && modal.classList.contains("show")) renderModal();
     if (justSignedIn) pull();

@@ -12,8 +12,15 @@
 // The anon key is SAFE to put here and commit — it's designed to be public and
 // your data is protected by Row-Level Security. NEVER put the "service_role"
 // key here; that one is secret.
+//
+// ownerEmail: this is a static site with no backend, so there's no way to
+// enforce this server-side — anyone can read this file. It's a soft gate:
+// "Add a game" (and editing/removing one) only shows up, and only works,
+// while you're signed in (👤) with this exact email. Change it if you sign
+// into the hub with a different account than this one.
 // ---------------------------------------------------------------------------
 window.SUPABASE_CONFIG = {
   url: "https://pazahsfecpzhbpoehmbm.supabase.co",
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhemFoc2ZlY3B6aGJwb2VobWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5ODM3NzUsImV4cCI6MjEwMDU1OTc3NX0._Dmuxrwx1_2bMiP4rtGRNojQon9zvaROYigFEAKUo9g",
+  ownerEmail: "gertjans35@gmail.com",
 };

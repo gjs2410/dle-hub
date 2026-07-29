@@ -88,6 +88,17 @@
   var LS_CUSTOM_GAMES = "dlehub:customGames";
   var customGames = read(LS_CUSTOM_GAMES, []);
   function saveCustomGames() { write(LS_CUSTOM_GAMES, customGames); dleDirty(); }
+  var editingCustomGameId = null; // set while the "Add a game" form is editing an existing one
+
+  // Soft gate on adding/editing/removing custom games: this is a static site with no backend,
+  // so there's no way to enforce this server-side — it just hides/blocks the feature unless
+  // signed in (via the existing cloud-sync account system) as the configured owner email.
+  // sync.js calls setSyncUser() below whenever the signed-in state changes.
+  var currentSyncUser = null;
+  function isOwner() {
+    var owner = ((window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.ownerEmail) || "").toLowerCase();
+    return !!(owner && currentSyncUser && currentSyncUser.email && currentSyncUser.email.toLowerCase() === owner);
+  }
   (function applyCustomGames() {
     customGames.forEach(function (cg) {
       var base = Object.assign({ unlimited: false, popularity: 0, custom: true }, cg);
@@ -1099,6 +1110,8 @@
     if (rm) { rm.closest(".ag-mode-row").remove(); return; }
     var rc = e.target.closest("[data-remove-custom-game]");
     if (rc) { removeCustomGame(rc.dataset.removeCustomGame); return; }
+    var ec = e.target.closest("[data-edit-custom-game]");
+    if (ec) { openEditGame(ec.dataset.editCustomGame); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -1261,8 +1274,9 @@
         '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
         '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
         '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
-        (g.custom
-          ? '<button class="btn" data-remove-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Remove this game you added">🗑 Remove</button>'
+        (g.custom && isOwner()
+          ? '<button class="btn" data-edit-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Edit this game you added">✏️ Edit</button>' +
+            '<button class="btn" data-remove-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Remove this game you added">🗑 Remove</button>'
           : "") +
       "</div>" +
       (hasScoreTab
@@ -1543,9 +1557,15 @@
       '<p class="import-result"></p>' +
       '<div class="link-out" hidden><input type="text" readonly><p class="link-note"></p></div>' +
       '<h3 class="stats-h">Games</h3>' +
-      '<p class="settings-note">Missing a game? Add it yourself — I\'ll try to pull its name ' +
-      "and description automatically.</p>" +
-      '<div class="settings-row"><button class="btn" data-set-act="openAddGame">➕ Add a game</button></div>' +
+      (isOwner()
+        ? '<p class="settings-note">Missing a game? Add it yourself — I\'ll try to pull its name ' +
+          "and description automatically.</p>" +
+          '<div class="settings-row"><button class="btn" data-set-act="openAddGame">➕ Add a game</button></div>'
+        : '<p class="settings-note">Adding games is limited to the site owner\'s account. ' +
+          (currentSyncUser
+            ? "You're signed in as " + escapeHtml(currentSyncUser.email) + ", which isn't it."
+            : "Sign in (👤 above) with the owner account to use it.") +
+          "</p>") +
       '<h3 class="stats-h">Keyboard shortcuts</h3>' +
       '<ul class="shortcuts">' +
         "<li><kbd>/</kbd><span>Focus search</span></li>" +
@@ -1576,34 +1596,47 @@
       "</div>"
     );
   }
-  function addGameBody() {
+  function addGameBody(existing) {
+    var modesHtml = existing && Array.isArray(existing.modes)
+      ? existing.modes.map(function (m) { return modeRowFormHtml(m.label, m.path || m.url); }).join("")
+      : "";
     return (
-      '<p class="settings-note">Add any daily game by its URL. I\'ll try to fetch its name and ' +
-      "description automatically — some sites block that, so double-check before saving. " +
-      "If it has more than one daily mode, add those by hand below.</p>" +
+      '<p class="settings-note">' + (existing
+        ? "Edit this game's details below — its id stays the same, so its history is kept."
+        : "Add any daily game by its URL. I'll try to fetch its name and description automatically — some sites block that, so double-check before saving. If it has more than one daily mode, add those by hand below.") +
+      "</p>" +
       '<div class="settings-row">' +
-        '<input type="url" id="agUrl" class="sync-email" placeholder="https://example.com/daily-game" style="flex:2 1 240px">' +
+        '<input type="url" id="agUrl" class="sync-email" placeholder="https://example.com/daily-game" style="flex:2 1 240px" value="' + escapeHtml(existing ? existing.url : "") + '">' +
         '<button class="btn" data-set-act="fetchGameInfo">Fetch info</button>' +
       "</div>" +
       '<p class="import-result" id="agFetchMsg"></p>' +
-      '<div class="settings-row"><input type="text" id="agName" class="sync-email" placeholder="Game name" style="flex:1 1 100%"></div>' +
-      '<div class="settings-row"><input type="text" id="agCategory" class="sync-email" list="agCategoryList" placeholder="Category (e.g. Words)" style="flex:1 1 100%">' +
+      '<div class="settings-row"><input type="text" id="agName" class="sync-email" placeholder="Game name" style="flex:1 1 100%" value="' + escapeHtml(existing ? existing.name : "") + '"></div>' +
+      '<div class="settings-row"><input type="text" id="agCategory" class="sync-email" list="agCategoryList" placeholder="Category (e.g. Words)" style="flex:1 1 100%" value="' + escapeHtml(existing ? existing.category : "") + '">' +
         '<datalist id="agCategoryList">' + categoryOptionsHtml() + "</datalist>" +
       "</div>" +
-      '<textarea id="agDesc" class="paste-input" rows="2" placeholder="Short description (optional)"></textarea>' +
+      '<textarea id="agDesc" class="paste-input" rows="2" placeholder="Short description (optional)">' + escapeHtml(existing ? existing.description : "") + "</textarea>" +
       '<h3 class="stats-h">Modes (optional)</h3>' +
       '<p class="settings-note">Only if this game has more than one daily mode (like a Classic ' +
       "and a Hard version) — give each its own label and path or URL.</p>" +
-      '<div id="agModes"></div>' +
+      '<div id="agModes">' + modesHtml + "</div>" +
       '<div class="settings-row"><button class="btn" data-set-act="addModeRow">+ Add a mode</button></div>' +
-      '<div class="settings-row" style="margin-top:16px"><button class="btn btn-primary" data-set-act="saveCustomGame">Add game</button></div>' +
+      '<div class="settings-row" style="margin-top:16px"><button class="btn btn-primary" data-set-act="saveCustomGame">' + (existing ? "Save changes" : "Add game") + "</button></div>" +
       '<p class="import-result" id="agMsg"></p>'
     );
   }
   function openAddGame() {
+    if (!isOwner()) return;
+    editingCustomGameId = null;
     showModal("Add a game", addGameBody());
     var u = document.getElementById("agUrl");
     if (u) u.focus();
+  }
+  function openEditGame(id) {
+    if (!isOwner()) return;
+    var existing = customGames.find(function (cg) { return cg.id === id; });
+    if (!existing) return;
+    editingCustomGameId = id;
+    showModal("Edit game", addGameBody(existing));
   }
   function addModeRowToForm() {
     var container = document.getElementById("agModes");
@@ -1632,6 +1665,7 @@
       });
   }
   function removeCustomGame(id) {
+    if (!isOwner()) return;
     var idx = customGames.findIndex(function (cg) { return cg.id === id; });
     if (idx === -1) return;
     var cg = customGames[idx];
@@ -1643,6 +1677,7 @@
     navigateTo("");
   }
   function saveCustomGameFromForm() {
+    if (!isOwner()) return;
     var msg = document.getElementById("agMsg");
     var url = ((document.getElementById("agUrl") || {}).value || "").trim();
     var name = ((document.getElementById("agName") || {}).value || "").trim();
@@ -1662,21 +1697,44 @@
       else modes.push({ id: modeId, label: label, path: path });
     });
 
-    var id = normName(name) || "game";
-    var base = id, n = 2;
-    while (gameById[id]) { id = base + "-" + n++; }
+    var editing = editingCustomGameId;
+    var oldIds = [];
+    var id;
+    if (editing) {
+      // Id is never regenerated on edit — it's the key everything (history, favorites,
+      // active types) is already stored under, so changing it would orphan all of that.
+      id = editing;
+      var idx = customGames.findIndex(function (cg) { return cg.id === editing; });
+      if (idx !== -1) {
+        var old = customGames[idx];
+        oldIds.push(old.id);
+        if (Array.isArray(old.modes)) old.modes.forEach(function (m) { oldIds.push(old.id + "::" + m.id); });
+      }
+    } else {
+      id = normName(name) || "game";
+      var base = id, n = 2;
+      while (gameById[id]) { id = base + "-" + n++; }
+    }
 
     var rawGame = {
       id: id, name: name, url: validUrl, category: category, description: description,
       thumbnail: "", resultType: "guesses", modes: modes.length ? modes : undefined,
     };
-    customGames.push(rawGame);
+    if (editing) {
+      var i = customGames.findIndex(function (cg) { return cg.id === editing; });
+      if (i !== -1) customGames[i] = rawGame; else customGames.push(rawGame);
+    } else {
+      customGames.push(rawGame);
+    }
     saveCustomGames();
+
+    if (oldIds.length) removeGamesFromLiveData(oldIds);
     var expanded = expandGameWithModes(
       Object.assign({ unlimited: false, popularity: 0, custom: true }, rawGame),
       { modes: rawGame.modes, resultType: rawGame.resultType }
     );
     addGamesToLiveData(expanded);
+    editingCustomGameId = null;
     hideModal();
     navigateTo("g=" + encodeURIComponent(expanded[0].id));
   }
@@ -2305,6 +2363,16 @@
     },
     // called by the browser extension with a parsed game result
     recordResult: function (payload) { return recordResult(payload); },
+    // called by sync.js whenever the signed-in user changes (or signs out) — gates the
+    // "Add a game" feature to a specific account (see isOwner() above).
+    setSyncUser: function (user) {
+      currentSyncUser = user;
+      if (genericModal && genericModal.classList.contains("show") &&
+          genericModal.querySelector(".modal-head h2").textContent === "Settings & backup") {
+        modalBody().innerHTML = settingsBody();
+      }
+      if (currentDetailId) refreshDetail();
+    },
   };
 
   // The extension delivers results by posting a message into this page.

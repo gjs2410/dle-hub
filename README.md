@@ -112,6 +112,13 @@ as an app (see PWA section above).
 
 ## Adding a game yourself
 
+Limited to one account — see `ownerEmail` in [`supabase-config.js`](supabase-config.js).
+"Add a game" (and editing/removing one) only appears, and only works, while signed in (👤)
+with that exact email; anyone else visiting the site won't see it at all. This is a soft
+gate, not real security — it's plain client-side JS in a public repo, so it can't stop
+someone determined from reading the code and working around it — but it does mean an
+ordinary visitor never sees the option.
+
 Missing game? **Settings → ➕ Add a game** — enter its URL and hit **Fetch info** to try
 auto-filling the name and description via [microlink.io](https://microlink.io)'s link-preview
 API. This is a static site with no backend, so it can't fetch an arbitrary site's HTML
@@ -127,8 +134,9 @@ mode, same shape as a `data/overrides.json` entry.
 
 Games you add this way live in your browser's storage (`dlehub:customGames`), sync across
 devices the same way everything else does if you've set up cloud sync below, and show up
-immediately — no rebuild or redeploy needed. Remove one from its own page (🗑 button, only
-shown on games you added).
+immediately — no rebuild or redeploy needed. Edit or remove one from its own page (✏️/🗑
+buttons, only shown on games you added) — editing keeps its id fixed, so streaks and history
+you've already recorded for it aren't affected by renaming it or changing its modes.
 
 ## Cloud accounts & sync (optional)
 

@@ -5,8 +5,10 @@ for (almost) **every** game, without you clicking anything in the hub.
 
 ## How it works
 
-It hooks the one thing nearly every `-dle` shares: the **Share / Copy** button.
-When you finish a game and press Share, the game copies text like:
+Two ways to capture results:
+
+### 1. Share-button hook (every game)
+When you finish a game and press **Share**, the game copies text like:
 
 ```
 Wordle 1,234 4/6
@@ -14,12 +16,22 @@ Wordle 1,234 4/6
 🟩🟩🟩🟩🟩
 ```
 
-The extension reads that at the moment it's copied, parses **solved vs failed** and
-the **guess count** (`4/6` → solved in 4, `X/6` → failed), and queues it. Next time
-you open DLE Hub, it drops the results in and the matching game is marked
-solved/failed with your guesses filled in.
+The extension reads that at copy time, parses **solved vs failed** and the **guess count**, and queues it.
 
-**So the rule is simple: play a game, hit its Share button, done.**
+### 2. Auto-detect on popular games (no Share needed)
+On supported sites the extension also polls `localStorage` for a finished game state and records it automatically. Currently includes:
+
+- **NYT Wordle** (`nytimes.com/games/wordle`)
+- **Nerdle** (`nerdlegame.com` and subdomains)
+- **Worldle** (`worldle.teuteuf.fr`)
+- **Waffle** (`wafflegame.net`)
+- **Quordle**, **Octordle**, **Dordle**, **Heardle**
+
+Detection is best-effort — games change their storage format over time. If auto-detect misses one, the Share hook still works.
+
+Results appear in the hub when you **open or focus** the hub tab (polled every few seconds), not only on full page load.
+
+**Rule of thumb:** play a game → either finish normally (auto-detect) or hit Share → open DLE Hub.
 
 ## Install
 
@@ -35,13 +47,9 @@ solved/failed with your guesses filled in.
 
 ## Limitations (honest)
 
-- It triggers on **sharing** — if you never press a game's Share/Copy button, there's
-  nothing for it to read.
-- Games whose share text isn't a `n/6`-style format (some Connections/geography games)
-  may not parse a win/guess reliably — use the hub's manual Solved/Failed for those.
-- Results appear in the hub **when you next open/refresh it** (it delivers on hub load).
-- The hub URL is hard-coded in `manifest.json` (`gjs2410.github.io/dle-hub` +
-  `localhost:8777`). If you host it elsewhere, add that URL to the `deliver.js`
-  content-script `matches` and reload the extension.
-- It requests access to all sites (needed to watch for share text anywhere) — it only
-  ever reads text that looks like a `-dle` result and sends it to your own hub.
+- Auto-detect only covers a handful of popular games; everything else still works via **Share**.
+- It triggers on **sharing** when auto-detect doesn't apply — if you never press Share and the game isn't supported for detection, use the hub's manual Solved/Failed.
+- Games whose share text isn't a `n/6`-style format may not parse reliably — use the hub's paste modal for those.
+- Results sync to the hub when the tab is **open/focused** (polled every ~4s).
+- The hub URL is configured in `manifest.json` (`gjs2410.github.io/dle-hub` + `localhost:8777`). Add your own host to the `deliver.js` `matches` if needed.
+- It requests access to all sites (needed to watch for share text and read game state) — it only reads completion-like data and sends it to your hub.

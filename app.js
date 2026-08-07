@@ -120,6 +120,8 @@
     pending: "dlehub:pending",
     resultTypes: "dlehub:resultTypes", // legacy: single learned type per game, read once for migration
     activeTypes: "dlehub:activeTypes",
+    notes: "dlehub:notes",
+    deadLinks: "dlehub:deadLinks",
   };
   function read(key, fallback) {
     try {
@@ -175,6 +177,45 @@
   // Games you opened today but haven't confirmed finishing yet. Persisted so the
   // "Did you finish?" prompt survives a reload. Reset when the date rolls over.
   var pendingStore = read(LS.pending, { date: "", ids: [] });
+
+  // Per-game notes: { gameId: { "YYYY-MM-DD": "text" } }
+  var notes = read(LS.notes, null);
+  if (!notes || typeof notes !== "object") notes = {};
+  function saveNotes() { write(LS.notes, notes); dleDirty(); }
+  function noteOn(id, date) {
+    return (notes[id] && notes[id][date]) || "";
+  }
+  function noteToday(id) { return noteOn(id, TODAY); }
+  function setNote(id, date, text) {
+    text = String(text || "").trim();
+    if (!text) {
+      if (notes[id]) {
+        delete notes[id][date];
+        if (!Object.keys(notes[id]).length) delete notes[id];
+      }
+    } else {
+      (notes[id] = notes[id] || {})[date] = text;
+    }
+    saveNotes();
+  }
+  function gameNoteDates(id) {
+    if (!notes[id]) return [];
+    return Object.keys(notes[id]).filter(function (d) { return notes[id][d]; }).sort().reverse();
+  }
+
+  // Dead-link reports: { gameId: { at, url, name } }
+  var deadLinks = read(LS.deadLinks, null);
+  if (!deadLinks || typeof deadLinks !== "object") deadLinks = {};
+  function saveDeadLinks() { write(LS.deadLinks, deadLinks); dleDirty(); }
+  function reportDeadLink(id) {
+    var g = gameById[id];
+    if (!g) return;
+    deadLinks[id] = { at: new Date().toISOString(), url: g.url, name: g.name };
+    saveDeadLinks();
+    showToast("Broken link reported for " + g.name, "success");
+    refreshDetail();
+  }
+  function isDeadLinkReported(id) { return !!deadLinks[id]; }
 
   // ---------- date helpers (drives the daily auto-reset) ----------
   function dateStrOf(d) {
@@ -504,6 +545,39 @@
       .replace(/"/g, "&quot;");
   }
 
+  // ---------- toast notifications ----------
+  var toastEl = null, toastTimer = null;
+  // Inline SVG icons (cards, stats, actions).
+  var ICON = {
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    starOutline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.5 1-2.5 2-4 .5 1.5 1.5 2.5 3 3a5 5 0 0 1 1 9.5 4.5 4.5 0 0 1-8.5-2z"/></svg>',
+    dice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor"/></svg>',
+    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19 8 5"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    chevL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>',
+    chevR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>',
+  };
+  function ico(name) { return '<span class="ico" aria-hidden="true">' + (ICON[name] || "") + "</span>"; }
+
+  function showToast(message, type) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.className = "toast";
+      toastEl.setAttribute("role", "status");
+      toastEl.setAttribute("aria-live", "polite");
+      document.body.appendChild(toastEl);
+    }
+    clearTimeout(toastTimer);
+    toastEl.textContent = message;
+    toastEl.className = "toast show" + (type ? " toast-" + type : "");
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 3200);
+  }
+
   // ---------- DOM refs ----------
   var $ = function (id) { return document.getElementById(id); };
   var grid = $("grid");
@@ -685,7 +759,7 @@
     Object.keys(legacyLearned).forEach(function (id) {
       if (Object.prototype.hasOwnProperty.call(existingActive, id)) return;
       var t = legacyLearned[id];
-      if (t && t !== "winloss" && ["guesses", "score", "time", "correct"].indexOf(t) !== -1) {
+      if (t && t !== "winloss" && ["guesses", "score", "time", "correct", "hints"].indexOf(t) !== -1) {
         existingActive[id] = [t];
         activeChanged = true;
       }
@@ -752,7 +826,7 @@
 
     var gs = gameStreak(g.id);
     var flame = gs >= 1
-      ? '<span class="streak-pill" title="' + gs + '-day streak for this game">🔥 ' + gs + "</span>"
+      ? '<span class="streak-pill" title="' + gs + '-day streak for this game">' + ico("flame") + " " + gs + "</span>"
       : "";
 
     var thumbStyle = g.thumbnail
@@ -771,11 +845,11 @@
           desc +
         "</div>" +
         '<div class="card-acts">' +
-          '<button class="info-btn" data-act="info" title="Details" aria-label="Details about ' + escapeHtml(g.name) + '">ⓘ</button>' +
-          '<button class="star-btn' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? "★" : "☆") + "</button>" +
+          '<button class="info-btn icon-act" data-act="info" title="Details" aria-label="Details about ' + escapeHtml(g.name) + '">' + ico("info") + "</button>" +
+          '<button class="star-btn icon-act' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? ico("star") : ico("starOutline")) + "</button>" +
           flame +
-          '<button class="fail-btn' + (failed ? " active" : "") + '" data-act="fail" title="Mark as failed today" aria-pressed="' + failed + '">' + (failed ? "✗ Failed" : "✗") + "</button>" +
-          '<button class="done-btn' + (done ? " active" : "") + '" data-act="done" title="Mark as solved today">' + (done ? "✓ Solved" : "Solved") + "</button>" +
+          '<button class="fail-btn icon-act' + (failed ? " active" : "") + '" data-act="fail" title="Mark as failed today" aria-pressed="' + failed + '">' + ico("x") + '<span class="act-label">' + (failed ? "Failed" : "") + "</span></button>" +
+          '<button class="done-btn icon-act' + (done ? " active" : "") + '" data-act="done" title="Mark as solved today" aria-pressed="' + done + '">' + ico("check") + '<span class="act-label">' + (done ? "Solved" : "") + "</span></button>" +
         "</div>" +
       "</article>"
     );
@@ -867,15 +941,15 @@
 
     var parts = [];
     if (streak > 0) {
-      parts.push('<button class="stat streak" id="openStatsFromStreak" title="View your stats">🔥 <b>' + streak + "</b> day" + (streak === 1 ? "" : "s") + "</button>");
+      parts.push('<button class="stat streak" id="openStatsFromStreak" title="View your stats"><b>' + streak + "</b> day" + (streak === 1 ? "" : "s") + " streak</button>");
     }
     if (favCount > 0) {
       parts.push('<span class="stat progress">' + ringHtml(favDone, favCount) + "<span><b>" + favDone + " / " + favCount + "</b> favorites done</span></span>");
     } else if (doneToday > 0) {
-      parts.push('<span class="stat progress">✓ <b>' + doneToday + "</b> done today</span>");
+      parts.push('<span class="stat progress"><b>' + doneToday + "</b> done today</span>");
     }
-    parts.push('<span class="stat">🎮 <b>' + DATA.length + "</b> games</span>");
-    parts.push('<span class="stat">★ <b>' + favCount + "</b> favorites</span>");
+    parts.push('<span class="stat"><b>' + DATA.length + "</b> games</span>");
+    parts.push('<span class="stat"><b>' + favCount + "</b> favorites</span>");
     statsEl.innerHTML = parts.join("");
     var sBtn = $("openStatsFromStreak");
     if (sBtn) sBtn.addEventListener("click", openStats);
@@ -884,6 +958,84 @@
 
   // ---------- stats modal ----------
   var statsModal = null;
+  var currentStatsTab = "overview"; // "overview" | "calendar"
+  var calView = new Date(); // month being viewed in calendar tab
+  var calSelected = TODAY; // selected day in calendar tab
+
+  function gamesOnDate(dateKey) {
+    var won = history[dateKey] || [];
+    var lost = fails[dateKey] || [];
+    var ids = {};
+    won.forEach(function (id) { ids[id] = "won"; });
+    lost.forEach(function (id) { if (!ids[id]) ids[id] = "lost"; });
+    return Object.keys(ids).map(function (id) {
+      return { id: id, status: ids[id], name: (gameById[id] || {}).name || id };
+    }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+  }
+
+  function calendarDayDetailHtml(dateKey) {
+    var rows = gamesOnDate(dateKey);
+    if (!rows.length) {
+      return '<p class="stats-empty cal-empty">No games recorded for ' + escapeHtml(dateKey) + ".</p>";
+    }
+    return (
+      '<ul class="cal-day-list">' +
+      rows.map(function (r) {
+        var g = gameById[r.id];
+        var col = g ? colorFor(g.category) : "#64748b";
+        var note = noteOn(r.id, dateKey);
+        return '<li class="cal-day-item">' +
+          '<button class="cal-game" data-related-id="' + escapeHtml(r.id) + '">' +
+          '<span class="tg-dot" style="background:' + col + '"></span>' +
+          '<span class="tg-name">' + escapeHtml(r.name) + "</span>" +
+          '<span class="cal-status cal-status-' + r.status + '">' + (r.status === "won" ? "Solved" : "Failed") + "</span>" +
+          "</button>" +
+          (note ? '<p class="cal-note">' + escapeHtml(note) + "</p>" : "") +
+          "</li>";
+      }).join("") +
+      "</ul>"
+    );
+  }
+
+  function calendarViewHtml() {
+    var y = calView.getFullYear(), m = calView.getMonth();
+    var first = new Date(y, m, 1);
+    var startPad = (first.getDay() + 6) % 7; // Monday-first
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var monthLabel = first.toLocaleString(undefined, { month: "long", year: "numeric" });
+    var cells = "";
+    for (var pad = 0; pad < startPad; pad++) {
+      cells += '<div class="cal-cell cal-pad"></div>';
+    }
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dt = new Date(y, m, d);
+      var key = dateStrOf(dt);
+      var n = (history[key] || []).length + (fails[key] || []).length;
+      var isToday = key === TODAY;
+      var isSel = key === calSelected;
+      var future = dt > new Date();
+      cells +=
+        '<button class="cal-cell cal-day' + (isToday ? " cal-today" : "") + (isSel ? " cal-selected" : "") + (future ? " cal-future" : "") + '" ' +
+        'data-cal-day="' + key + '" ' + (future ? "disabled" : "") + ">" +
+        "<span class=\"cal-num\">" + d + "</span>" +
+        (n ? '<span class="cal-count">' + n + "</span>" : "") +
+        "</button>";
+    }
+    var weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return (
+      '<div class="cal-wrap">' +
+        '<div class="cal-nav">' +
+          '<button class="btn cal-nav-btn" data-cal-nav="prev" aria-label="Previous month">' + ico("chevL") + "</button>" +
+          "<span class=\"cal-month\">" + escapeHtml(monthLabel) + "</span>" +
+          '<button class="btn cal-nav-btn" data-cal-nav="next" aria-label="Next month">' + ico("chevR") + "</button>" +
+        "</div>" +
+        '<div class="cal-weekdays">' + weekdays.map(function (w) { return "<span>" + w + "</span>"; }).join("") + "</div>" +
+        '<div class="cal-grid">' + cells + "</div>" +
+        '<h3 class="stats-h">' + escapeHtml(calSelected) + "</h3>" +
+        calendarDayDetailHtml(calSelected) +
+      "</div>"
+    );
+  }
 
   function heatmapHtml() {
     var weeks = 18;
@@ -940,6 +1092,15 @@
     var distinct = {};
     Object.keys(history).forEach(function (k) { history[k].forEach(function (id) { distinct[id] = 1; }); });
     var body = statsModal.querySelector(".stats-body");
+    var tabs =
+      '<div class="detail-tabs stats-tabs" role="tablist">' +
+        '<button class="detail-tab' + (currentStatsTab === "overview" ? " active" : "") + '" data-stats-tab="overview" role="tab">Overview</button>' +
+        '<button class="detail-tab' + (currentStatsTab === "calendar" ? " active" : "") + '" data-stats-tab="calendar" role="tab">' + ico("calendar") + " Calendar</button>" +
+      "</div>";
+    if (currentStatsTab === "calendar") {
+      body.innerHTML = tabs + calendarViewHtml();
+      return;
+    }
     var solved = totalCompletions(), failed = totalFails();
     var tiles =
       '<div class="stats-tile"><span class="st-big">🔥 ' + currentStreak() + '</span><span class="st-label">Current streak</span></div>' +
@@ -969,10 +1130,38 @@
       tiles += '<div class="stats-tile"><span class="st-big">' + avgHints + '</span><span class="st-label">Avg hints</span></div>';
     }
     body.innerHTML =
+      tabs +
       '<div class="stats-tiles">' + tiles + "</div>" +
       '<h3 class="stats-h">Guess distribution</h3>' + guessDistHtml() +
       '<h3 class="stats-h">Activity</h3>' + heatmapHtml() +
       '<h3 class="stats-h">Most played</h3>' + topGamesHtml();
+  }
+
+  function onStatsClick(e) {
+    var tab = e.target.closest("[data-stats-tab]");
+    if (tab) {
+      currentStatsTab = tab.dataset.statsTab;
+      renderStats();
+      return;
+    }
+    var nav = e.target.closest("[data-cal-nav]");
+    if (nav) {
+      var dir = nav.dataset.calNav === "next" ? 1 : -1;
+      calView = new Date(calView.getFullYear(), calView.getMonth() + dir, 1);
+      renderStats();
+      return;
+    }
+    var day = e.target.closest("[data-cal-day]");
+    if (day && day.dataset.calDay) {
+      calSelected = day.dataset.calDay;
+      renderStats();
+      return;
+    }
+    var game = e.target.closest("[data-related-id]");
+    if (game && statsModal && statsModal.classList.contains("show")) {
+      closeStats();
+      openDetail(game.dataset.relatedId);
+    }
   }
 
   function distBarsHtml(d, title) {
@@ -1044,17 +1233,18 @@
       document.body.appendChild(statsModal);
       statsModal.addEventListener("click", function (e) {
         if (e.target === statsModal || e.target.closest(".modal-close")) closeStats();
+        else onStatsClick(e);
       });
     }
     renderStats();
     statsModal.classList.add("show");
-    document.addEventListener("keydown", escClose);
+    document.addEventListener("keydown", escCloseStats);
   }
   function closeStats() {
     if (statsModal) statsModal.classList.remove("show");
-    document.removeEventListener("keydown", escClose);
+    document.removeEventListener("keydown", escCloseStats);
   }
-  function escClose(e) { if (e.key === "Escape") closeStats(); }
+  function escCloseStats(e) { if (e.key === "Escape") closeStats(); }
 
   // ---------- generic modal (used by settings + stats-like popups) ----------
   var genericModal = null, genericEsc = null;
@@ -1072,7 +1262,7 @@
       genericModal.addEventListener("click", onModalClick);
       genericModal.addEventListener("change", onModalChange);
       genericModal.addEventListener("input", function (e) {
-        if (e.target && e.target.id === "pasteBox") populateFromPaste(e.target.value);
+        if (e.target && e.target.classList.contains("paste-box")) populateFromPaste(e.target.value, e.target);
       });
     }
     genericModal.querySelector(".modal-head h2").textContent = title;
@@ -1115,8 +1305,9 @@
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
-    if (res) { setResSelection(res.dataset.res); return; }
-    if (e.target.closest("[data-record]")) { handleRecord(); return; }
+    if (res) { setResSelection(res.dataset.res, activeEditorWrap(res)); return; }
+    if (e.target.closest("[data-record]")) { handleRecord(e.target); return; }
+    if (e.target.closest("[data-report-dead]") && currentDetailId) { reportDeadLink(currentDetailId); return; }
   }
   function onModalClick(e) {
     if (e.target === genericModal || e.target.closest(".modal-close")) { hideModal(); return; }
@@ -1128,7 +1319,7 @@
     }
   }
   function onPasteInput(e) {
-    if (e.target && e.target.id === "pasteBox") populateFromPaste(e.target.value);
+    if (e.target && e.target.classList.contains("paste-box")) populateFromPaste(e.target.value, e.target);
   }
 
   // ---------- page view (game detail as a real, deep-linkable page) ----------
@@ -1171,6 +1362,11 @@
       pageBodyEl.addEventListener("click", onContentClick);
       pageBodyEl.addEventListener("change", onModalChange);
       pageBodyEl.addEventListener("input", onPasteInput);
+      pageBodyEl.addEventListener("blur", function (e) {
+        if (e.target && e.target.matches("[data-game-note]") && currentDetailId) {
+          setNote(currentDetailId, TODAY, e.target.value);
+        }
+      }, true);
     }
     if (!$("mainGrid").hidden) savedGridScroll = window.scrollY;
     pageTitleEl.textContent = title;
@@ -1194,9 +1390,9 @@
     var btn = $("pageShare");
     var url = location.href;
     var flash = function (ok) {
-      btn.textContent = ok ? "✓" : "🔗";
       btn.classList.toggle("copied", ok);
-      setTimeout(function () { btn.textContent = "🔗"; btn.classList.remove("copied"); }, 1400);
+      showToast(ok ? "Link copied to clipboard" : "Could not copy link", ok ? "success" : "error");
+      setTimeout(function () { btn.classList.remove("copied"); }, 1400);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function () { flash(true); }, function () { fallbackCopy(url, flash); });
@@ -1329,6 +1525,21 @@
           var editor = resultEditorHtml({ solved: done, failed: failed, types: types, values: values });
           return '<h3 class="stats-h">Log today\'s result</h3>' + editor;
         })() +
+        '<h3 class="stats-h">Today\'s note</h3>' +
+        '<textarea class="game-note-input" data-game-note rows="2" maxlength="500" placeholder="e.g. used hint on #3">' + escapeHtml(noteToday(g.id)) + "</textarea>" +
+        (function () {
+          var past = gameNoteDates(g.id).filter(function (d) { return d !== TODAY; }).slice(0, 8);
+          if (!past.length) return "";
+          return '<h3 class="stats-h">Past notes</h3><ul class="note-history">' +
+            past.map(function (d) {
+              return '<li><span class="note-date">' + escapeHtml(d) + "</span> " + escapeHtml(noteOn(g.id, d)) + "</li>";
+            }).join("") + "</ul>";
+        })() +
+        '<div class="detail-actions detail-actions-secondary">' +
+          (isDeadLinkReported(g.id)
+            ? '<span class="dead-reported">Broken link reported</span>'
+            : '<button class="btn" data-report-dead title="Flag this game URL as broken">' + ico("flag") + " Report broken link</button>") +
+        "</div>" +
         (related.length
           ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
             '<div class="related">' +
@@ -1403,6 +1614,8 @@
       routine: routine,
       activeTypes: manualTypes,
       customGames: customGames,
+      notes: notes,
+      deadLinks: deadLinks,
     };
   }
   function applyBackup(obj) {
@@ -1489,6 +1702,23 @@
         });
       }
     }
+    if (obj.notes && typeof obj.notes === "object") {
+      Object.keys(obj.notes).forEach(function (id) {
+        var incoming = obj.notes[id];
+        if (!incoming || typeof incoming !== "object") return;
+        var local = notes[id] || (notes[id] = {});
+        Object.keys(incoming).forEach(function (date) {
+          if (!local[date] && incoming[date]) local[date] = incoming[date];
+        });
+      });
+      saveNotes();
+    }
+    if (obj.deadLinks && typeof obj.deadLinks === "object") {
+      Object.keys(obj.deadLinks).forEach(function (id) {
+        if (!deadLinks[id] && obj.deadLinks[id]) deadLinks[id] = obj.deadLinks[id];
+      });
+      saveDeadLinks();
+    }
     return { favAdd: favAdd, days: days };
   }
   function downloadBackup() {
@@ -1506,9 +1736,11 @@
         var res = applyBackup(JSON.parse(reader.result));
         render();
         modalBody().querySelector(".import-result").textContent =
-          "Imported ✓ Added " + res.favAdd + " favorite(s), merged " + res.days + " day(s) of history.";
+          "Imported — added " + res.favAdd + " favorite(s), merged " + res.days + " day(s) of history.";
+        showToast("Backup imported successfully", "success");
       } catch (e) {
         modalBody().querySelector(".import-result").textContent = "Import failed: " + e.message;
+        showToast("Import failed", "error");
       }
     };
     reader.readAsText(file);
@@ -1542,6 +1774,23 @@
       }
     }
   }
+  function deadLinksSettingsHtml() {
+    var ids = Object.keys(deadLinks);
+    if (!ids.length) return "";
+    var rows = ids.map(function (id) {
+      var r = deadLinks[id];
+      var g = gameById[id];
+      var name = (g && g.name) || (r && r.name) || id;
+      var when = r && r.at ? r.at.slice(0, 10) : "";
+      return '<li><span class="tg-name">' + escapeHtml(name) + "</span>" +
+        (when ? '<span class="tg-count">' + escapeHtml(when) + "</span>" : "") + "</li>";
+    }).join("");
+    return (
+      '<h3 class="stats-h">Reported broken links</h3>' +
+      '<p class="settings-note">' + ids.length + " game(s) flagged as broken. Stored locally and included in backups.</p>" +
+      '<ul class="top-games">' + rows + "</ul>"
+    );
+  }
   function settingsBody() {
     return (
       '<h3 class="stats-h">Backup &amp; transfer</h3>' +
@@ -1566,12 +1815,14 @@
             ? "You're signed in as " + escapeHtml(currentSyncUser.email) + ", which isn't it."
             : "Sign in (👤 above) with the owner account to use it.") +
           "</p>") +
+      deadLinksSettingsHtml() +
       '<h3 class="stats-h">Keyboard shortcuts</h3>' +
       '<ul class="shortcuts">' +
         "<li><kbd>/</kbd><span>Focus search</span></li>" +
         "<li><kbd>↑</kbd><kbd>↓</kbd><span>Move between games</span></li>" +
         "<li><kbd>Enter</kbd><span>Play the focused game</span></li>" +
         "<li><kbd>Esc</kbd><span>Close a dialog / clear search</span></li>" +
+        "<li><kbd>r</kbd><span>Surprise me — random game from current filters</span></li>" +
       "</ul>"
     );
   }
@@ -1739,7 +1990,21 @@
     navigateTo("g=" + encodeURIComponent(expanded[0].id));
   }
 
-  // ---------- paste-a-result modal ----------
+  // Scope result-editor queries to the visible editor (modal vs game page) — duplicate
+  // editors must not share ids, and querySelector would otherwise hit the wrong one.
+  function activeEditorWrap(preferred) {
+    if (preferred && preferred.closest) {
+      var fromEvent = preferred.closest(".result-editor-wrap");
+      if (fromEvent) return fromEvent;
+    }
+    if (genericModal && genericModal.classList.contains("show")) {
+      return genericModal.querySelector(".result-editor-wrap");
+    }
+    if (pageBodyEl && document.body.classList.contains("page-open")) {
+      return pageBodyEl.querySelector(".result-editor-wrap");
+    }
+    return null;
+  }
   // Analyse a share string. Reads the emoji grid ("the picture") for guesses/win,
   // and cross-checks an explicit "n/m" score line when present. When there's no grid
   // and no n/m score, falls back to detecting a time (mm:ss), a bare score ("1,234 pts"),
@@ -1916,69 +2181,77 @@
     var sel = state.failed ? "failed" : "solved";
     var fields = types.map(function (t) { return valueFieldHtml(t, values[t], sel === "failed"); }).join("");
     return (
+      '<div class="result-editor-wrap">' +
       (state.paste !== false
-        ? '<textarea id="pasteBox" class="paste-input" rows="3" placeholder="Paste the game’s Share text to auto-fill ↓ (or just set it manually)"></textarea>'
+        ? '<textarea class="paste-input paste-box" rows="3" placeholder="Paste the game\u2019s share text to auto-fill, or set the result manually"></textarea>'
         : "") +
-      '<p class="res-preview" id="resPreview"></p>' +
-      '<div class="res-editor" id="resFields">' +
-        '<button class="btn res-solved' + (sel === "solved" ? " active" : "") + '" data-res="solved">✓ Solved</button>' +
-        '<button class="btn res-failed' + (sel === "failed" ? " active" : "") + '" data-res="failed">✗ Failed</button>' +
+      '<p class="res-preview"></p>' +
+      '<div class="res-editor res-fields">' +
+        '<button class="btn res-solved' + (sel === "solved" ? " active" : "") + '" data-res="solved">Solved</button>' +
+        '<button class="btn res-failed' + (sel === "failed" ? " active" : "") + '" data-res="failed">Failed</button>' +
         fields +
         '<button class="btn btn-primary" data-record="1">Record</button>' +
       "</div>" +
-      '<p class="import-result" id="resMsg"></p>'
+      '<p class="import-result res-msg"></p>' +
+      "</div>"
     );
   }
-  // Fills the field for `type` if the editor already has one; otherwise injects a new one
-  // just before the Record button (e.g. a paste implies a measurement the game isn't
-  // formally tracking yet — handleRecord will add it to the game's active types on Record).
-  function upsertValueField(type, val, disabled) {
-    var input = document.querySelector('#resFields .res-value-input[data-restype="' + type + '"]');
+  function upsertValueField(type, val, disabled, wrap) {
+    wrap = wrap || activeEditorWrap();
+    if (!wrap) return;
+    var input = wrap.querySelector('.res-value-input[data-restype="' + type + '"]');
     if (input) {
       input.value = val != null ? formatResultValue(type, val) : "";
       input.disabled = disabled;
       return;
     }
-    var recordBtn = document.querySelector("#resFields [data-record]");
+    var recordBtn = wrap.querySelector("[data-record]");
     if (recordBtn) recordBtn.insertAdjacentHTML("beforebegin", valueFieldHtml(type, val, disabled));
   }
-  function setResSelection(sel) {
-    var s = document.querySelector(".res-solved"), f = document.querySelector(".res-failed");
+  function setResSelection(sel, wrap) {
+    wrap = wrap || activeEditorWrap();
+    if (!wrap) return;
+    var s = wrap.querySelector(".res-solved"), f = wrap.querySelector(".res-failed");
     if (!s || !f) return;
     s.classList.toggle("active", sel === "solved");
     f.classList.toggle("active", sel === "failed");
-    document.querySelectorAll("#resFields .res-value-input").forEach(function (inp) {
+    wrap.querySelectorAll(".res-value-input").forEach(function (inp) {
       inp.disabled = sel === "failed";
     });
   }
-  function populateFromPaste(text) {
+  function populateFromPaste(text, sourceEl) {
+    var wrap = activeEditorWrap(sourceEl);
     var p = parseShareText(text);
-    var prev = document.getElementById("resPreview");
-    if (!p) { if (prev) prev.textContent = text.trim() ? "Couldn’t read a result from that yet…" : ""; return; }
-    setResSelection(p.solved ? "solved" : "failed");
-    if (p.value != null) upsertValueField(p.resultType, p.value, !p.solved);
+    var prev = wrap && wrap.querySelector(".res-preview");
+    if (!p) { if (prev) prev.textContent = text.trim() ? "Could not read a result from that text." : ""; return; }
+    setResSelection(p.solved ? "solved" : "failed", wrap);
+    if (p.value != null) upsertValueField(p.resultType, p.value, !p.solved, wrap);
     var name = currentDetailId ? (gameById[currentDetailId] || {}).name : (matchGameByName(p.nameHint) || {}).name;
     var valTxt = p.solved && p.value != null ? " " + describeResultValue(p.resultType, p.value) : "";
-    if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + valTxt : "failed") + " — fix below if wrong.";
+    if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + valTxt : "failed") + " — adjust below if needed.";
   }
-  function handleRecord() {
-    var msg = document.getElementById("resMsg");
-    var solvedBtn = document.querySelector(".res-solved");
+  function handleRecord(sourceEl) {
+    var wrap = activeEditorWrap(sourceEl);
+    var msg = wrap && wrap.querySelector(".res-msg");
+    var solvedBtn = wrap && wrap.querySelector(".res-solved");
     var solved = solvedBtn && solvedBtn.classList.contains("active");
     var g;
     if (currentDetailId) {
       g = gameById[currentDetailId];
     } else {
-      var pb = document.getElementById("pasteBox");
+      var pb = wrap && wrap.querySelector(".paste-box");
       var p = pb && parseShareText(pb.value);
-      if (!p) { if (msg) msg.textContent = "Paste a game’s share text first."; return; }
+      if (!p) { if (msg) msg.textContent = "Paste a game\u2019s share text first."; return; }
       g = matchGameByName(p.nameHint);
-      if (!g) { if (msg) msg.textContent = "Couldn’t match a game from that text. Open it in the hub and log it from its ⓘ."; return; }
+      if (!g) {
+        if (msg) msg.textContent = "Could not match a game from that text. Open it in the hub and log from its details page.";
+        return;
+      }
     }
     if (!g) return;
     var recordedBits = [];
-    if (solved) {
-      document.querySelectorAll("#resFields .res-value-input").forEach(function (inp) {
+    if (solved && wrap) {
+      wrap.querySelectorAll(".res-value-input").forEach(function (inp) {
         var type = inp.dataset.restype;
         var val = parseResultValueInput(type, inp.value);
         if (val == null) return;
@@ -1992,7 +2265,11 @@
     patchCard(g.id);
     if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
     if (currentDetailId) { refreshDetail(); }
-    else if (msg) msg.textContent = "Recorded ✓ " + g.name + " — " + (solved ? "solved" + (recordedBits.length ? " (" + recordedBits.join(", ") + ")" : "") : "failed") + ".";
+    else {
+      var summary = g.name + " — " + (solved ? "solved" + (recordedBits.length ? " (" + recordedBits.join(", ") + ")" : "") : "failed");
+      if (msg) msg.textContent = "Recorded.";
+      showToast("Recorded: " + summary, "success");
+    }
   }
   function pasteBody() {
     return (
@@ -2004,7 +2281,7 @@
   }
   function openPaste() {
     showModal("Paste a result", pasteBody());
-    var ta = document.getElementById("pasteBox");
+    var ta = genericModal && genericModal.querySelector(".paste-box");
     if (ta) ta.focus();
   }
 
@@ -2012,9 +2289,15 @@
   document.addEventListener("keydown", function (e) {
     var t = e.target, tag = (t.tagName || "").toLowerCase();
     var typing = tag === "input" || tag === "textarea" || tag === "select" || t.isContentEditable;
+    if (e.key === "Escape") {
+      if (statsModal && statsModal.classList.contains("show")) { closeStats(); return; }
+      if (genericModal && genericModal.classList.contains("show")) { hideModal(); return; }
+      if (t === searchEl) { searchEl.blur(); return; }
+      if (document.body.classList.contains("page-open") && !typing) { navigateTo(""); return; }
+      return;
+    }
     if (e.key === "/" && !typing) { e.preventDefault(); searchEl.focus(); searchEl.select(); return; }
-    if (e.key === "Escape" && t === searchEl) { searchEl.blur(); return; }
-    if (e.key === "Escape" && document.body.classList.contains("page-open") && !typing) { navigateTo(""); return; }
+    if (e.key === "r" && !typing && !document.body.classList.contains("page-open")) { surpriseMe(); return; }
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       var cards = Array.prototype.slice.call(grid.querySelectorAll(".card"));
@@ -2040,6 +2323,7 @@
       if (window.confirm("Import DLE Hub backup from this link?\n\n" + favN + " favorite(s) and " + dayN + " day(s) of progress will be merged into this browser.")) {
         applyBackup(obj);
         render();
+        showToast("Backup imported from link", "success");
       }
     } catch (e) { /* ignore malformed link */ }
     window.history.replaceState(null, "", location.pathname + location.search);
@@ -2051,8 +2335,19 @@
     if (id && prefs.askOnReturn) addPending(id);
   }
 
-  // Ingest a result captured by the browser extension (from a game's share text).
-  // payload: { host, name?, solved:bool, guesses?:number }
+  // Pick a random game from the current filter set (favorites, category, search, etc.).
+  function surpriseMe() {
+    var pool = getFiltered().filter(function (g) { return !isDoneToday(g.id) && !isFailedToday(g.id); });
+    if (!pool.length) pool = getFiltered();
+    if (!pool.length) pool = ITEMS.slice();
+    if (!pool.length) { showToast("No games to pick from", "error"); return; }
+    var g = pool[Math.floor(Math.random() * pool.length)];
+    openDetail(g.id);
+    showToast("Surprise: " + g.name);
+  }
+
+  // Ingest a result captured by the browser extension (share text or auto-detect).
+  // payload: { host, name?, solved, guesses?, resultType?, value? }
   function recordResult(payload) {
     if (!payload || !payload.host) return { matched: false };
     var host = String(payload.host).replace(/^www\./, "").toLowerCase();
@@ -2070,13 +2365,19 @@
     removePending(g.id);
     if (payload.solved) {
       markDoneToday(g.id);
-      if (payload.guesses > 0) { setValueToday(g.id, "guesses", payload.guesses); ensureTypeActive(g.id, "guesses"); }
+      var rt = payload.resultType || "guesses";
+      var val = payload.value != null ? payload.value : payload.guesses;
+      if (val != null && (typeof val === "object" || val > 0)) {
+        setValueToday(g.id, rt, val);
+        ensureTypeActive(g.id, rt);
+      }
     } else {
       markFailedToday(g.id);
     }
-    // refresh UI
-    if (currentDetailId === g.id) refreshDetail();
-    render();
+    if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
+    else if (currentDetailId === g.id) refreshDetail();
+    else patchCard(g.id);
+    showToast((payload.solved ? "Recorded solve: " : "Recorded fail: ") + g.name, "success");
     return { matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null };
   }
 
@@ -2176,6 +2477,7 @@
     render();
   });
   playRoutineBtn.addEventListener("click", playRoutine);
+  $("surpriseBtn").addEventListener("click", surpriseMe);
   sortEl.addEventListener("change", function () {
     prefs.sort = sortEl.value;
     savePrefs();
@@ -2207,7 +2509,10 @@
   // Open every routine game that isn't solved/failed yet today (in new tabs).
   function playRoutine() {
     var todo = routine.filter(function (id) { return gameById[id] && !isDoneToday(id) && !isFailedToday(id); });
-    if (!todo.length) { alert(routine.length ? "All your routine games are done for today. 🎉" : "Your routine is empty — add games from a game's ⓘ details."); return; }
+    if (!todo.length) {
+      showToast(routine.length ? "All routine games are done for today." : "Your routine is empty — add games from a game's details page.", routine.length ? "success" : "");
+      return;
+    }
     if (todo.length > 6 && !confirm("Open " + todo.length + " routine games in new tabs?")) return;
     todo.forEach(function (id) { var g = gameById[id]; if (g) { window.open(g.url, "_blank", "noopener"); if (prefs.askOnReturn) addPending(id); } });
   }
@@ -2221,7 +2526,7 @@
     var grd = prefs.view === "grid";
     grid.classList.toggle("view-grid", grd);
     var b = $("viewToggle");
-    b.textContent = grd ? "☰ List" : "▦ Grid";
+    b.textContent = grd ? "List view" : "Grid view";
     b.setAttribute("aria-pressed", grd);
   }
 

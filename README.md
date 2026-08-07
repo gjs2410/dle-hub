@@ -34,7 +34,11 @@ No build step, no framework, no server required.
   or a shareable link, and import them on another device. Importing always **merges**
   (never deletes). No account or server required.
 - **⌨️ Keyboard shortcuts** — <kbd>/</kbd> focus search, <kbd>↑</kbd>/<kbd>↓</kbd>
-  move between games, <kbd>Enter</kbd> play, <kbd>Esc</kbd> close / clear.
+  move between games, <kbd>Enter</kbd> play, <kbd>r</kbd> surprise me, <kbd>Esc</kbd> close / clear.
+- **🎲 Surprise me** — pick a random game from your current filters (toolbar button or <kbd>r</kbd>).
+- **📅 Calendar view** — in the stats panel, browse which games you played each day (with notes).
+- **📝 Per-game notes** — jot down hints, strategies, etc. on each game's page (e.g. "used hint on #3").
+- **🚩 Dead link reporting** — flag broken game URLs from a game's detail page; listed in Settings.
 - **🎛️ Multi-mode games as separate cards** — a game with several internal daily modes
   (curated via `data/overrides.json`, e.g. Brawldle's 6 modes) shows up as one card
   per mode ("Brawldle: Classic", "Brawldle: Gadget", …), each with its own play /
@@ -273,10 +277,11 @@ has no way to *detect* completion.
 
 The closest practical option without an install is the **"Did you finish?" prompt**
 (enabled by default) — you open a game, and when you switch back to the hub it asks
-you in one tap. The only way to *truly* auto-detect completion is a **browser
-extension** (it can run code on each game's page), but because ~1,000 games each
-store state differently, detection would be reliable only for a handful of popular
-games. That's a separate, larger project — ask if you want to go there.
+you in one tap. For **automatic** recording without that extra step, install the
+included **browser extension** (`extension/`). It hooks each game's Share button
+*and* auto-detects completion on popular games (Wordle, Nerdle, Worldle, Waffle,
+Quordle, Octordle, and more) by reading their saved game state. See
+[`extension/README.md`](extension/README.md) for install steps.
 
 ## Project layout
 

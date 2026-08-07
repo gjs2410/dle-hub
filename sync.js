@@ -8,7 +8,7 @@ const btn = document.getElementById("accountBtn");
 
 if (!cfg.url || !cfg.anonKey) {
   // Not configured — hide the account button; app stays fully local.
-  if (btn) btn.style.display = "none";
+  if (btn) btn.hidden = true;
 } else {
   import("https://esm.sh/@supabase/supabase-js@2")
     .then(({ createClient }) => initSync(createClient))
@@ -104,7 +104,7 @@ function initSync(createClient) {
 
   function updateBtn() {
     if (!btn) return;
-    btn.textContent = user ? "🟢" : "👤";
+    btn.classList.toggle("is-synced", !!user);
     btn.title = user ? "Synced as " + user.email : "Sign in to sync across devices";
   }
 
@@ -228,5 +228,5 @@ function initSync(createClient) {
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
 
-  if (btn) { btn.style.display = ""; btn.addEventListener("click", openModal); }
+  if (btn) { btn.hidden = false; btn.addEventListener("click", openModal); }
 }

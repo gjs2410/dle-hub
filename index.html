@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>DLE Hub — your daily -dle games</title>
-  <meta name="description" content="A searchable, favoritable hub of every daily -dle game. Track what you've played today." />
+  <title>DLE Hub — Your Daily -dle Games</title>
+  <meta name="description" content="Search, favorite, and track every daily -dle game in one place. Monitor streaks and daily progress across 1,400+ games." />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
   <!-- PWA -->
@@ -19,21 +19,34 @@
   <link rel="apple-touch-icon" href="icon.svg" />
 </head>
 <body>
+  <a class="skip-link" href="#mainGrid">Skip to games</a>
   <header class="app-header">
     <div class="header-top" id="headerTop">
       <div class="brand">
-        <span class="brand-logo">🧩</span>
+        <span class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 8.5c.83.83 1.5 2.17 1.5 3.5a5.5 5.5 0 0 1-11 0c0-1.33.67-2.67 1.5-3.5"/><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M12 20v2"/><path d="M19.07 19.07l-1.41-1.41"/><path d="M22 12h-2"/><path d="M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
         <div>
           <h1>DLE Hub</h1>
           <p class="tagline">Every daily <span class="mono">-dle</span> game, in one place.</p>
         </div>
       </div>
       <div class="header-btns">
-        <button id="accountBtn" class="icon-btn" title="Account / cloud sync" aria-label="Account" style="display:none">👤</button>
-        <button id="pasteResult" class="icon-btn" title="Paste a game's share text to record it" aria-label="Paste result">📋</button>
-        <button id="openStats" class="icon-btn" title="Your streaks & stats" aria-label="Stats">📊</button>
-        <button id="openSettings" class="icon-btn" title="Backup, import/export & shortcuts" aria-label="Settings">⚙️</button>
-        <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">🌗</button>
+        <button id="accountBtn" class="icon-btn icon-btn--account" title="Account / cloud sync" aria-label="Account" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <button id="pasteResult" class="icon-btn" title="Paste a game's share text to record it" aria-label="Paste result">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button id="openStats" class="icon-btn" title="Your streaks and stats" aria-label="Stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 5-9"/></svg>
+        </button>
+        <button id="openSettings" class="icon-btn" title="Backup, import/export, and shortcuts" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
       </div>
     </div>
 
@@ -41,21 +54,27 @@
       <button id="pageBack" class="page-back" aria-label="Back to all games">← Back</button>
       <h2 class="page-title" id="pageTitle"></h2>
       <button id="pageShare" class="page-share" title="Copy link to this page" aria-label="Copy link">🔗</button>
-      <button id="pageTheme" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">🌗</button>
+      <button id="pageTheme" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
     </div>
 
     <div class="stats" id="stats" aria-live="polite"></div>
 
     <div class="toolbar">
       <div class="search-wrap">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
         <input id="search" type="search" placeholder="Search games, descriptions, categories…" autocomplete="off" spellcheck="false" />
-        <button id="clearSearch" class="clear-btn" title="Clear" hidden>✕</button>
+        <button id="clearSearch" class="clear-btn" title="Clear search" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="toggles">
-        <button id="favFilter" class="toggle-btn" aria-pressed="false">★ Favorites</button>
-        <button id="routineFilter" class="toggle-btn" aria-pressed="false" title="Show only your routine" hidden>🎯 Routine</button>
-        <button id="playRoutine" class="toggle-btn" title="Open today's unplayed routine games" hidden>▶ Play routine</button>
+        <button id="favFilter" class="toggle-btn" aria-pressed="false">Favorites</button>
+        <button id="routineFilter" class="toggle-btn" aria-pressed="false" title="Show only your routine" hidden>Routine</button>
+        <button id="playRoutine" class="toggle-btn" title="Open today's unplayed routine games" hidden>Play routine</button>
         <label class="sort-wrap">
           <span>Status</span>
           <select id="statusFilter">
@@ -64,8 +83,9 @@
             <option value="done">Completed</option>
           </select>
         </label>
-        <button id="askReturn" class="toggle-btn" aria-pressed="true" title="When you return to this tab after opening a game, ask if you finished it">🔔 Ask when back</button>
-        <button id="viewToggle" class="toggle-btn" title="Switch between list and grid" aria-label="Toggle view">▦ Grid</button>
+        <button id="askReturn" class="toggle-btn" aria-pressed="true" title="When you return to this tab after opening a game, ask if you finished it">Ask on return</button>
+        <button id="viewToggle" class="toggle-btn" title="Switch between list and grid" aria-label="Toggle view">Grid view</button>
+        <button id="surpriseBtn" class="toggle-btn" title="Open a random game from your current filters (shortcut: R)">Surprise me</button>
         <label class="sort-wrap">
           <span>Sort</span>
           <select id="sort">
@@ -85,8 +105,8 @@
     <div id="grid" class="grid"></div>
     <div id="scrollSentinel" aria-hidden="true" hidden></div>
     <div id="emptyState" class="empty" hidden>
-      <p class="empty-emoji">🕵️</p>
-      <p>No games match your filters.</p>
+      <p class="empty-title">No games found</p>
+      <p class="empty-sub">Try adjusting your search or filters.</p>
       <button id="resetFilters" class="link-btn">Reset filters</button>
     </div>
   </main>
@@ -102,7 +122,7 @@
       and <a href="https://listdle.com/" target="_blank" rel="noopener">listdle</a>.
       Refresh anytime with <code>node scrape.mjs</code>.
     </p>
-    <p class="fine">Favorites &amp; daily progress are stored on this device only. Daily status resets automatically at local midnight.</p>
+    <p class="fine">Favorites and daily progress are stored on this device. Status resets at local midnight.</p>
   </footer>
 
   <!-- Generated dataset (window.GAMES_DATA). Lets the app run from file:// with no server. -->

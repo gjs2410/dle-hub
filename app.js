@@ -621,14 +621,12 @@
     write(LS.theme, next);
     var title = "Theme: " + next + " (click to change)";
     $("themeToggle").title = title;
-    $("pageTheme").title = title;
     syncThemeColor();
   }
   (function initTheme() {
     var saved = read(LS.theme, "auto");
     document.documentElement.setAttribute("data-theme", saved);
     $("themeToggle").addEventListener("click", toggleTheme);
-    $("pageTheme").addEventListener("click", toggleTheme);
     syncThemeColor();
     if (darkMedia && darkMedia.addEventListener) darkMedia.addEventListener("change", syncThemeColor);
   })();
@@ -3105,6 +3103,9 @@
   // search (debounced so typing doesn't re-render on every keystroke)
   var searchTimer = null;
   searchEl.addEventListener("input", function () {
+    // The header (and its search) stays visible on game pages: searching from one goes back
+    // to the list, where the results show.
+    if (document.body.classList.contains("page-open")) navigateTo("");
     clearSearchBtn.hidden = !searchEl.value;
     clearTimeout(searchTimer);
     searchTimer = setTimeout(function () {
@@ -3416,6 +3417,12 @@
   $("openSettings").addEventListener("click", openSettings);
   $("pasteResult").addEventListener("click", openPaste);
   $("pageBack").addEventListener("click", function () { navigateTo(""); });
+  // The logo goes home: off any game/collection/city page, back to the top of the front page.
+  $("homeLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (document.body.classList.contains("page-open")) navigateTo("");
+    window.scrollTo(0, 0);
+  });
   $("pageShare").addEventListener("click", copyPageLink);
   window.addEventListener("hashchange", applyRoute);
   syncControls();

@@ -27,14 +27,14 @@
   <a class="skip-link" href="#mainGrid">Skip to games</a>
   <header class="app-header">
     <div class="header-top" id="headerTop">
-      <div class="brand">
+      <a class="brand" href="./" id="homeLink" aria-label="DLE Hub — home">
         <span class="brand-logo" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 8.5c.83.83 1.5 2.17 1.5 3.5a5.5 5.5 0 0 1-11 0c0-1.33.67-2.67 1.5-3.5"/><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M12 20v2"/><path d="M19.07 19.07l-1.41-1.41"/><path d="M22 12h-2"/><path d="M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="3"/></svg>
         </span>
         <div>
           <h1>DLE Hub</h1>
         </div>
-      </div>
+      </a>
       <div class="search-wrap">
         <span class="search-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -63,21 +63,19 @@
       </div>
     </div>
 
-    <div class="page-topbar" id="pageTopbar" hidden>
-      <button id="pageBack" class="page-back" aria-label="Back to all games">← Back</button>
-      <h2 class="page-title" id="pageTitle"></h2>
-      <button id="pageShare" class="page-share" title="Copy link to this page" aria-label="Copy link">🔗</button>
-      <button id="pageTheme" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-    </div>
-
     <!-- Black tagline band under the header row; also carries the streak/progress stats. -->
     <div class="band" id="band">
       <div class="band-inner">
         <p class="band-tagline">Every daily <span class="mono">-dle</span> game, in one place.</p>
         <div class="stats" id="stats" aria-live="polite"></div>
       </div>
+    </div>
+
+    <!-- On game / collection / city pages: a slim Back + title row under the full header. -->
+    <div class="page-topbar" id="pageTopbar" hidden>
+      <button id="pageBack" class="page-back" aria-label="Back to all games">← Back</button>
+      <h2 class="page-title" id="pageTitle"></h2>
+      <button id="pageShare" class="page-share" title="Copy link to this page" aria-label="Copy link">🔗</button>
     </div>
   </header>
 

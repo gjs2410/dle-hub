@@ -1845,6 +1845,8 @@
     if (rc) { removeCustomGame(rc.dataset.removeCustomGame); return; }
     var ec = e.target.closest("[data-edit-custom-game]");
     if (ec) { openEditGame(ec.dataset.editCustomGame); return; }
+    // Settings switch (only the checkbox's own click, not the label's duplicate)
+    if (e.target.matches && e.target.matches("[data-ask-toggle]")) { setAskOnReturn(e.target.checked); return; }
     var s = e.target.closest("[data-set-act]");
     if (s) { handleSetAct(s.dataset.setAct); return; }
     var res = e.target.closest("[data-res]");
@@ -2363,6 +2365,12 @@
   }
   function settingsBody() {
     return (
+      '<h3 class="stats-h">Reminders</h3>' +
+      '<label class="switch-row">' +
+        '<span class="switch-text"><b>Ask if I finished a game</b>' +
+          "<span>When you come back to DLE Hub after opening a game, a small prompt asks whether you finished it.</span></span>" +
+        '<input type="checkbox" class="switch" data-ask-toggle' + (prefs.askOnReturn ? " checked" : "") + ">" +
+      "</label>" +
       '<h3 class="stats-h">Backup &amp; transfer</h3>' +
       '<p class="settings-note">Your favorites and daily progress live only in this browser. ' +
       "Export a file (or copy a link) to back them up or move them to another device. " +
@@ -3137,11 +3145,22 @@
     savePrefs();
     render();
   });
-  $("askReturn").addEventListener("click", function () {
-    prefs.askOnReturn = !prefs.askOnReturn;
-    $("askReturn").setAttribute("aria-pressed", prefs.askOnReturn);
+  // The "Did you finish?" reminder on/off — one place for the toolbar button, the switch in
+  // Settings and the reminder's own "Stop asking", so they never disagree.
+  function setAskOnReturn(on) {
+    prefs.askOnReturn = !!on;
     savePrefs();
-    if (!prefs.askOnReturn) hidePrompt();
+    $("askReturn").setAttribute("aria-pressed", prefs.askOnReturn);
+    document.querySelectorAll("[data-ask-toggle]").forEach(function (cb) { cb.checked = prefs.askOnReturn; });
+    if (!prefs.askOnReturn) {
+      hidePrompt();
+      pendingStore.ids = []; // forget games already waiting to be asked about
+      savePending();
+    }
+  }
+  $("askReturn").addEventListener("click", function () {
+    setAskOnReturn(!prefs.askOnReturn);
+    showToast(prefs.askOnReturn ? "Reminders on: you'll be asked if you finished a game." : "Reminders off.");
   });
   $("viewToggle").addEventListener("click", function () {
     prefs.view = prefs.view === "grid" ? "list" : "grid";
@@ -3208,6 +3227,11 @@
       var b = e.target.closest("button[data-fp]");
       if (!b) return;
       var id = promptShowingId;
+      if (b.dataset.fp === "stop") {
+        setAskOnReturn(false);
+        showToast("Reminders off. Turn them back on in Settings (⚙).");
+        return;
+      }
       if (b.dataset.fp === "yes") {
         markDoneToday(id);
         removePending(id);
@@ -3241,7 +3265,8 @@
     el.innerHTML =
       icon +
       '<div class="fp-text"><span class="fp-q">Did you finish today?</span>' +
-      '<span class="fp-name">' + escapeHtml(g.name) + "</span></div>" +
+      '<span class="fp-name">' + escapeHtml(g.name) + "</span>" +
+      '<button class="fp-stop" data-fp="stop">Stop asking</button></div>' +
       '<div class="fp-acts">' +
         '<button class="fp-yes" data-fp="yes">Yes ✓</button>' +
         '<button class="fp-no" data-fp="no">Not yet</button>' +

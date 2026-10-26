@@ -9,6 +9,13 @@
       "url": "http://localhost:8777"
     },
     {
+      "name": "dle-hub-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "process.env.PORT='8778'; import('./server.mjs')"],
+      "port": 8778,
+      "url": "http://localhost:8778"
+    },
+    {
       "name": "atlas-of-ages",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "C:/Users/gertj/atlas-of-ages", "run", "dev", "--", "--port", "5199", "--strictPort"],

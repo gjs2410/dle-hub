@@ -581,6 +581,8 @@
   // ---------- DOM refs ----------
   var $ = function (id) { return document.getElementById(id); };
   var grid = $("grid");
+  var homeEl = $("home");
+  var browseIntroEl = $("browseIntro");
   var searchEl = $("search");
   var clearSearchBtn = $("clearSearch");
   var favFilterBtn = $("favFilter");
@@ -605,7 +607,7 @@
     var theme = document.documentElement.getAttribute("data-theme");
     var dark = theme === "dark" || (theme === "auto" && darkMedia && darkMedia.matches);
     var meta = $("themeColorMeta");
-    if (meta) meta.setAttribute("content", dark ? "#1f1f23" : "#ffffff");
+    if (meta) meta.setAttribute("content", dark ? "#1f1c19" : "#ffffff");
   }
   function toggleTheme() {
     var cur = document.documentElement.getAttribute("data-theme");
@@ -829,18 +831,20 @@
       ? '<span class="streak-pill" title="' + gs + '-day streak for this game">' + ico("flame") + " " + gs + "</span>"
       : "";
 
+    // Games without a screenshot get a soft category-tinted tile showing their initial.
     var thumbStyle = g.thumbnail
       ? "background-color:" + col + ";background-image:url('" + encodeURI(g.thumbnail) + "')"
-      : "background-color:" + col;
+      : "--cat:" + col;
+    var thumbClass = g.thumbnail ? "card-thumb" : "card-thumb no-shot";
 
     return (
       '<article class="card' + (done ? " is-done" : "") + (failed ? " is-failed" : "") + '" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '" tabindex="0" role="link" aria-label="Play ' + escapeHtml(g.name) + '">' +
-        '<div class="card-thumb" style="' + thumbStyle + '" aria-hidden="true"></div>' +
+        '<div class="' + thumbClass + '" style="' + thumbStyle + '" data-letter="' + letter + '" aria-hidden="true"></div>' +
         '<div class="card-body">' +
           '<div class="card-line">' +
             icon +
             '<span class="card-title">' + escapeHtml(g.name) + "</span>" +
-            '<span class="card-badge" style="background:' + col + '">' + escapeHtml(g.category) + "</span>" +
+            '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
           "</div>" +
           desc +
         "</div>" +
@@ -857,10 +861,180 @@
 
   function groupHead(cat, count) {
     return (
-      '<h2 class="group-head"><span class="group-dot" style="background:' + colorFor(cat) + '"></span>' +
+      '<h2 class="group-head" style="--cat:' + colorFor(cat) + '">' +
       escapeHtml(cat) +
       ' <span class="group-count">' + count + "</span></h2>"
     );
+  }
+
+  // ---------- front page (featured game, top chart, category rails) ----------
+  // Shown above the full grid only while nothing narrows the list; any search or filter
+  // hides it so results come first.
+  function isHome() {
+    return !searchTerm.trim() && prefs.category === "all" && !prefs.favOnly &&
+      !prefs.routineOnly && prefs.completion === "all";
+  }
+
+  // Thumbnail styles shared by the hero and rail cards: the screenshot when there is one,
+  // otherwise a category-tinted tile that shows the game's initial (see .no-shot).
+  function shotAttrs(g, cls) {
+    var col = colorFor(g.category);
+    var letter = escapeHtml((g.name[0] || "?").toUpperCase());
+    return g.thumbnail
+      ? 'class="' + cls + '" style="background-image:url(\'' + encodeURI(g.thumbnail) + '\')"'
+      : 'class="' + cls + ' no-shot" style="--cat:' + col + '" data-letter="' + letter + '"';
+  }
+
+  function hashStr(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  // Game of the day: a stable pick per date from the 200 most-played games that have a
+  // screenshot, so everyone sees the same one and it changes at local midnight.
+  function featuredGame() {
+    var pool = ITEMS.filter(function (g) { return g.thumbnail && g.description; });
+    if (!pool.length) pool = ITEMS.slice();
+    pool.sort(function (a, b) { return itemPopularity(b) - itemPopularity(a) || a.name.localeCompare(b.name); });
+    pool = pool.slice(0, 200);
+    return pool.length ? pool[hashStr(TODAY) % pool.length] : null;
+  }
+
+  function heroHtml(g) {
+    var fav = favorites.has(g.id);
+    var done = isDoneToday(g.id);
+    var col = colorFor(g.category);
+    return (
+      '<article class="hero" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '">' +
+        '<div class="hero-frame"><div ' + shotAttrs(g, "hero-shot") + ' aria-hidden="true"></div></div>' +
+        '<div class="hero-copy">' +
+          '<p class="eyebrow">Game of the day</p>' +
+          '<h2 class="hero-title">' + escapeHtml(g.name) + "</h2>" +
+          '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+          '<p class="hero-desc">' + escapeHtml(g.description || "") + "</p>" +
+          '<div class="hero-actions">' +
+            '<button class="pill-btn pill-btn--accent" data-act="play">' + (done ? "Play again" : "Play now") + "</button>" +
+            '<button class="pill-btn" data-act="info">Details</button>' +
+            '<button class="pill-btn pill-btn--icon' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? ico("star") : ico("starOutline")) + "</button>" +
+            '<button class="pill-btn pill-btn--icon' + (done ? " is-done" : "") + '" data-act="done" title="Mark as solved today" aria-pressed="' + done + '">' + ico("check") + "</button>" +
+          "</div>" +
+        "</div>" +
+      "</article>"
+    );
+  }
+
+  function chartRowHtml(g, rank) {
+    var fIco = faviconUrl(g.url);
+    var col = colorFor(g.category);
+    var done = isDoneToday(g.id);
+    return (
+      '<article class="chart-row' + (done ? " is-done" : "") + '" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '" data-rank="' + rank + '" tabindex="0" role="link" aria-label="Play ' + escapeHtml(g.name) + '">' +
+        '<span class="chart-rank">' + rank + "</span>" +
+        (fIco
+          ? '<img class="favicon" src="' + fIco + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+          : '<span class="favicon-fallback" style="background:' + col + '">' + escapeHtml((g.name[0] || "?").toUpperCase()) + "</span>") +
+        '<span class="chart-name">' + escapeHtml(g.name) + "</span>" +
+        '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+        '<span class="chart-state">' + (done ? ico("check") : "›") + "</span>" +
+      "</article>"
+    );
+  }
+
+  function chartHtml(games) {
+    var rows = games.map(function (g, i) { return chartRowHtml(g, i + 1); }).join("");
+    return (
+      '<section class="chart-sec">' +
+        '<div class="chart-intro">' +
+          '<p class="eyebrow">The most played daily games</p>' +
+          '<h2 class="section-title">The DLE Top 10</h2>' +
+          '<p class="section-sub">The games people come back to most, ranked by plays across the community lists.</p>' +
+        "</div>" +
+        '<div class="chart-list">' + rows + "</div>" +
+      "</section>"
+    );
+  }
+
+  function railCardHtml(g) {
+    var fav = favorites.has(g.id);
+    var done = isDoneToday(g.id);
+    var col = colorFor(g.category);
+    return (
+      '<article class="card rail-card' + (done ? " is-done" : "") + '" data-id="' + g.id + '" data-url="' + escapeHtml(g.url) + '" tabindex="0" role="link" aria-label="Play ' + escapeHtml(g.name) + '">' +
+        '<div ' + shotAttrs(g, "rc-shot") + ">" +
+          '<button class="star-btn icon-act' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? ico("star") : ico("starOutline")) + "</button>" +
+        "</div>" +
+        '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+        '<span class="rc-title">' + escapeHtml(g.name) + "</span>" +
+        '<p class="rc-desc">' + escapeHtml(g.description || "") + "</p>" +
+        '<div class="rc-actions">' +
+          '<span class="rc-play">' + (done ? ico("check") + " Solved" : "Play today") + "</span>" +
+          '<button class="done-btn icon-act' + (done ? " active" : "") + '" data-act="done" title="Mark as solved today" aria-pressed="' + done + '">' + ico("check") + "</button>" +
+        "</div>" +
+      "</article>"
+    );
+  }
+
+  // One titled, horizontally scrolling row. `cat` makes the title a link to that category.
+  function railHtml(title, games, color, cat) {
+    if (!games.length) return "";
+    var head = cat
+      ? '<button class="rail-link" data-home-cat="' + escapeHtml(cat) + '">' + escapeHtml(title) + ' <span aria-hidden="true">›</span></button>'
+      : escapeHtml(title);
+    return (
+      '<section class="rail-sec">' +
+        '<h2 class="rail-head" style="--cat:' + color + '">' + head + "</h2>" +
+        '<div class="rail">' + games.map(railCardHtml).join("") + "</div>" +
+      "</section>"
+    );
+  }
+
+  var RAIL_SIZE = 14;
+  function byPopularity(a, b) {
+    // Screenshot-less games sort last so rails lead with real thumbnails.
+    return (b.thumbnail ? 1 : 0) - (a.thumbnail ? 1 : 0) || itemPopularity(b) - itemPopularity(a) || a.name.localeCompare(b.name);
+  }
+
+  function homeHtml() {
+    var html = "";
+    var feat = featuredGame();
+    if (feat) html += heroHtml(feat);
+
+    var mine = routine.map(function (id) { return itemById[id]; }).filter(Boolean);
+    html += railHtml("Your routine", mine, "var(--accent)");
+    var favs = ITEMS.filter(itemFavorited).sort(byPopularity);
+    html += railHtml("Your favorites", favs, "var(--star)");
+
+    var top = ITEMS.slice().sort(function (a, b) { return itemPopularity(b) - itemPopularity(a); }).slice(0, 10);
+    if (top.length && itemPopularity(top[0]) > 0) html += chartHtml(top);
+
+    html +=
+      '<div class="section-intro">' +
+        '<p class="eyebrow">Browse by category</p>' +
+        '<h2 class="section-title">Find your next daily habit.</h2>' +
+      "</div>";
+    var byCat = {};
+    ITEMS.forEach(function (g) { (byCat[g.category] = byCat[g.category] || []).push(g); });
+    Object.keys(byCat)
+      .sort(function (a, b) { return byCat[b].length - byCat[a].length; })
+      .forEach(function (cat) {
+        html += railHtml(cat, byCat[cat].sort(byPopularity).slice(0, RAIL_SIZE), colorFor(cat), cat);
+      });
+    return html;
+  }
+
+  function renderHome() {
+    var on = isHome();
+    homeEl.hidden = !on;
+    browseIntroEl.hidden = !on;
+    homeEl.innerHTML = on ? homeHtml() : "";
+  }
+
+  // Re-renders a card-like element for game `g` in whichever form it was drawn.
+  function cardFor(el, g) {
+    if (el.classList.contains("hero")) return heroHtml(g);
+    if (el.classList.contains("rail-card")) return railCardHtml(g);
+    if (el.classList.contains("chart-row")) return chartRowHtml(g, el.dataset.rank);
+    return cardHtml(g);
   }
 
   // ---------- incremental (lazy) rendering ----------
@@ -897,6 +1071,7 @@
   }
 
   function render() {
+    renderHome();
     currentList = getFiltered();
     lastRenderedCat = null;
     renderedCount = 0;
@@ -1280,6 +1455,15 @@
 
   // Click/change handling shared between the settings/paste modal and the game/hub page view.
   function onContentClick(e) {
+    // "More <category>" rail on a game page: its buttons act like anywhere else and "Play
+    // today" plays; the rest of the card opens that game's page.
+    var railCard = e.target.closest(".rail-card");
+    if (railCard) {
+      if (e.target.closest("button[data-act]")) onCardClick(e);
+      else if (e.target.closest(".rc-play")) openGame(railCard.dataset.url, railCard.dataset.id);
+      else openDetail(railCard.dataset.id);
+      return;
+    }
     var rel = e.target.closest("[data-related-id]");
     if (rel) { openDetail(rel.dataset.relatedId); return; }
     var d = e.target.closest("[data-detail-act]");
@@ -1360,6 +1544,10 @@
       pageBodyEl = $("pageBody");
       pageTitleEl = $("pageTitle");
       pageBodyEl.addEventListener("click", onContentClick);
+      pageBodyEl.addEventListener("keydown", function (e) {
+        var railCard = (e.key === "Enter" || e.key === " ") && !e.target.closest("button") && e.target.closest(".rail-card");
+        if (railCard) { e.preventDefault(); openDetail(railCard.dataset.id); }
+      });
       pageBodyEl.addEventListener("change", onModalChange);
       pageBodyEl.addEventListener("input", onPasteInput);
       pageBodyEl.addEventListener("blur", function (e) {
@@ -1422,7 +1610,7 @@
     var host = hostOf(g.url);
     var fIco = faviconUrl(g.url);
     var letter = escapeHtml((g.name[0] || "?").toUpperCase());
-    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).slice(0, 6);
+    var related = DATA.filter(function (x) { return x.category === g.category && x.id !== g.id; }).sort(byPopularity).slice(0, 12);
     var types = activeTypesOf(g); // e.g. [], ["guesses"], or ["score","guesses"]
     // A "Score" tab (score history over time) only makes sense — and only appears —
     // for games actually tracking a score.
@@ -1432,21 +1620,39 @@
     var icon = fIco
       ? '<img src="' + fIco + '" alt="" class="detail-ico">'
       : '<span class="detail-ico detail-fallback" style="background:' + col + '">' + letter + "</span>";
-    var heroTxt =
-      '<div class="detail-hero-txt"><span class="detail-cat">' + escapeHtml(g.category) + "</span>" +
-      (gs >= 2 ? '<span class="detail-streak">🔥 ' + gs + "-day streak</span>" : "") + "</div>";
-    var hero = g.thumbnail
-      ? '<div class="detail-banner" style="background-color:' + col + ";background-image:url('" + encodeURI(g.thumbnail) + "')\"></div>" +
-        '<div class="detail-subhead">' + icon.replace("detail-ico", "detail-ico sm") + heroTxt + "</div>"
-      : '<div class="detail-hero" style="background:linear-gradient(135deg,' + col + ",color-mix(in srgb," + col + ' 55%, #000))">' + icon + heroTxt + "</div>";
+
+    // Centered header: title, source site, chips, hook, framed screenshot, big Play button.
+    var head =
+      '<header class="dp-head">' +
+        '<h1 class="dp-title">' + escapeHtml(g.name) + "</h1>" +
+        '<p class="dp-by">on <a href="' + escapeHtml(g.url) + '" target="_blank" rel="noopener">' + escapeHtml(host) + "</a></p>" +
+        '<div class="dp-chips">' +
+          '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+          '<span class="dp-chip">' + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
+          (gs >= 2 ? '<span class="dp-chip dp-chip--streak">🔥 ' + gs + "-day streak</span>" : "") +
+          (done ? '<span class="dp-chip dp-chip--done">' + ico("check") + " Solved today</span>" : "") +
+        "</div>" +
+        '<p class="dp-hook' + (g.description ? "" : " empty") + '">' +
+          escapeHtml(g.description || "A daily " + g.category.toLowerCase() + " puzzle.") + "</p>" +
+        (g.thumbnail
+          ? '<figure class="dp-shot"><div ' + shotAttrs(g, "dp-shot-img") + ' role="img" aria-label="' + escapeHtml(g.name) + ' screenshot"></div><figcaption>Screenshot</figcaption></figure>'
+          : '<div class="dp-noshot" style="--cat:' + col + '">' + icon + "</div>") +
+        '<button class="dp-play" data-detail-act="play">Play <b>' + escapeHtml(g.name) + "</b></button>" +
+        '<p class="dp-note">Opens the game in a new tab.</p>' +
+        '<div class="dp-actions">' +
+          '<button class="pill-btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? ico("star") + " In favorites" : ico("starOutline") + " Save to favorites") + "</button>" +
+          '<button class="pill-btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
+          (g.custom && isOwner()
+            ? '<button class="pill-btn" data-edit-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Edit this game you added">✏️ Edit</button>' +
+              '<button class="pill-btn" data-remove-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Remove this game you added">🗑 Remove</button>'
+            : "") +
+        "</div>" +
+      "</header>";
 
     return (
-      hero +
-      '<p class="detail-desc' + (g.description ? "" : " empty") + '">' +
-        escapeHtml(g.description || "A daily " + g.category.toLowerCase() + " puzzle.") + "</p>" +
-      '<div class="detail-meta"><span>🔗 ' + escapeHtml(host) + "</span>" +
-        "<span>" + (g.unlimited ? "♾️ Unlimited" : "📅 Daily") + "</span>" +
-        (last ? "<span>Last played " + escapeHtml(last) + "</span>" : "<span>Not played yet</span>") + "</div>" +
+      head +
+      '<div class="dp-col">' +
+      '<h2 class="dp-h">Your stats</h2>' +
       (function () {
         var wins = gameTimesPlayed(g.id), losses = gameLosses(g.id);
         var tiles = '<div class="gs-tile"><b>🔥 ' + gs + '</b><span>Current streak</span></div>' +
@@ -1464,17 +1670,8 @@
           }
           tiles += '<div class="gs-tile"><b>' + val + "</b><span>Avg " + TYPE_LABELS[t].toLowerCase() + "</span></div>";
         });
-        return '<div class="detail-gamestats">' + tiles + "</div>";
+        return '<div class="dp-box"><div class="detail-gamestats">' + tiles + "</div></div>";
       })() +
-      '<div class="detail-actions">' +
-        '<button class="btn btn-primary" data-detail-act="play">▶ Play</button>' +
-        '<button class="btn' + (fav ? " on" : "") + '" data-detail-act="fav">' + (fav ? "★ Favorited" : "☆ Favorite") + "</button>" +
-        '<button class="btn' + (rt ? " on-routine" : "") + '" data-detail-act="routine">' + (rt ? "🎯 In routine" : "🎯 Add to routine") + "</button>" +
-        (g.custom && isOwner()
-          ? '<button class="btn" data-edit-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Edit this game you added">✏️ Edit</button>' +
-            '<button class="btn" data-remove-custom-game="' + escapeHtml(g.id.split("::")[0]) + '" title="Remove this game you added">🗑 Remove</button>'
-          : "") +
-      "</div>" +
       (hasScoreTab
         ? '<div class="detail-tabs" role="tablist">' +
             '<button class="detail-tab' + (currentDetailTab === "overview" ? " active" : "") + '" data-tab="overview" role="tab" aria-selected="' + (currentDetailTab === "overview") + '">Overview</button>' +
@@ -1535,29 +1732,28 @@
               return '<li><span class="note-date">' + escapeHtml(d) + "</span> " + escapeHtml(noteOn(g.id, d)) + "</li>";
             }).join("") + "</ul>";
         })() +
-        '<div class="detail-actions detail-actions-secondary">' +
-          (isDeadLinkReported(g.id)
-            ? '<span class="dead-reported">Broken link reported</span>'
-            : '<button class="btn" data-report-dead title="Flag this game URL as broken">' + ico("flag") + " Report broken link</button>") +
-        "</div>" +
-        (related.length
-          ? '<h3 class="stats-h">More ' + escapeHtml(g.category) + "</h3>" +
-            '<div class="related">' +
-            related.map(function (r) {
-              var rc = colorFor(r.category);
-              var ri = faviconUrl(r.url);
-              var rl = escapeHtml((r.name[0] || "?").toUpperCase());
-              return '<button class="rel" data-related-id="' + r.id + '">' +
-                (ri ? '<img src="' + ri + '" alt="">' : '<span class="rel-fb" style="background:' + rc + '">' + rl + "</span>") +
-                '<span class="rel-name">' + escapeHtml(r.name) + "</span></button>";
-            }).join("") +
-            "</div>"
-          : "") +
       "</div>" +
       (hasScoreTab
         ? '<div class="tab-panel"' + (currentDetailTab !== "score" ? " hidden" : "") + '>' +
             '<h3 class="stats-h">Score history</h3>' + scoreHistoryHtml(g.id) +
           "</div>"
+        : "") +
+      '<h2 class="dp-h">About the game</h2>' +
+      '<div class="dp-box dp-about">' +
+        '<p><strong>Site:</strong> <a href="' + escapeHtml(g.url) + '" target="_blank" rel="noopener">' + escapeHtml(host) + "</a></p>" +
+        "<p><strong>Category:</strong> " + escapeHtml(g.category) + "</p>" +
+        "<p><strong>New puzzle:</strong> " + (g.unlimited ? "Unlimited play" : "Every day") + "</p>" +
+        "<p><strong>Last played:</strong> " + (last ? escapeHtml(last) : "Not played yet") + "</p>" +
+        (isDeadLinkReported(g.id)
+          ? '<p class="dead-reported">Broken link reported</p>'
+          : '<button class="link-btn dp-report" data-report-dead title="Flag this game URL as broken">' + ico("flag") + " Report broken link</button>") +
+      "</div>" +
+      "</div>" + // .dp-col
+      (related.length
+        ? '<section class="rail-sec dp-related">' +
+            '<h2 class="rail-head" style="--cat:' + col + '">More ' + escapeHtml(g.category) + "</h2>" +
+            '<div class="rail">' + related.map(railCardHtml).join("") + "</div>" +
+          "</section>"
         : "")
     );
   }
@@ -2381,8 +2577,13 @@
     return { matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null };
   }
 
-  grid.addEventListener("click", function (e) {
-    var card = e.target.closest(".card");
+  // Anything that opens a game on click: grid/list cards, rail cards, the hero, chart rows.
+  var CARD_SEL = ".card, .hero, .chart-row";
+
+  function onCardClick(e) {
+    var catLink = e.target.closest("[data-home-cat]");
+    if (catLink) { selectCategory(catLink.dataset.homeCat); return; }
+    var card = e.target.closest(CARD_SEL);
     if (!card) return;
     var id = card.dataset.id;
 
@@ -2408,35 +2609,51 @@
         else patchCard(id);
       } else if (btn.dataset.act === "info") {
         openDetail(id);
+      } else if (btn.dataset.act === "play") {
+        openGame(card.dataset.url, id);
       }
       return;
     }
-    // clicked the card body -> play
+    // clicked the card body -> play (the hero plays only from its Play button)
+    if (card.classList.contains("hero")) return;
     openGame(card.dataset.url, id);
-  });
+  }
 
   // keyboard: Enter/Space on a focused card plays it
-  grid.addEventListener("keydown", function (e) {
+  function onCardKey(e) {
     if (e.key !== "Enter" && e.key !== " ") return;
-    var card = e.target.closest(".card");
-    if (card && !e.target.closest("button")) {
+    var card = e.target.closest(CARD_SEL);
+    if (card && !card.classList.contains("hero") && !e.target.closest("button")) {
       e.preventDefault();
       openGame(card.dataset.url, card.dataset.id);
     }
-  });
+  }
 
-  // Replace one card in place (keeps scroll position on toggle).
+  grid.addEventListener("click", onCardClick);
+  grid.addEventListener("keydown", onCardKey);
+  homeEl.addEventListener("click", onCardClick);
+  homeEl.addEventListener("keydown", onCardKey);
+
+  // Same as clicking that category's chip (a rail title on the front page links here).
+  function selectCategory(cat) {
+    var chipBtn = Array.prototype.find.call(chipsEl.children, function (c) { return c.dataset.cat === cat; });
+    if (chipBtn) chipBtn.click();
+  }
+
+  // Replace every rendering of one game in place (keeps scroll position on toggle). On the
+  // front page a game can appear several times at once (hero, chart, rails, grid).
   function patchCard(id) {
     var g = itemById[id];
     if (!g) return;
-    var old = grid.querySelector('.card[data-id="' + CSS.escape(id) + '"]');
+    var olds = document.querySelectorAll('main [data-id="' + CSS.escape(id) + '"]');
     // Not currently rendered (lazy list or filtered out) — just refresh stats;
     // the card will reflect live state whenever it next renders. Avoids a full
     // re-render that would reset scroll position.
-    if (!old) { updateStats(currentList.length); return; }
-    var tmp = document.createElement("div");
-    tmp.innerHTML = cardHtml(g);
-    old.replaceWith(tmp.firstChild);
+    Array.prototype.forEach.call(olds, function (old) {
+      var tmp = document.createElement("div");
+      tmp.innerHTML = cardFor(old, g);
+      old.replaceWith(tmp.firstChild);
+    });
     updateStats(currentList.length);
   }
 

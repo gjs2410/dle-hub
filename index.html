@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>DLE Hub — Your Daily -dle Games</title>
   <meta name="description" content="Search, favorite, and track every daily -dle game in one place. Monitor streaks and daily progress across 1,400+ games." />
+  <!-- Archivo is a variable font with a width axis: normal width for body text, the
+       expanded cut (font-stretch: 125%) for headings. Falls back to system fonts offline. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
   <!-- PWA -->
@@ -28,8 +33,16 @@
         </span>
         <div>
           <h1>DLE Hub</h1>
-          <p class="tagline">Every daily <span class="mono">-dle</span> game, in one place.</p>
         </div>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input id="search" type="search" placeholder="Search games, descriptions, categories…" autocomplete="off" spellcheck="false" />
+        <button id="clearSearch" class="clear-btn" title="Clear search" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="header-btns">
         <button id="accountBtn" class="icon-btn icon-btn--account" title="Account / cloud sync" aria-label="Account" hidden>
@@ -59,18 +72,26 @@
       </button>
     </div>
 
-    <div class="stats" id="stats" aria-live="polite"></div>
-
-    <div class="toolbar">
-      <div class="search-wrap">
-        <span class="search-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        </span>
-        <input id="search" type="search" placeholder="Search games, descriptions, categories…" autocomplete="off" spellcheck="false" />
-        <button id="clearSearch" class="clear-btn" title="Clear search" aria-label="Clear search" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
+    <!-- Black tagline band under the header row; also carries the streak/progress stats. -->
+    <div class="band" id="band">
+      <div class="band-inner">
+        <p class="band-tagline">Every daily <span class="mono">-dle</span> game, in one place.</p>
+        <div class="stats" id="stats" aria-live="polite"></div>
       </div>
+    </div>
+  </header>
+
+  <main id="mainGrid">
+    <!-- Front page (featured game, top chart, category rails). Rendered by app.js and shown
+         only while no search/filter is active; hidden otherwise so results come first. -->
+    <div id="home" class="home" hidden></div>
+
+    <section class="browse" id="browse">
+    <div class="section-intro" id="browseIntro">
+      <p class="eyebrow">The full library</p>
+      <h2 class="section-title">Browse every game</h2>
+    </div>
+    <div class="toolbar">
       <div class="toggles">
         <button id="favFilter" class="toggle-btn" aria-pressed="false">Favorites</button>
         <button id="routineFilter" class="toggle-btn" aria-pressed="false" title="Show only your routine" hidden>Routine</button>
@@ -99,9 +120,8 @@
     </div>
 
     <div class="chips" id="categoryChips"></div>
-  </header>
+    </section>
 
-  <main id="mainGrid">
     <div id="grid" class="grid"></div>
     <div id="scrollSentinel" aria-hidden="true" hidden></div>
     <div id="emptyState" class="empty" hidden>

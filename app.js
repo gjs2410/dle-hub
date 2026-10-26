@@ -2615,8 +2615,14 @@
     }
     m = text.match(/\b(\d+)\s*(?:m|min|mins|minutes?)\s*(\d+)\s*(?:s|sec|secs|seconds?)\b/i);
     if (m) return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    m = text.match(/\b(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds?)\b/i);
-    if (m) return Math.round(parseFloat(m[1]));
+    // Plain seconds ("42s") only when there's exactly one, and it's at least a second: several
+    // ("Easy: 0.10s · Medium: 0.50s") are per-level splits, and sub-second ones are reaction
+    // times, not how long the game took.
+    var secs = text.match(/\b\d+(?:\.\d+)?\s*(?:s|sec|secs|seconds?)\b/gi);
+    if (secs && secs.length === 1) {
+      var v = parseFloat(secs[0]);
+      if (v >= 1) return Math.round(v);
+    }
     return null;
   }
   function extractScore(text) {
@@ -2637,6 +2643,8 @@
       .replace(/\b(?:19|20)\d{2}\b/g, " ")
       .replace(/\d[\d,.]*\s*%/g, " ")
       .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, " ")
+      .replace(/\b\d+(?:\.\d+)?\s*(?:ms|s|sec|secs|seconds?)\b/gi, " ")   // "0.31s", "42 sec"
+      .replace(/\d+\.\d+/g, " ")                                             // other decimals
       // (same line only: "Puzzle" at the end of one line doesn't own the next line's number)
       .replace(/(?:#|\bno\.?[ \t]*|\bpuzzle[ \t]*|\bday[ \t]*|\bgame[ \t]*|\bedition[ \t]*)\d[\d,]*/gi, " ")
       .replace(/🔥[ \t]*\d+|\bstreak[^\d\n]{0,3}\d+|\d+[ \t]*(?:-?[ \t]*days?)?[ \t]*streak/gi, " ");
@@ -2646,15 +2654,21 @@
   // number over 20 left once the non-scores are masked. The number right after the game's
   // name on the first line is its puzzle number ("Wordle 1,234 …") when anything else
   // follows it, so it's skipped then. Two or more candidates is too ambiguous: no score.
+  var BIG_NUM = "\\d{1,3}(?:,\\d{3})+|\\d+";
+  function toInt(s) { return parseInt(s.replace(/,/g, ""), 10); }
+  // A big "a / b" — Timeguessr's "34,512/50,000", Songless's "17,388 / 50,000" — is a score
+  // out of a maximum. Checked before anything else that could claim the share.
+  function extractBigFraction(text) {
+    var f = maskNonScores(text).match(new RegExp("(" + BIG_NUM + ")\\s*/\\s*(" + BIG_NUM + ")"));
+    if (!f || (toInt(f[2]) <= 30 && toInt(f[1]) <= 30)) return null;
+    var a = toInt(f[1]), b = toInt(f[2]);
+    return a <= b ? { score: a, fraction: { n: a, m: b } } : null;
+  }
   function extractBigScore(text) {
+    var big = extractBigFraction(text);
+    if (big) return big;
     var t = maskNonScores(text);
-    var NUM = "\\d{1,3}(?:,\\d{3})+|\\d+";
-    var toInt = function (s) { return parseInt(s.replace(/,/g, ""), 10); };
-    var f = t.match(new RegExp("(" + NUM + ")\\s*/\\s*(" + NUM + ")"));
-    if (f && (toInt(f[2]) > 30 || toInt(f[1]) > 30)) {
-      var a = toInt(f[1]), b = toInt(f[2]);
-      if (a <= b) return { score: a, fraction: { n: a, m: b } };
-    }
+    var NUM = BIG_NUM;
     var nums = (t.match(new RegExp(NUM, "g")) || []).map(toInt);
     var lead = (t.split("\n")[0] || "").match(new RegExp("^\\s*[^\\d\\n]+?\\s(" + NUM + ")\\b(?!\\s*/)"));
     if (lead && nums.length > 1) nums.splice(nums.indexOf(toInt(lead[1])), 1);
@@ -2719,6 +2733,8 @@
     if (!hasGrid && fSolved === null) {
       // No grid, no n/m — try a time, hints used, then a score, then plain solved/failed wording.
       var nameHint = extractNameHint(text);
+      var bigFrac = extractBigFraction(text);
+      if (bigFrac) return withExtras(text, { solved: !/\b(failed|lost)\b/i.test(text), value: bigFrac.score, resultType: "score", fraction: bigFrac.fraction, nameHint: nameHint });
       var timeSec = extractTimeSeconds(text);
       if (timeSec != null) return withExtras(text, { solved: true, value: timeSec, resultType: "time", nameHint: nameHint });
       var hints = extractHints(text);

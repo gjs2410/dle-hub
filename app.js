@@ -1038,6 +1038,7 @@
     if (feat) html += heroHtml(feat);
     html += trackerCardHtml();
     html += lastPlayedRailHtml();
+    html += cityCardHtml();
 
     var mine = routine.map(function (id) { return itemById[id]; }).filter(Boolean);
     html += railHtml("Your routine", mine, "var(--accent)");
@@ -1137,6 +1138,142 @@
         '<div class="rail">' + fresh.slice(0, RAIL_SIZE).map(function (g) { return railCardHtml(g); }).join("") + "</div>" +
       "</section>"
     );
+  }
+
+  // ---------- my city (see city.js) ----------
+  // Every solve and fail, oldest first, as the events DLECity builds from. Solves come
+  // before fails within a day; `firstTime` marks the first result ever logged for a game.
+  function cityEvents() {
+    var days = Object.keys(history).concat(Object.keys(fails))
+      .filter(function (d, i, all) { return all.indexOf(d) === i; })
+      .sort();
+    var seen = {}, out = [];
+    days.forEach(function (day) {
+      var won = history[day] || [];
+      var lost = (fails[day] || []).filter(function (id) { return won.indexOf(id) === -1; });
+      won.map(function (id) { return [id, true]; }).concat(lost.map(function (id) { return [id, false]; }))
+        .forEach(function (pair) {
+          var id = pair[0], g = gameById[id];
+          var label = "";
+          var vals = guesses[day] && guesses[day][id];
+          if (pair[1] && vals && typeof vals === "object") {
+            var t = Object.keys(vals)[0];
+            if (t) label = describeResultValue(t, vals[t]);
+          }
+          out.push({
+            id: id, name: g ? g.name : id, category: g ? g.category : "Miscellaneous",
+            date: day, solved: pair[1], label: label, firstTime: !seen[id],
+          });
+          seen[id] = true;
+        });
+    });
+    return out;
+  }
+  function cityModel() {
+    return window.DLECity.build(cityEvents(), { streak: currentStreak(), playedToday: !!(history[TODAY] && history[TODAY].length) });
+  }
+
+  function cityCardHtml() {
+    if (!window.DLECity) return "";
+    var m = cityModel();
+    var total = m.solved + m.failed;
+    return (
+      '<section class="city-card">' +
+        '<canvas class="city-preview" id="cityPreview" aria-hidden="true"></canvas>' +
+        '<div class="city-copy">' +
+          '<p class="eyebrow">My City</p>' +
+          '<h2 class="section-title">' + (total ? "Your city has " + m.solved + " building" + (m.solved === 1 ? "" : "s") + "." : "Lay your first brick.") + "</h2>" +
+          '<p class="section-sub">' + (total
+            ? "Every game you solve builds something — libraries for word games, lighthouses for geography, stadiums for sports. Keep your streak alive to keep the lights on."
+            : "Solve any game and a building goes up in your city. Each kind of game builds something different.") + "</p>" +
+          '<button class="pill-btn pill-btn--accent" data-open-city>' + (total ? "Visit your city" : "See your empty plot") + "</button>" +
+        "</div>" +
+      "</section>"
+    );
+  }
+  // The card's preview canvas has to be in the DOM (and sized) before it can be drawn.
+  function drawCityPreview() {
+    var cv = document.getElementById("cityPreview");
+    if (cv && window.DLECity) { try { window.DLECity.preview(cv, cityModel()); } catch (e) { /* never break the page over the city */ } }
+  }
+
+  var cityView = null;
+  function renderCityPage() {
+    currentDetailId = null;
+    if (!window.DLECity) { navigateTo(""); return; }
+    var m = cityModel();
+    var lm = m.landmark, next = m.nextLandmark;
+    var stat = function (n, label) { return '<div class="city-stat"><b>' + n + "</b><span>" + label + "</span></div>"; };
+    showPage("My City",
+      '<header class="dp-head coll-head city-head">' +
+        '<p class="eyebrow">My City</p>' +
+        '<h1 class="dp-title">' + (m.solved ? "Population " + (m.solved * 37 + m.failed * 4).toLocaleString() : "An empty plot") + "</h1>" +
+        '<p class="dp-hook">' + (m.powered
+          ? "Your " + m.streak + "-day streak keeps the lights on and the traffic moving."
+          : (m.solved ? "Your city has gone quiet — solve a game today to switch the lights back on." : "Solve a game and your first building goes up here.")) + "</p>" +
+      "</header>" +
+      '<div class="city-stats">' +
+        stat(m.solved, "buildings") + stat(m.failed, "trees") + stat(m.districts, "districts") + stat(m.streak, "day streak") +
+      "</div>" +
+      '<div class="city-stage">' +
+        '<canvas class="city-canvas" id="cityCanvas" aria-label="Your pixel city"></canvas>' +
+        '<div class="city-tools">' +
+          '<button class="pill-btn pill-btn--icon" data-city-zoom="1.25" aria-label="Zoom in">+</button>' +
+          '<button class="pill-btn pill-btn--icon" data-city-zoom="0.8" aria-label="Zoom out">−</button>' +
+          '<button class="pill-btn" data-city-fit>Fit</button>' +
+          '<button class="pill-btn" data-city-save>Save image</button>' +
+        "</div>" +
+        '<div class="city-info" id="cityInfo">Tap a building to see when you built it.</div>' +
+      "</div>" +
+      '<div class="dp-col">' +
+        '<h2 class="dp-h">Landmark</h2>' +
+        '<div class="dp-box dp-about">' +
+          "<p><strong>" + escapeHtml(lm.label) + "</strong> stands in your town square.</p>" +
+          (next
+            ? "<p>Next: <strong>" + escapeHtml(next.label) + "</strong> at " + next.at + " solved games — " + (next.at - m.solved) + " to go.</p>"
+            : "<p>You've built every landmark. Legend.</p>") +
+        "</div>" +
+        '<h2 class="dp-h">What builds what</h2>' +
+        '<div class="dp-box city-legend">' +
+          "<p>Words → library · Math/Logic → clock tower · Geography → lighthouse · Music → concert hall · Sports → stadium · Movies/TV → cinema · Video Games → arcade · Trivia → museum · History → keep · Science/Nature → greenhouse · Food → café · and so on.</p>" +
+          "<p>A failed game plants a tree. A pennant marks the first time you played a game. Lights, street lamps and traffic run while your streak is alive.</p>" +
+        "</div>" +
+      "</div>");
+    var canvas = document.getElementById("cityCanvas");
+    if (cityView) cityView.destroy();
+    cityView = window.DLECity.mount(canvas, m, {
+      onPick: function (info) {
+        var box = document.getElementById("cityInfo");
+        if (!box) return;
+        box.textContent = "";
+        if (!info) { box.textContent = "Tap a building to see when you built it."; return; }
+        var b = document.createElement("b"); b.textContent = info.title;
+        var s = document.createElement("span"); s.textContent = info.sub;
+        box.appendChild(b); box.appendChild(s);
+        if (info.id && gameById[info.id]) {
+          var link = document.createElement("button");
+          link.className = "link-btn"; link.textContent = "Open game page →";
+          link.addEventListener("click", function () { openDetail(info.id); });
+          box.appendChild(link);
+        }
+      },
+    });
+  }
+  function onCityToolClick(e) {
+    if (!cityView) return;
+    var z = e.target.closest("[data-city-zoom]");
+    if (z) { cityView.zoomBy(parseFloat(z.dataset.cityZoom)); return; }
+    if (e.target.closest("[data-city-fit]")) { cityView.fit(); return; }
+    if (e.target.closest("[data-city-save]")) {
+      // The city at 3x, nearest-neighbour, as a PNG download.
+      var src = cityView.png(), out = document.createElement("canvas");
+      out.width = src.width * 3; out.height = src.height * 3;
+      var c = out.getContext("2d"); c.imageSmoothingEnabled = false;
+      c.drawImage(src, 0, 0, out.width, out.height);
+      var a = document.createElement("a");
+      a.download = "my-dle-city.png"; a.href = out.toDataURL("image/png");
+      a.click();
+    }
   }
 
   // ---------- collections ----------
@@ -1240,6 +1377,7 @@
     homeEl.hidden = !on;
     browseIntroEl.hidden = !on;
     homeEl.innerHTML = on ? homeHtml() : "";
+    if (on) drawCityPreview();
   }
 
   // Re-renders a card-like element for game `g` in whichever form it was drawn.
@@ -1673,6 +1811,7 @@
 
   // Click/change handling shared between the settings/paste modal and the game/hub page view.
   function onContentClick(e) {
+    if (e.target.closest(".city-tools")) { onCityToolClick(e); return; }
     var collLink = e.target.closest("[data-collection]");
     if (collLink) { openCollection(collLink.dataset.collection); return; }
     // "More <category>" rail on a game page: its buttons act like anywhere else and "Play
@@ -1739,6 +1878,7 @@
     if (g) return { type: "game", id: decodeURIComponent(g[1]) };
     var c = location.hash.match(/[#&]c=([^&]+)/);
     if (c) return { type: "collection", id: decodeURIComponent(c[1]) };
+    if (/^#city$/.test(location.hash)) return { type: "city" };
     return { type: "grid" };
   }
   function navigateTo(hashValue) {
@@ -1755,7 +1895,10 @@
     var r = parseRoute();
     if (r.type === "game") renderGamePage(r.id);
     else if (r.type === "collection") renderCollectionPage(r.id);
+    else if (r.type === "city") renderCityPage();
     else hidePage();
+    // Leaving the city page: stop its animation loop and resize listener.
+    if (r.type !== "city" && cityView) { cityView.destroy(); cityView = null; }
   }
   // Remembers where the grid was scrolled to before opening a game page, so returning to
   // it lands back on the game you came from instead of wherever the detail page's own
@@ -2876,6 +3019,7 @@
     if (catLink) { selectCategory(catLink.dataset.homeCat); return; }
     var collLink = e.target.closest("[data-collection]");
     if (collLink) { openCollection(collLink.dataset.collection); return; }
+    if (e.target.closest("[data-open-city]")) { navigateTo("city"); return; }
     var card = e.target.closest(CARD_SEL);
     if (!card) return;
     var id = card.dataset.id;

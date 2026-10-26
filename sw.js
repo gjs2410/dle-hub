@@ -7,6 +7,7 @@ const SHELL = [
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./city.js",
   "./games.js",
   "./supabase-config.js",
   "./sync.js",

@@ -3448,6 +3448,35 @@
     }, { passive: true });
   })();
 
+  // ---------- phone header: slide away while scrolling down, back on scroll up ----------
+  // The header (logo, search, band, Back row) is ~195px on a phone — a quarter of the
+  // screen. On a page the Back row stays in view; only the rows above it slide off.
+  (function () {
+    var phone = window.matchMedia && window.matchMedia("(max-width: 560px)");
+    var header = document.querySelector(".app-header");
+    var topbar = document.getElementById("pageTopbar");
+    if (!phone || !header) return;
+    var lastY = window.scrollY, ticking = false;
+    function update() {
+      ticking = false;
+      var y = window.scrollY, dy = y - lastY;
+      var focused = header.contains(document.activeElement) && document.activeElement !== document.body;
+      if (!phone.matches || y < 80 || focused || dy < -6) {
+        document.body.classList.remove("hdr-hidden");
+      } else if (dy > 6) {
+        var hide = document.body.classList.contains("page-open") && topbar ? topbar.offsetTop : header.offsetHeight;
+        header.style.setProperty("--hdr-hide", hide + "px");
+        document.body.classList.add("hdr-hidden");
+      } else return; // tiny jitter: keep the state, and keep measuring from the old point
+      lastY = y;
+    }
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+  })();
+
   // ---------- service worker (offline / installable PWA) ----------
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     window.addEventListener("load", function () {

@@ -1303,3 +1303,15 @@ body.page-open .page-topbar { display: flex; }
   .band .stats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .band .stat { flex-shrink: 0; }
 }
+
+/* ---------- phone layout ---------- */
+@media (max-width: 560px) {
+  /* The header slides up while you scroll down (see app.js) — on a page, only as far as
+     the Back row, which stays pinned. */
+  .app-header { transition: transform .22s ease; }
+  body.hdr-hidden .app-header { transform: translateY(calc(env(safe-area-inset-top) - var(--hdr-hide, 0px))); }
+
+  /* Collection pages: two cards per row instead of one screen-wide card. */
+  .coll-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 10px; margin-inline: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .app-header { transition: none; } }

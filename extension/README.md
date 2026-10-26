@@ -18,8 +18,17 @@ Wordle 1,234 4/6
 
 The extension reads that at copy time, parses **solved vs failed** and the **guess count**, and queues it.
 
-### 2. Auto-detect on popular games (no Share needed)
-On supported sites the extension also polls `localStorage` for a finished game state and records it automatically. Currently includes:
+The hook also catches the phone **share sheet** (`navigator.share`). The raw share text is
+sent along to the hub, whose own parser also understands times (`⏱ 1:42`), scores, hints
+and `8/10 correct`.
+
+### 2. Auto-detect when a game ends (no Share needed)
+**Any game:** most daily games keep running stats in `localStorage` — games played, games
+won, a guess distribution. The extension snapshots those when the game page loads; the
+moment the *played* counter goes up, a game just ended: the won/failed counters say how it
+went and the distribution bucket that grew gives the guess count. No per-site setup.
+
+**Hand-tuned detectors** for a few popular games that don't keep stats that way:
 
 - **NYT Wordle** (`nytimes.com/games/wordle`)
 - **Nerdle** (`nerdlegame.com` and subdomains)
@@ -27,7 +36,11 @@ On supported sites the extension also polls `localStorage` for a finished game s
 - **Waffle** (`wafflegame.net`)
 - **Quordle**, **Octordle**, **Dordle**, **Heardle**
 
-Detection is best-effort — games change their storage format over time. If auto-detect misses one, the Share hook still works.
+Detection is best-effort — games change their storage format over time, and games that only
+keep stats on their server can't be seen. If auto-detect misses one, the Share hook still works.
+
+When the hub is open with the extension installed, its black band shows **⚡ Auto-tracking on**.
+Results from a site with several games (one per mode) are matched by the page's URL path.
 
 Results appear in the hub when you **open or focus** the hub tab (polled every few seconds), not only on full page load.
 
@@ -47,7 +60,8 @@ Results appear in the hub when you **open or focus** the hub tab (polled every f
 
 ## Limitations (honest)
 
-- Auto-detect only covers a handful of popular games; everything else still works via **Share**.
+- Auto-detect needs the game to keep its stats in the browser (most do); games that store them only on their server, or that only start counting after you finish, fall back to **Share**.
+- A result only counts if it ends while the game's tab is open — finishing a game, closing it, and reopening later is fine, but stats that were already updated before the page loaded can't be noticed.
 - It triggers on **sharing** when auto-detect doesn't apply — if you never press Share and the game isn't supported for detection, use the hub's manual Solved/Failed.
 - Games whose share text isn't a `n/6`-style format may not parse reliably — use the hub's paste modal for those.
 - Results sync to the hub when the tab is **open/focused** (polled every ~4s).

@@ -4,6 +4,8 @@
   // ---------- data ----------
   var DATA = (window.GAMES_DATA && window.GAMES_DATA.games) || [];
   var ALL_CATEGORIES = (window.GAMES_DATA && window.GAMES_DATA.categories) || [];
+  // Themed collections (Playlin's curated ones + keyword themes): [{ id, title, blurb, source, games: [ids] }]
+  var COLLECTIONS = (window.GAMES_DATA && window.GAMES_DATA.collections) || [];
 
   // Per-category colors (listdle-style color-coded badges).
   var CATEGORY_COLORS = {
@@ -994,10 +996,37 @@
     return (b.thumbnail ? 1 : 0) - (a.thumbnail ? 1 : 0) || itemPopularity(b) - itemPopularity(a) || a.name.localeCompare(b.name);
   }
 
+  // Front-page prompt to install the Auto-Tracker extension; hidden once the extension says
+  // hello (see the "dle-extension" message listener) or when dismissed.
+  var EXTENSION_URL = "https://github.com/gjs2410/dle-hub/tree/main/extension";
+  function trackerCardHtml() {
+    if (trackerVersion || prefs.hideTrackerTip) return "";
+    return (
+      '<section class="tracker-card">' +
+        '<div class="tracker-copy">' +
+          '<p class="eyebrow">Hands-free</p>' +
+          '<h2 class="section-title">Track every result automatically.</h2>' +
+          '<p class="section-sub">Install the DLE Hub Auto-Tracker browser extension and just play: it notices when a game ends (or when you press Share) and logs the solve, fail and guess count here — no clicking Solved.</p>' +
+        "</div>" +
+        '<ol class="tracker-steps">' +
+          '<li><b>Get the extension</b> — the <a href="' + EXTENSION_URL + '" target="_blank" rel="noopener">extension folder</a> of this project.</li>' +
+          "<li><b>Load it</b> — Chrome/Edge: <code>chrome://extensions</code> → Developer mode → Load unpacked. Firefox: <code>about:debugging</code> → Load Temporary Add-on.</li>" +
+          "<li><b>Play</b> — results show up here when you come back to this tab.</li>" +
+        "</ol>" +
+        '<button class="tracker-dismiss" data-tracker-dismiss aria-label="Hide this tip">✕</button>' +
+      "</section>"
+    );
+  }
+  function renderTrackerNote() {
+    var el = homeEl.querySelector(".tracker-card");
+    if (el && !trackerCardHtml()) el.remove();
+  }
+
   function homeHtml() {
     var html = "";
     var feat = featuredGame();
     if (feat) html += heroHtml(feat);
+    html += trackerCardHtml();
 
     var mine = routine.map(function (id) { return itemById[id]; }).filter(Boolean);
     html += railHtml("Your routine", mine, "var(--accent)");
@@ -1007,6 +1036,8 @@
     var top = ITEMS.slice().sort(function (a, b) { return itemPopularity(b) - itemPopularity(a); }).slice(0, 10);
     if (top.length && itemPopularity(top[0]) > 0) html += chartHtml(top);
 
+    html += collectionTilesHtml();
+
     html +=
       '<div class="section-intro">' +
         '<p class="eyebrow">Browse by category</p>' +
@@ -1014,12 +1045,104 @@
       "</div>";
     var byCat = {};
     ITEMS.forEach(function (g) { (byCat[g.category] = byCat[g.category] || []).push(g); });
+    // A few collections, rotating daily, are woven in as rails after every third category.
+    var featured = featuredCollections(4);
     Object.keys(byCat)
       .sort(function (a, b) { return byCat[b].length - byCat[a].length; })
-      .forEach(function (cat) {
+      .forEach(function (cat, i) {
         html += railHtml(cat, byCat[cat].sort(byPopularity).slice(0, RAIL_SIZE), colorFor(cat), cat);
+        if (i % 3 === 2 && featured.length) html += collectionRailHtml(featured.shift());
       });
+    featured.forEach(function (c) { html += collectionRailHtml(c); });
     return html;
+  }
+
+  // ---------- collections ----------
+  function collectionById(id) {
+    for (var i = 0; i < COLLECTIONS.length; i++) if (COLLECTIONS[i].id === id) return COLLECTIONS[i];
+    return null;
+  }
+  function collectionGames(c) {
+    return c.games.map(function (id) { return itemById[id]; }).filter(Boolean);
+  }
+  // Stable per date (like the game of the day), so the front page changes daily.
+  function featuredCollections(n) {
+    var pool = COLLECTIONS.filter(function (c) { return collectionGames(c).length >= 5; });
+    var out = [];
+    var h = hashStr("collections" + TODAY);
+    while (pool.length && out.length < n) {
+      out.push(pool.splice(h % pool.length, 1)[0]);
+      h = (h * 31 + 7) >>> 0;
+    }
+    return out;
+  }
+  // Up to three screenshots for a tile's collage, preferring games that have one.
+  function collageHtml(games) {
+    var shots = games.filter(function (g) { return g.thumbnail; }).slice(0, 3);
+    if (!shots.length) shots = games.slice(0, 3);
+    return '<div class="coll-collage">' + shots.map(function (g) {
+      return "<div " + shotAttrs(g, "coll-shot") + "></div>";
+    }).join("") + "</div>";
+  }
+  function collectionTileHtml(c) {
+    var games = collectionGames(c);
+    return (
+      '<button class="coll-tile" data-collection="' + escapeHtml(c.id) + '">' +
+        collageHtml(games) +
+        '<span class="coll-body">' +
+          '<span class="coll-title">' + escapeHtml(c.title) + "</span>" +
+          (c.blurb ? '<span class="coll-blurb">' + escapeHtml(c.blurb) + "</span>" : "") +
+          '<span class="coll-foot"><span>' + games.length + " games</span><span aria-hidden=\"true\">→</span></span>" +
+        "</span>" +
+      "</button>"
+    );
+  }
+  function collectionTilesHtml() {
+    if (!COLLECTIONS.length) return "";
+    // DLE themes first (they're the broadest), then Playlin's curated picks.
+    var ordered = COLLECTIONS.filter(function (c) { return c.source === "theme"; })
+      .concat(COLLECTIONS.filter(function (c) { return c.source !== "theme"; }));
+    return (
+      '<section class="coll-sec">' +
+        '<div class="section-intro">' +
+          '<p class="eyebrow">Collections</p>' +
+          '<h2 class="section-title">Pick a theme, find a favourite.</h2>' +
+        "</div>" +
+        '<div class="rail coll-rail">' + ordered.map(collectionTileHtml).join("") + "</div>" +
+      "</section>"
+    );
+  }
+  function collectionRailHtml(c) {
+    var games = collectionGames(c);
+    return (
+      '<section class="rail-sec rail-sec--collection">' +
+        '<h2 class="rail-head" style="--cat:var(--accent)">' +
+          '<button class="rail-link" data-collection="' + escapeHtml(c.id) + '">' + escapeHtml(c.title) + ' <span aria-hidden="true">›</span></button>' +
+        "</h2>" +
+        (c.blurb ? '<p class="rail-blurb">' + escapeHtml(c.blurb) + "</p>" : "") +
+        '<div class="rail">' + games.slice(0, RAIL_SIZE).map(railCardHtml).join("") + "</div>" +
+      "</section>"
+    );
+  }
+  function openCollection(id) {
+    navigateTo("c=" + encodeURIComponent(id));
+  }
+  function renderCollectionPage(id) {
+    var c = collectionById(id);
+    if (!c) { navigateTo(""); return; }
+    currentDetailId = null;
+    var games = collectionGames(c);
+    var doneCount = games.filter(function (g) { return isDoneToday(g.id); }).length;
+    showPage(c.title,
+      '<header class="dp-head coll-head">' +
+        '<p class="eyebrow">' + (c.source === "theme" ? "DLE Hub collection" : "Collection · curated by Playlin") + "</p>" +
+        '<h1 class="dp-title">' + escapeHtml(c.title) + "</h1>" +
+        (c.blurb ? '<p class="dp-hook">' + escapeHtml(c.blurb) + "</p>" : "") +
+        '<div class="dp-chips"><span class="dp-chip">' + games.length + " games</span>" +
+          (doneCount ? '<span class="dp-chip dp-chip--done">' + ico("check") + " " + doneCount + " solved today</span>" : "") +
+        "</div>" +
+      "</header>" +
+      '<div class="coll-grid">' + games.map(railCardHtml).join("") + "</div>");
   }
 
   function renderHome() {
@@ -1123,6 +1246,7 @@
     } else if (doneToday > 0) {
       parts.push('<span class="stat progress"><b>' + doneToday + "</b> done today</span>");
     }
+    if (trackerVersion) parts.push('<span class="stat stat-tracker" title="The DLE Hub Auto-Tracker extension records results as you play">⚡ Auto-tracking on</span>');
     parts.push('<span class="stat"><b>' + DATA.length + "</b> games</span>");
     parts.push('<span class="stat"><b>' + favCount + "</b> favorites</span>");
     statsEl.innerHTML = parts.join("");
@@ -1455,6 +1579,8 @@
 
   // Click/change handling shared between the settings/paste modal and the game/hub page view.
   function onContentClick(e) {
+    var collLink = e.target.closest("[data-collection]");
+    if (collLink) { openCollection(collLink.dataset.collection); return; }
     // "More <category>" rail on a game page: its buttons act like anywhere else and "Play
     // today" plays; the rest of the card opens that game's page.
     var railCard = e.target.closest(".rail-card");
@@ -1516,7 +1642,10 @@
 
   function parseRoute() {
     var g = location.hash.match(/[#&]g=([^&]+)/);
-    return g ? { type: "game", id: decodeURIComponent(g[1]) } : { type: "grid" };
+    if (g) return { type: "game", id: decodeURIComponent(g[1]) };
+    var c = location.hash.match(/[#&]c=([^&]+)/);
+    if (c) return { type: "collection", id: decodeURIComponent(c[1]) };
+    return { type: "grid" };
   }
   function navigateTo(hashValue) {
     if (hashValue) {
@@ -1531,6 +1660,7 @@
   function applyRoute() {
     var r = parseRoute();
     if (r.type === "game") renderGamePage(r.id);
+    else if (r.type === "collection") renderCollectionPage(r.id);
     else hidePage();
   }
   // Remembers where the grid was scrolled to before opening a game page, so returning to
@@ -1744,6 +1874,13 @@
         "<p><strong>Category:</strong> " + escapeHtml(g.category) + "</p>" +
         "<p><strong>New puzzle:</strong> " + (g.unlimited ? "Unlimited play" : "Every day") + "</p>" +
         "<p><strong>Last played:</strong> " + (last ? escapeHtml(last) : "Not played yet") + "</p>" +
+        (function () {
+          var inColls = COLLECTIONS.filter(function (c) { return c.games.indexOf(g.id) !== -1; });
+          if (!inColls.length) return "";
+          return "<p><strong>In collections:</strong> " + inColls.map(function (c) {
+            return '<button class="link-btn dp-coll-link" data-collection="' + escapeHtml(c.id) + '">' + escapeHtml(c.title) + "</button>";
+          }).join(", ") + "</p>";
+        })() +
         (isDeadLinkReported(g.id)
           ? '<p class="dead-reported">Broken link reported</p>'
           : '<button class="link-btn dp-report" data-report-dead title="Flag this game URL as broken">' + ico("flag") + " Report broken link</button>") +
@@ -2542,13 +2679,53 @@
     showToast("Surprise: " + g.name);
   }
 
+  // The games a result from host + path belongs to: an exact host match, else its parent
+  // domains (mini.nerdlegame.com -> nerdlegame.com). When several games share a host (one
+  // site, many modes), the ones whose URL path the result's path starts with win, longest
+  // path first.
+  function candidatesFor(host, path) {
+    var parts = host.split(".");
+    var list = null;
+    for (var i = 0; i < parts.length - 1 && !list; i++) list = gamesByHost[parts.slice(i).join(".")];
+    if (!list || list.length < 2 || !path) return list || [];
+    var scored = list.map(function (g) {
+      var p = "";
+      try { p = new URL(g.url).pathname.replace(/\/$/, ""); } catch (e) {}
+      return { g: g, len: p && path.indexOf(p) === 0 ? p.length : -1 };
+    }).filter(function (s) { return s.len >= 0; });
+    if (!scored.length) return list;
+    scored.sort(function (a, b) { return b.len - a.len; });
+    return scored.map(function (s) { return s.g; });
+  }
+
+  var trackerVersion = null; // set when the browser extension says hello
+  var unmatchedHosts = {};
+
   // Ingest a result captured by the browser extension (share text or auto-detect).
-  // payload: { host, name?, solved, guesses?, resultType?, value? }
+  // payload: { host, path?, name?, solved, guesses?, resultType?, value?, text? }
+  // When the raw share text is included, the hub's own parser reads it (it knows times,
+  // scores, hints and "n/m correct", which the extension's quick read doesn't).
   function recordResult(payload) {
     if (!payload || !payload.host) return { matched: false };
+    if (payload.text) {
+      var p = parseShareText(payload.text);
+      if (p) {
+        payload.solved = p.solved;
+        payload.resultType = p.resultType === "winloss" ? undefined : p.resultType;
+        payload.value = p.value;
+        payload.guesses = p.resultType === "guesses" ? p.value : null;
+      }
+    }
+    if (typeof payload.solved !== "boolean") return { matched: false };
     var host = String(payload.host).replace(/^www\./, "").toLowerCase();
-    var candidates = gamesByHost[host];
-    if (!candidates || !candidates.length) return { matched: false };
+    var candidates = candidatesFor(host, payload.path || "");
+    if (!candidates.length) {
+      if (!unmatchedHosts[host]) {
+        unmatchedHosts[host] = true;
+        showToast("Got a result from " + host + ", but it isn't a game in DLE Hub.");
+      }
+      return { matched: false };
+    }
     var g = candidates[0];
     if (candidates.length > 1 && payload.name) {
       var nm = String(payload.name).toLowerCase();
@@ -2581,8 +2758,16 @@
   var CARD_SEL = ".card, .hero, .chart-row";
 
   function onCardClick(e) {
+    if (e.target.closest("[data-tracker-dismiss]")) {
+      prefs.hideTrackerTip = true;
+      savePrefs();
+      renderTrackerNote();
+      return;
+    }
     var catLink = e.target.closest("[data-home-cat]");
     if (catLink) { selectCategory(catLink.dataset.homeCat); return; }
+    var collLink = e.target.closest("[data-collection]");
+    if (collLink) { openCollection(collLink.dataset.collection); return; }
     var card = e.target.closest(CARD_SEL);
     if (!card) return;
     var id = card.dataset.id;
@@ -2901,8 +3086,12 @@
   window.addEventListener("message", function (e) {
     if (e.source !== window) return;
     var d = e.data;
-    if (!d || d.source !== "dle-extension" || !d.payload) return;
-    recordResult(d.payload);
+    if (!d || d.source !== "dle-extension") return;
+    if (d.hello) {
+      if (!trackerVersion) { trackerVersion = d.version || "?"; updateStats(currentList.length); renderTrackerNote(); }
+      return;
+    }
+    if (d.payload) recordResult(d.payload);
   });
 
   // ---------- boot ----------

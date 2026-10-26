@@ -21,6 +21,9 @@
  * a game found in several sources keeps the first source's category but back-fills
  * any missing description / thumbnail / unlimited flag / popularity from the others.
  *
+ * Collections: Playlin's curated collections (e.g. "Games like Connections") plus DLE Hub's
+ * own keyword themes (THEMES below) are written alongside the games as lists of game ids.
+ *
  * Output:
  *   data/games.json  -> the dataset (portable JSON)
  *   games.js         -> same data as `window.GAMES_DATA` so the site runs from file://
@@ -50,6 +53,26 @@ const LISTDLE_URL = "https://listdle.com/";
 // category/sub-category/collection listing page; the listings are crawled for game cards
 // (de-duped by slug), and the few games no listing shows are read from their own page.
 const PLAYLIN_SITEMAP = "https://playlin.io/_playlin-sitemap-0.xml";
+// Playlin collections that are its own internal plumbing or date-relative lists, not themes.
+const PLAYLIN_SKIP_COLLECTIONS = /^(featured-|top-10|trending-social|indie-spotlight|my-dailies-starter-pack|recently-added|just-added|icymi|guide-|wordle-like-but-not)/;
+
+// DLE Hub's own themed collections, matched on name + description across every source.
+// A theme only appears when at least MIN_COLLECTION games match it.
+const MIN_COLLECTION = 5;
+const THEMES = [
+  { id: "pokemon", title: "Gotta Guess 'Em All", blurb: "Pokémon dles for trainers of every generation.", re: /pok[eé]mon|pok[eé]dle|pikachu/i },
+  { id: "football", title: "Football Fanatics", blurb: "Players, clubs, kits and transfers — the beautiful game, daily.", re: /\b(football(?!.*american)|soccer|premier league|la liga|champions league|fifa|futbol|footballer)\b/i },
+  { id: "basketball", title: "Hoops & Hardwood", blurb: "Daily guessing for basketball heads.", re: /\b(basketball|nba|wnba)\b/i },
+  { id: "motorsport", title: "Lights Out", blurb: "F1 drivers, circuits and motorsport trivia.", re: /\b(formula ?1|f1|motorsport|nascar|grand prix|racing driver)\b/i },
+  { id: "anime", title: "Anime Night", blurb: "Characters, openings and arcs from your favourite anime.", re: /\b(anime|manga|naruto|one piece|dragon ball|jujutsu|attack on titan)\b/i },
+  { id: "flags", title: "Flag Spotters", blurb: "Name the country from its colours and stripes.", re: /\bflags?\b/i },
+  { id: "minecraft", title: "Blocky Worlds", blurb: "Minecraft mobs, items and recipes.", re: /minecraft/i },
+  { id: "esports", title: "Esports Arena", blurb: "Champions, agents and heroes from the big competitive games.", re: /league of legends|\blol\b|valorant|dota|overwatch|counter.?strike|\bcs2\b/i },
+  { id: "timeline", title: "Timeline Thinkers", blurb: "Put events, inventions and releases in the right order.", re: /\b(timeline|chronolog\w*|in order|which came first|what year|guess the year)\b/i },
+  { id: "emoji", title: "Emoji Decoders", blurb: "Read the emojis, name the answer.", re: /emoji/i },
+  { id: "music-artists", title: "Name That Tune", blurb: "Hear a snippet, guess the song or artist.", re: /\b(song|songs|lyrics?|album|artist|heardle|spotify)\b/i },
+  { id: "unlimited", title: "Play All Day", blurb: "No daily limit — keep going as long as you like.", unlimited: true },
+];
 // Top-level category slug -> its label (category pages don't print a pill on each card,
 // since the page itself is the category). Also the fallback crawl list if the sitemap fails.
 const PLAYLIN_CATEGORY_LABELS = {
@@ -362,6 +385,7 @@ async function fetchPlaylin() {
     listings.sort((a, b) => (a.startsWith("/category/") ? 0 : 1) - (b.startsWith("/category/") ? 0 : 1));
 
     const byId = new Map();
+    const collections = [];
     let failures = 0;
     // A game appears on several listings (category, sub-category, collections) — enrich
     // rather than keep only the first occurrence, so the best data for each slug wins.
@@ -376,9 +400,14 @@ async function fetchPlaylin() {
       try {
         // /category/word-games/word-grids/ -> "word-games" -> "word game"
         const top = path.startsWith("/category/") ? path.split("/")[2] : null;
-        parsePlaylinCards(await get(path), top ? PLAYLIN_CATEGORY_LABELS[top] || top : null).forEach((g) => {
+        const html = await get(path);
+        parsePlaylinCards(html, top ? PLAYLIN_CATEGORY_LABELS[top] || top : null).forEach((g) => {
           byId.set(g.slug, enrich(byId.get(g.slug), g));
         });
+        if (path.startsWith("/collections/")) {
+          const c = parsePlaylinCollection(html, path.split("/")[2]);
+          if (c) collections.push(c);
+        }
       } catch (err) {
         failures++;
         console.warn(`  ! playlin${path} failed (${err.message})`);
@@ -397,16 +426,63 @@ async function fetchPlaylin() {
       }
     });
 
+    // Collections list Playlin slugs; swap them for the games' URLs, which survive the merge.
+    playlinCollections = collections
+      .map((c) => ({ ...c, urls: c.slugs.map((s) => byId.get(s) && byId.get(s).url).filter(Boolean) }))
+      .filter((c) => c.urls.length >= MIN_COLLECTION);
+
     const games = [...byId.values()].map(({ slug, ...g }) => ({ ...g, category: g.category || "Miscellaneous" }));
     console.log(
       `  ✓ playlin: ${games.length} games from ${listings.length} listing pages + ${unlisted.length - retired} game pages` +
-      ` (${retired} retired skipped${failures ? `, ${failures} page(s) failed` : ""})`
+      ` (${retired} retired skipped${failures ? `, ${failures} page(s) failed` : ""}), ${playlinCollections.length} collections`
     );
     return games;
   } catch (err) {
     console.warn(`  ! playlin scrape failed (${err.message}); continuing without it`);
     return [];
   }
+}
+
+// Filled by fetchPlaylin: [{ id, title, blurb, slugs, urls }].
+let playlinCollections = [];
+
+// A /collections/<slug>/ page: its title, its blurb, and the games it links to, in order.
+// Collections are written as articles rather than card grids, so games are read from their
+// /game/<slug>/ links between the page header and footer.
+function parsePlaylinCollection(html, slug) {
+  if (!slug || PLAYLIN_SKIP_COLLECTIONS.test(slug)) return null;
+  const og = decodeEntities((html.match(/<meta property="og:title" content="([^"]*)"/) || [])[1] || "");
+  const title = og
+    .replace(/\s*\|\s*Playlin\s*$/, "")
+    .replace(/\s*\|\s*Daily Archive.*$/, "")
+    .replace(/\s*\((Updated|Updated for) \d{4}\)\s*/i, "")
+    .trim();
+  let blurb = decodeEntities((html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "");
+  if (/^Explore .* games on Playlin$/.test(blurb)) blurb = ""; // Playlin's generic filler
+  const start = html.indexOf("</header>");
+  const end = html.lastIndexOf("<footer");
+  const main = html.slice(start > 0 ? start : 0, end > 0 ? end : html.length);
+  const slugs = [...new Set([...main.matchAll(/href="\/game\/([a-z0-9-]+)\/"/g)].map((m) => m[1]))];
+  return title ? { id: `playlin-${slug}`, title, blurb, slugs } : null;
+}
+
+// Final collections: Playlin's curated ones, then DLE Hub's keyword themes, each as a list
+// of game ids from the finished dataset. Collections with too few known games are dropped.
+function buildCollections(games) {
+  const idByUrl = new Map(games.map((g) => [urlKey(g.url), g.id]));
+  const out = [];
+  playlinCollections.forEach((c) => {
+    const ids = [...new Set(c.urls.map((u) => idByUrl.get(urlKey(u))).filter(Boolean))];
+    if (ids.length >= MIN_COLLECTION) out.push({ id: c.id, title: c.title, blurb: c.blurb, source: "playlin", games: ids });
+  });
+  THEMES.forEach((t) => {
+    const ids = games
+      .filter((g) => (t.unlimited ? g.unlimited : t.re.test(`${g.name} ${g.description}`)))
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0) || (b.thumbnail ? 1 : 0) - (a.thumbnail ? 1 : 0))
+      .map((g) => g.id);
+    if (ids.length >= MIN_COLLECTION) out.push({ id: `theme-${t.id}`, title: t.title, blurb: t.blurb, source: "theme", games: ids });
+  });
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -580,7 +656,10 @@ async function main() {
   console.log(`With thumbnail:   ${withThumb}`);
   console.log(`Categories (${categories.length}): ${categories.join(", ")}`);
 
-  const payload = { generatedAt: new Date().toISOString(), count: games.length, categories, games };
+  const collections = buildCollections(games);
+  console.log(`Collections (${collections.length}): ${collections.map((c) => `${c.title} (${c.games.length})`).join(", ")}`);
+
+  const payload = { generatedAt: new Date().toISOString(), count: games.length, categories, collections, games };
 
   await mkdir(join(__dirname, "data"), { recursive: true });
   await writeFile(join(__dirname, "data", "games.json"), JSON.stringify(payload, null, 2), "utf8");

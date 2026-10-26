@@ -159,6 +159,100 @@
     }
   }
 
+  // Generic — any other game. Most daily games keep running stats in localStorage, in
+  // shapes like { gamesPlayed, gamesWon, guesses: { 1: 0, 2: 3, ..., fail: 1 } } or
+  // { totalGames, gamesFailed, winDistribution: [0, 2, 5, ...] }. Snapshot every such stats
+  // object when the page loads; when its "played" counter goes up during this visit, a game
+  // just finished — the won/failed counters say how, and whichever distribution bucket grew
+  // gives the guess count. Only objects with a played counter AND a won/failed counter or a
+  // distribution count, so unrelated counters (e.g. an audio player's "plays") are ignored.
+  var KNOWN_HOSTS = /nytimes\.com$|nerdlegame\.com$|teuteuf\.fr$|wafflegame\.net$|quordle\.com$|octordle\.com$|dordle|heardle/i;
+  var PLAYED = /^(games?_?played|played|total_?games|total_?played|games_?count|num_?games|plays)$/i;
+  var WON = /^(games?_?won|wins?|won|total_?wins|num_?wins|solved)$/i;
+  var FAILED = /^(games?_?failed|games?_?lost|losses|lost|fails|failed)$/i;
+  var DIST = /^(guesses|win_?distribution|guess_?distribution|distribution|guess_?counts?)$/i;
+
+  // { "<storageKey>|<path>": { played, won, failed, dist } } for every stats-like object.
+  function statsSnapshot() {
+    var out = {};
+    function walk(obj, id, depth) {
+      if (!obj || typeof obj !== "object" || depth > 3) return;
+      var s = {}, has = false;
+      Object.keys(obj).slice(0, 80).forEach(function (k) {
+        var v = obj[k];
+        if (typeof v === "number") {
+          if (PLAYED.test(k)) { s.played = v; has = true; }
+          else if (WON.test(k)) s.won = v;
+          else if (FAILED.test(k)) s.failed = v;
+        } else if (v && typeof v === "object" && DIST.test(k)) {
+          var d = {}, n = 0;
+          Object.keys(v).slice(0, 30).forEach(function (b) { if (typeof v[b] === "number") { d[b] = v[b]; n++; } });
+          if (n) { s.dist = d; s.distZeroBased = Array.isArray(v); }
+        } else if (v && typeof v === "object") {
+          walk(v, id + "." + k, depth + 1);
+        }
+      });
+      if (has && (s.won != null || s.failed != null || s.dist)) out[id] = s;
+    }
+    try {
+      for (var i = 0; i < localStorage.length && i < 300; i++) {
+        var key = localStorage.key(i);
+        var raw = localStorage.getItem(key);
+        if (!raw || raw.length > 50000 || !/^[\[{]/.test(raw)) continue;
+        try { walk(JSON.parse(raw), key, 0); } catch (e) {}
+      }
+    } catch (e) {}
+    return out;
+  }
+
+  // The distribution bucket that grew: "1".."9" -> that many guesses; an array index i ->
+  // i + 1 guesses (react-wordle style); "fail"/"X"/"lost" -> a loss.
+  function grownBucket(before, after) {
+    if (!after) return null;
+    var keys = Object.keys(after);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if ((after[k] || 0) > ((before && before[k]) || 0)) return k;
+    }
+    return null;
+  }
+
+  var baseline = null;
+  function detectGeneric() {
+    if (KNOWN_HOSTS.test(host)) return;
+    var now = statsSnapshot();
+    if (!baseline) { baseline = now; return; }
+    var ids = Object.keys(now);
+    for (var i = 0; i < ids.length; i++) {
+      var a = now[ids[i]], b = baseline[ids[i]];
+      if (!b) {
+        // Stats that only appeared after load count as a finished game only if they hold
+        // exactly one game (a first-ever play); otherwise they were just loaded late.
+        if (a.played !== 1) { baseline[ids[i]] = a; continue; }
+        b = { played: 0 };
+      }
+      if (!(a.played > (b.played || 0))) continue;
+      var bucket = grownBucket(b.dist, a.dist);
+      var lostBucket = bucket != null && /fail|lost|lose|^x$/i.test(bucket);
+      var solved;
+      if (a.won != null && a.won > (b.won || 0)) solved = true;
+      else if (a.failed != null && a.failed > (b.failed || 0)) solved = false;
+      else if (bucket != null) solved = !lostBucket;
+      else if (a.won != null) solved = false; // played went up, wins didn't
+      else continue; // can't tell how it ended — leave it to the Share hook
+      var guesses = null;
+      if (solved && bucket != null && !lostBucket) {
+        var n = parseInt(bucket, 10);
+        if (!isNaN(n)) guesses = a.distZeroBased ? n + 1 : n;
+      }
+      baseline = now; // re-arm for the next round (unlimited modes)
+      emit(solved
+        ? { solved: true, guesses: guesses, resultType: guesses ? "guesses" : undefined, source: "stats" }
+        : { solved: false, source: "stats" });
+      return;
+    }
+  }
+
   var detectors = [
     detectNYTWordle,
     detectNerdle,
@@ -168,6 +262,7 @@
     detectOctordle,
     detectDordle,
     detectHeardle,
+    detectGeneric,
   ];
 
   function run() {

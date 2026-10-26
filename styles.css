@@ -746,6 +746,92 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; overflow-x: clip; }
 .rail-card .rc-shot .star-btn.icon-act.active,
 .rail-card .rc-shot .star-btn.icon-act:hover { color: var(--star); background: var(--cream); }
 
+/* Collections: wide tiles with a fanned collage of three screenshots, in a sideways rail. */
+.coll-sec .section-intro { margin-bottom: 16px; }
+.coll-rail { gap: 16px; padding-top: 8px; padding-bottom: 16px; }
+.coll-tile {
+  flex: 0 0 280px; scroll-snap-align: start;
+  display: flex; flex-direction: column; text-align: left;
+  border: 1px solid var(--border); border-radius: 20px; background: var(--card); color: var(--text);
+  padding: 0; overflow: hidden; cursor: pointer; font: inherit;
+  transition: transform .15s ease-out, box-shadow .15s, border-color .15s;
+}
+.coll-tile:hover { transform: translateY(-3px); border-color: var(--border-strong); box-shadow: 0 14px 30px -18px rgba(28,25,23,.4); }
+.coll-tile:active { transform: scale(.98); }
+.coll-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.coll-collage {
+  position: relative; height: 128px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg));
+}
+.coll-shot {
+  position: absolute; bottom: -14px; width: 46%; aspect-ratio: 4 / 3;
+  border-radius: 10px; border: 2px solid var(--card);
+  background-size: cover; background-position: center top; background-color: var(--card);
+  box-shadow: 0 8px 18px -8px rgba(28,25,23,.45);
+}
+.coll-shot:nth-child(1) { left: 6%; transform: rotate(-7deg); z-index: 1; }
+.coll-shot:nth-child(2) { left: 27%; bottom: -6px; transform: rotate(1deg); z-index: 3; }
+.coll-shot:nth-child(3) { left: 48%; transform: rotate(8deg); z-index: 2; }
+.coll-shot.no-shot { display: grid; place-items: center; background: color-mix(in srgb, var(--cat) 20%, var(--card)); }
+.coll-shot.no-shot::after { content: attr(data-letter); font-size: 26px; font-weight: 800; font-stretch: 125%; color: color-mix(in srgb, var(--cat) 70%, var(--text)); opacity: .6; }
+.coll-tile:hover .coll-shot:nth-child(1) { transform: rotate(-10deg) translateX(-4px); }
+.coll-tile:hover .coll-shot:nth-child(3) { transform: rotate(11deg) translateX(4px); }
+.coll-shot { transition: transform .2s ease-out; }
+.coll-body { display: flex; flex-direction: column; gap: 6px; padding: 26px 18px 16px; flex: 1; position: relative; z-index: 4; background: var(--card); }
+.coll-title { font-size: 18px; font-weight: 700; font-stretch: 125%; letter-spacing: -.01em; line-height: 1.15; }
+.coll-blurb {
+  font-size: 13px; line-height: 1.4; color: var(--text-dim);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.coll-foot { display: flex; justify-content: space-between; margin-top: auto; padding-top: 6px; font-size: 12.5px; font-weight: 600; color: var(--text-dimmer); }
+.coll-tile:hover .coll-foot span:last-child { color: var(--accent); }
+
+.rail-blurb { margin: -6px 0 14px 17px; font-size: 14px; color: var(--text-dim); max-width: 60ch; }
+
+/* Collection page: the game-page header, then every game as a card in a wrapping grid. */
+.coll-head .eyebrow { margin-bottom: 12px; }
+.coll-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px 20px;
+  margin: 28px 18px 0;
+}
+.coll-grid .card.rail-card { flex-basis: auto; }
+.dp-coll-link { padding: 0; font-size: inherit; font-weight: 600; }
+
+/* Auto-tracking: the band pill once the extension is installed, the install card before. */
+.band .stat-tracker { border-color: rgba(110,231,167,.45); color: #6ee7a7; }
+.tracker-card {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 20px 40px; align-items: center;
+  margin-top: 40px; padding: clamp(20px, 4vw, 32px); border-radius: 26px;
+  background: #0c0a09; color: #f5f5f4;
+}
+.tracker-card .eyebrow { color: #6ee7a7; }
+.tracker-card .section-title { color: #fff; }
+.tracker-card .section-sub { color: rgba(255,255,255,.72); }
+.tracker-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+.tracker-steps li {
+  counter-increment: step; position: relative; padding: 12px 14px 12px 50px;
+  border-radius: 14px; background: rgba(255,255,255,.07); font-size: 14px; line-height: 1.45; color: rgba(255,255,255,.8);
+}
+.tracker-steps li::before {
+  content: counter(step); position: absolute; left: 14px; top: 11px;
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: #fff; font-size: 13px; font-weight: 800;
+}
+.tracker-steps b { color: #fff; }
+.tracker-steps a { color: #6ee7a7; }
+.tracker-steps code { font-size: 12.5px; background: rgba(255,255,255,.1); padding: 1px 5px; border-radius: 5px; }
+.tracker-dismiss {
+  position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,.1); color: #fff; cursor: pointer; font-size: 13px;
+}
+.tracker-dismiss:hover { background: rgba(255,255,255,.2); }
+
+@media (max-width: 760px) {
+  .tracker-card { grid-template-columns: 1fr; }
+  .coll-tile { flex-basis: 240px; }
+  .coll-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px 14px; }
+}
+
 @media (max-width: 760px) {
   .hero { grid-template-columns: 1fr; text-align: center; }
   .hero-frame { max-width: 520px; margin-inline: auto; width: 100%; }

@@ -11,9 +11,11 @@
  *                           descriptions, THUMBNAILS, daily/unlimited flag, play counts.
  *   3. listdle.com        -> Svelte SSR page; cards carry name, category, domain AND a
  *                           short description.
- *   4. playlin.io        -> Astro SSR; no single "all games" page, so every category
- *                           page is crawled and de-duped by slug. Cards carry name,
- *                           external URL, category, a one-line "hook", and a thumbnail.
+ *   4. playlin.io        -> Astro SSR; no single "all games" page, so every category,
+ *                           sub-category and collection page in its sitemap is crawled
+ *                           and de-duped by slug; games no listing shows are read from
+ *                           their own page (retired ones skipped). Cards carry name,
+ *                           external URL, a one-line "hook", and a thumbnail.
  *
  * Merge is de-duplicating (by normalized URL and by name-slug) AND enriching:
  * a game found in several sources keeps the first source's category but back-fills
@@ -32,7 +34,7 @@
  * Requires Node 18+ (built-in fetch). No dependencies.
  */
 
-import { writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -44,21 +46,21 @@ const AUKSPOT_JSON =
 const ALLDLE_API = "https://api.alldle.net/games?limit=2000";
 const SEEKDLE_URL = "https://seekdle.com/";
 const LISTDLE_URL = "https://listdle.com/";
-// playlin.io has no single "all games" page — each category page happens to also carry
-// (and it's the only reliable way to reach) its own slice of the full catalog, so this
-// crawls all of them and de-dupes by slug.
-const PLAYLIN_CATEGORIES = [
-  "animal", "arcade", "food", "geography", "logic", "math", "movies-and-tv",
-  "music", "other", "sports", "trivia", "visual", "weird", "word",
-];
-// The category pill's visible text isn't always reachable near a given card occurrence
-// (see parsePlaylinCards), but since each page IS a specific category, its own label is a
-// reliable fallback — maps each slug above to the exact visible label text it uses.
+// playlin.io has no single "all games" page. Its sitemap lists every game page plus every
+// category/sub-category/collection listing page; the listings are crawled for game cards
+// (de-duped by slug), and the few games no listing shows are read from their own page.
+const PLAYLIN_SITEMAP = "https://playlin.io/_playlin-sitemap-0.xml";
+// Top-level category slug -> its label (category pages don't print a pill on each card,
+// since the page itself is the category). Also the fallback crawl list if the sitemap fails.
 const PLAYLIN_CATEGORY_LABELS = {
-  animal: "animal", arcade: "arcade game", food: "food", geography: "geography",
-  logic: "logic & deduction", math: "math game", "movies-and-tv": "movies & tv",
-  music: "music", other: "other", sports: "sports", trivia: "trivia & knowledge",
-  visual: "visual & pattern", weird: "weird & wonderful", word: "word game",
+  "animal-games": "animal", "arcade-games": "arcade game", estimation: "estimation",
+  "fandom-games": "fandom", "food-games": "food", "geography-games": "geography",
+  "learning-games": "learning", "logic-games": "logic & deduction", luck: "luck",
+  "math-games": "math game", "movies-and-tv-games": "movies & tv", "music-games": "music",
+  "number-games": "number", "other-games": "other", "pop-culture-games": "pop culture",
+  skill: "skill", "sports-games": "sports", "sudoku-games": "sudoku",
+  "trivia-games": "trivia & knowledge", "visual-games": "visual & pattern",
+  "weird-games": "weird & wonderful", "word-games": "word game",
 };
 
 // ---------------------------------------------------------------------------
@@ -125,6 +127,9 @@ const CANON = {
   "arcade game": "Video Games", "word game": "Words", "math game": "Math/Logic",
   "logic & deduction": "Math/Logic", "visual & pattern": "Shapes/Patterns",
   "trivia & knowledge": "Trivia", animal: "Science/Nature", "weird & wonderful": "Novelty",
+  estimation: "Estimation", fandom: "Trivia", learning: "Trivia", luck: "Novelty",
+  number: "Math/Logic", "pop culture": "Trivia", skill: "Video Games", sudoku: "Math/Logic",
+  arcade: "Video Games", "logic & deduction games": "Math/Logic",
 };
 
 function normCategory(cat) {
@@ -132,6 +137,9 @@ function normCategory(cat) {
   const c = decodeEntities(String(cat)).trim();
   const key = c.toLowerCase();
   if (CANON[key]) return CANON[key];
+  // Game pages say e.g. "Word Games" / "Math" where listings say "word game".
+  const bare = key.replace(/ games?$/, "");
+  if (CANON[bare]) return CANON[bare];
   return c
     .split(/\s+/)
     .map((w) => (w.length <= 2 ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1)))
@@ -263,77 +271,137 @@ async function fetchListdle() {
   }
 }
 
-// Parses the repeated "game card" markup that appears on every playlin.io page: a run of
-// hidden <input> fields (title/slug/icon/url) immediately followed by the visible category
-// pill and a one-line "hook" description. fallbackCategoryLabel covers cards where that
-// pill isn't reachable near this particular occurrence (see fetchPlaylin).
-function parsePlaylinCards(html, fallbackCategoryLabel) {
+// Parses the repeated "game card" markup on playlin.io listing pages: a run of hidden
+// <input> fields (title, slug, external url, ...) followed by the card's screenshot <img>
+// and a one-line "hook". Each card's window ends where the next card starts, so a field
+// missing from one card can't be picked up from its neighbour. categoryLabel is the
+// listing page's own category (null on collection pages, which mix categories).
+function parsePlaylinCards(html, categoryLabel) {
   const games = [];
-  const cardRe =
-    /<input type="hidden" data-game-title value="([^"]*)">\s*<input type="hidden" data-game-slug value="([^"]*)">\s*<input type="hidden" data-game-icon-url value="([^"]*)">\s*<input type="hidden" data-game-url value="([^"]*)">/g;
-  let m;
-  while ((m = cardRe.exec(html)) !== null) {
-    const [, title, slug, icon, url] = m;
-    if (!title || !slug || !url) continue;
-    // The inline SVG icons in the like-button and category pill push the actual category/
-    // hook text well past a naive short window (up to ~2,750 chars away in practice).
-    const window_ = html.slice(m.index, m.index + 4500);
-    // Anchor the category label to an actual /category/ link, not just any element with
-    // the "whitespace-nowrap" class — a compact "already played" card variant reuses that
-    // same class on its Free/Paid badge, which would otherwise be misread as the category.
-    const catLabel = (window_.match(/\/category\/[a-z0-9-]+-games\/[^>]*>[\s\S]{0,600}?whitespace-nowrap[^>]*>([^<]+)</) || [])[1];
-    const hook = (window_.match(/data-game-hook[^>]*>([^<]*)</) || [])[1];
+  const starts = [...html.matchAll(/<input type="hidden" data-game-title value="/g)].map((m) => m.index);
+  starts.forEach((start, i) => {
+    // The like-button's inline SVG pushes the hook text well past a naive short window.
+    const win = html.slice(start, Math.min(starts[i + 1] || html.length, start + 6000));
+    const title = (win.match(/data-game-title value="([^"]*)"/) || [])[1];
+    const slug = (win.match(/data-game-slug value="([^"]*)"/) || [])[1];
+    const url = (win.match(/data-game-url value="([^"]*)"/) || [])[1];
+    if (!title || !slug || !url) return;
+    const thumb = (win.match(/src="(https:\/\/assets\.playlin\.io\/renditions\/screenshot_card\/[^"]+)"/) || [])[1];
+    const hook = (win.match(/data-game-hook[^>]*>([^<]*)</) || [])[1];
     games.push({
       slug,
       name: decodeEntities(title),
       url: url.trim(),
-      description: hook ? decodeEntities(hook) : "",
-      category: normCategory(catLabel || fallbackCategoryLabel),
-      thumbnail: icon || "",
+      description: hook ? decodeEntities(hook.trim()) : "",
+      category: categoryLabel ? normCategory(categoryLabel) : "",
+      thumbnail: thumb || "",
       unlimited: false,
       popularity: 0,
       source: "playlin",
     });
-  }
+  });
   return games;
+}
+
+// A single /game/<slug>/ page, for games no listing page shows. Returns null for games
+// Playlin marks as retired ("no longer playable").
+function parsePlaylinGamePage(html, slug) {
+  const title = (html.match(/data-game-title value="([^"]*)"/) || [])[1];
+  const url = (html.match(/data-game-url value="([^"]*)"/) || [])[1];
+  if (!title || !url) return null;
+  const ogTitle = (html.match(/<meta property="og:title" content="([^"]*)"/) || [])[1] || "";
+  const meta = decodeEntities((html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "");
+  if (/\(Retired\)/i.test(ogTitle) || /since been retired|no longer playable/i.test(meta)) return null;
+  // "X is a daily word game that's free to play. <hook>" — keep just the hook.
+  const hook = meta.replace(/^[^.]*\bis an? [^.]*\.\s*/, "");
+  const cat = (html.match(/<strong>Category:<\/strong>\s*([^<]+)/) || [])[1];
+  // Same card-sized rendition the listing pages use, derived from the og:image file name.
+  const shot = (html.match(/\/([a-z0-9-]+-screenshot)\.(?:png|jpe?g|webp)"/) || [])[1];
+  return {
+    slug,
+    name: decodeEntities(title),
+    url: url.trim(),
+    description: hook,
+    category: normCategory(cat),
+    thumbnail: shot ? `https://assets.playlin.io/renditions/screenshot_card/${shot}.webp` : "",
+    unlimited: false,
+    popularity: 0,
+    source: "playlin",
+  };
 }
 
 async function fetchPlaylin() {
   console.log("→ Fetching playlin.io...");
   try {
+    const get = async (path) => {
+      const res = await fetch(`https://playlin.io${path}`, { headers: { "user-agent": UA } });
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      return res.text();
+    };
+    // Runs fn over items, `limit` at a time.
+    const pool = async (items, limit, fn) => {
+      const queue = items.slice();
+      await Promise.all(Array.from({ length: limit }, async () => {
+        while (queue.length) await fn(queue.shift());
+      }));
+    };
+
+    let gameSlugs = [];
+    let listings = Object.keys(PLAYLIN_CATEGORY_LABELS).map((c) => `/category/${c}/`);
+    try {
+      const xml = await (await fetch(PLAYLIN_SITEMAP, { headers: { "user-agent": UA } })).text();
+      const paths = [...xml.matchAll(/<loc>https:\/\/playlin\.io([^<]+)<\/loc>/g)].map((m) => m[1]);
+      gameSlugs = paths.filter((p) => p.startsWith("/game/")).map((p) => p.split("/")[2]).filter(Boolean);
+      const fromMap = paths.filter((p) => /^\/(category|collections)\/./.test(p));
+      if (fromMap.length) listings = fromMap;
+    } catch (err) {
+      console.warn(`  ! playlin sitemap failed (${err.message}); crawling top-level categories only`);
+    }
+    // Category pages first, so a game's category comes from a real category page rather
+    // than staying blank from a collection page.
+    listings.sort((a, b) => (a.startsWith("/category/") ? 0 : 1) - (b.startsWith("/category/") ? 0 : 1));
+
     const byId = new Map();
-    const CONCURRENCY = 5;
-    const queue = PLAYLIN_CATEGORIES.slice();
     let failures = 0;
-    // A game can appear more than once across category pages (or more than once on the same
-    // page, e.g. also in a compact "recently played" rail) with a weaker card each time —
-    // enrich instead of keeping only the first occurrence, so the best data available for
-    // that slug wins regardless of which occurrence happened to be parsed first.
+    // A game appears on several listings (category, sub-category, collections) — enrich
+    // rather than keep only the first occurrence, so the best data for each slug wins.
     function enrich(existing, incoming) {
       if (!existing) return incoming;
       if (!existing.description && incoming.description) existing.description = incoming.description;
       if (!existing.thumbnail && incoming.thumbnail) existing.thumbnail = incoming.thumbnail;
+      if (!existing.category && incoming.category) existing.category = incoming.category;
       return existing;
     }
-    const workers = Array.from({ length: CONCURRENCY }, async () => {
-      while (queue.length) {
-        const cat = queue.shift();
-        try {
-          const res = await fetch(`https://playlin.io/category/${cat}-games/`, { headers: { "user-agent": UA } });
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          const html = await res.text();
-          parsePlaylinCards(html, PLAYLIN_CATEGORY_LABELS[cat]).forEach((g) => {
-            byId.set(g.slug, enrich(byId.get(g.slug), g));
-          });
-        } catch (err) {
-          failures++;
-          console.warn(`  ! playlin/${cat} failed (${err.message})`);
-        }
+    await pool(listings, 6, async (path) => {
+      try {
+        // /category/word-games/word-grids/ -> "word-games" -> "word game"
+        const top = path.startsWith("/category/") ? path.split("/")[2] : null;
+        parsePlaylinCards(await get(path), top ? PLAYLIN_CATEGORY_LABELS[top] || top : null).forEach((g) => {
+          byId.set(g.slug, enrich(byId.get(g.slug), g));
+        });
+      } catch (err) {
+        failures++;
+        console.warn(`  ! playlin${path} failed (${err.message})`);
       }
     });
-    await Promise.all(workers);
-    const games = [...byId.values()].map(({ slug, ...g }) => g);
-    console.log(`  ✓ playlin: ${games.length} games${failures ? ` (${failures} category page(s) failed)` : ""}`);
+
+    // Games in the sitemap that no listing shows (often retired ones): read their own page.
+    const unlisted = gameSlugs.filter((s) => !byId.has(s));
+    let retired = 0;
+    await pool(unlisted, 6, async (slug) => {
+      try {
+        const g = parsePlaylinGamePage(await get(`/game/${slug}/`), slug);
+        if (g) byId.set(slug, g); else retired++;
+      } catch (err) {
+        failures++;
+      }
+    });
+
+    const games = [...byId.values()].map(({ slug, ...g }) => ({ ...g, category: g.category || "Miscellaneous" }));
+    console.log(
+      `  ✓ playlin: ${games.length} games from ${listings.length} listing pages + ${unlisted.length - retired} game pages` +
+      ` (${retired} retired skipped${failures ? `, ${failures} page(s) failed` : ""})`
+    );
     return games;
   } catch (err) {
     console.warn(`  ! playlin scrape failed (${err.message}); continuing without it`);
@@ -380,27 +448,49 @@ function mergeAll(sourceLists) {
   return out;
 }
 
-function finalize(games) {
+// prevIds maps urlKey -> id from the last dataset. Saved favorites, streaks and history are
+// keyed by id, so a game whose source renamed it (same URL) keeps the id it already had
+// instead of getting a new one from its new name.
+function finalize(games, prevIds = new Map()) {
   const seenIds = new Set();
-  const withIds = games.map((g) => {
+  // Reserve every id that will be carried over, so a new game can't claim one first.
+  const keep = games.map((g) => prevIds.get(urlKey(g.url)));
+  keep.forEach((id) => { if (id) seenIds.add(id); });
+  const withIds = games.map((g, i) => {
+    if (keep[i] && keep.indexOf(keep[i]) === i) {
+      return toRecord(keep[i], g);
+    }
     let id = slugify(g.name);
     let n = 2;
     const base = id;
     while (seenIds.has(id)) id = `${base}-${n++}`;
     seenIds.add(id);
-    return {
-      id,
-      name: g.name,
-      url: g.url,
-      category: g.category,
-      description: g.description || "",
-      thumbnail: g.thumbnail || "",
-      unlimited: g.unlimited === true,
-      popularity: g.popularity || 0,
-    };
+    return toRecord(id, g);
   });
   withIds.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
   return withIds;
+}
+
+async function readPrevIds() {
+  try {
+    const prev = JSON.parse(await readFile(join(__dirname, "data", "games.json"), "utf8"));
+    return new Map((prev.games || []).map((g) => [urlKey(g.url), g.id]));
+  } catch {
+    return new Map(); // first run, or no previous dataset
+  }
+}
+
+function toRecord(id, g) {
+  return {
+    id,
+    name: g.name,
+    url: g.url,
+    category: g.category,
+    description: g.description || "",
+    thumbnail: g.thumbnail || "",
+    unlimited: g.unlimited === true,
+    popularity: g.popularity || 0,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -466,7 +556,7 @@ async function main() {
     fetchAukspot(), fetchAlldle(), fetchSeekdle(), fetchListdle(), fetchPlaylin(),
   ]);
   const merged = mergeAll([aukspot, alldle, seekdle, listdle, playlin]);
-  let games = finalize(merged);
+  let games = finalize(merged, await readPrevIds());
 
   let linkReport = null;
   if (opts.check) {

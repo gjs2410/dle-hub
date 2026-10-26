@@ -212,6 +212,7 @@ async function fetchAlldle() {
         thumbnail: g.thumbnailUrl || "",
         unlimited: !!g.isUnlimited,
         popularity: parseInt(g.playCount, 10) || 0,
+        added: g.createdAt ? String(g.createdAt).slice(0, 10) : undefined, // YYYY-MM-DD
         source: "alldle",
       }));
     console.log(`  ✓ alldle: ${games.length} games (${games.filter((g) => g.thumbnail).length} with thumbnails)`);
@@ -499,6 +500,7 @@ function mergeAll(sourceLists) {
     if (!rec.thumbnail && g.thumbnail) rec.thumbnail = g.thumbnail;
     if (rec.unlimited === undefined && g.unlimited !== undefined) rec.unlimited = g.unlimited;
     if ((g.popularity || 0) > (rec.popularity || 0)) rec.popularity = g.popularity;
+    if (g.added && (!rec.added || g.added < rec.added)) rec.added = g.added; // earliest wins
   }
 
   sourceLists.forEach((list, idx) => {
@@ -524,40 +526,59 @@ function mergeAll(sourceLists) {
   return out;
 }
 
-// prevIds maps urlKey -> id from the last dataset. Saved favorites, streaks and history are
-// keyed by id, so a game whose source renamed it (same URL) keeps the id it already had
-// instead of getting a new one from its new name.
-function finalize(games, prevIds = new Map()) {
+// prev is the last dataset (see readPrev). Saved favorites, streaks and history are keyed by
+// id, so a game whose source renamed it (same URL) keeps the id it already had instead of
+// getting a new one from its new name.
+function finalize(games, prev = { exists: false, ids: new Map(), added: new Map() }) {
   const seenIds = new Set();
   // Reserve every id that will be carried over, so a new game can't claim one first.
-  const keep = games.map((g) => prevIds.get(urlKey(g.url)));
+  const keep = games.map((g) => prev.ids.get(urlKey(g.url)));
   keep.forEach((id) => { if (id) seenIds.add(id); });
   const withIds = games.map((g, i) => {
     if (keep[i] && keep.indexOf(keep[i]) === i) {
-      return toRecord(keep[i], g);
+      return toRecord(keep[i], g, prev);
     }
     let id = slugify(g.name);
     let n = 2;
     const base = id;
     while (seenIds.has(id)) id = `${base}-${n++}`;
     seenIds.add(id);
-    return toRecord(id, g);
+    return toRecord(id, g, prev);
   });
   withIds.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
   return withIds;
 }
 
-async function readPrevIds() {
+// The last dataset, keyed by urlKey: { ids: urlKey -> id, added: urlKey -> "YYYY-MM-DD" }.
+// `exists` is false on a first run, when there's nothing to compare against.
+async function readPrev() {
   try {
     const prev = JSON.parse(await readFile(join(__dirname, "data", "games.json"), "utf8"));
-    return new Map((prev.games || []).map((g) => [urlKey(g.url), g.id]));
+    const games = prev.games || [];
+    return {
+      exists: games.length > 0,
+      ids: new Map(games.map((g) => [urlKey(g.url), g.id])),
+      added: new Map(games.filter((g) => g.added).map((g) => [urlKey(g.url), g.added])),
+    };
   } catch {
-    return new Map(); // first run, or no previous dataset
+    return { exists: false, ids: new Map(), added: new Map() }; // first run
   }
 }
 
-function toRecord(id, g) {
-  return {
+// When a game was added, as the earliest of: a source's own date (alldle's createdAt), the
+// date it carried in the last dataset, and — for a game the last dataset didn't have at
+// all — today, the day this scraper first saw it. Games already known with no date stay
+// undated (treated as old), so the first run doesn't mark the whole catalog as new.
+function addedDate(g, prev) {
+  const uk = urlKey(g.url);
+  const dates = [g.added, prev.added.get(uk)];
+  if (prev.exists && !prev.ids.has(uk)) dates.push(TODAY);
+  return dates.filter(Boolean).sort()[0] || undefined;
+}
+const TODAY = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD, local time
+
+function toRecord(id, g, prev) {
+  const rec = {
     id,
     name: g.name,
     url: g.url,
@@ -567,6 +588,9 @@ function toRecord(id, g) {
     unlimited: g.unlimited === true,
     popularity: g.popularity || 0,
   };
+  const added = addedDate(g, prev);
+  if (added) rec.added = added;
+  return rec;
 }
 
 // ---------------------------------------------------------------------------
@@ -632,7 +656,7 @@ async function main() {
     fetchAukspot(), fetchAlldle(), fetchSeekdle(), fetchListdle(), fetchPlaylin(),
   ]);
   const merged = mergeAll([aukspot, alldle, seekdle, listdle, playlin]);
-  let games = finalize(merged, await readPrevIds());
+  let games = finalize(merged, await readPrev());
 
   let linkReport = null;
   if (opts.check) {

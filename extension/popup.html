@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DLE Hub Auto-Tracker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 8.5c.83.83 1.5 2.17 1.5 3.5a5.5 5.5 0 0 1-11 0c0-1.33.67-2.67 1.5-3.5"/><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h-2"/><path d="M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="3"/></svg>
+      </span>
+      <div>
+        <h1>Auto-Tracker</h1>
+        <p class="version" id="version"></p>
+      </div>
+    </div>
+    <button id="openHub" class="pill pill--ink">Open DLE Hub</button>
+  </header>
+
+  <!-- Is the hub reachable? Filled by popup.js from hubSeen / the queue. -->
+  <section class="status" id="status"></section>
+
+  <section class="page" id="page" hidden></section>
+
+  <section class="log">
+    <div class="log-head">
+      <h2>Recent results</h2>
+      <button id="clearLog" class="link" hidden>Clear</button>
+    </div>
+    <ul id="log" class="log-list"></ul>
+    <p id="empty" class="empty" hidden>
+      Nothing captured yet. Finish a game (or press its <b>Share</b> button) and it shows up here.
+    </p>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

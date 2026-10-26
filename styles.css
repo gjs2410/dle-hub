@@ -715,7 +715,17 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; overflow-x: clip; }
 .rail-card:hover .rc-shot { transform: translateY(-3px); box-shadow: 0 12px 24px -12px rgba(28,25,23,.35); }
 .rail-card:active .rc-shot { transform: scale(.97); }
 .rail-card.is-done .rc-shot { box-shadow: 0 0 0 3px var(--done); }
-.rail-card .card-badge { align-self: flex-start; margin-top: 12px; }
+.rc-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 12px; }
+.rc-note { margin: 7px 0 0 2px; font-size: 11.5px; font-weight: 600; color: var(--text-dimmer); }
+.rc-note + .rc-title { margin-top: 2px; }
+/* "New" label for games added in the last week (rail cards, list/grid cards). */
+.new-pill {
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+  color: #fff; background: var(--done); padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+}
+.band .stat-new { cursor: pointer; font: inherit; font-size: 12px; border-color: rgba(242,181,68,.5); color: #f2b544; }
+.band .stat-new b { color: #f2b544; }
+.band .stat-new:hover { border-color: #f2b544; }
 .rc-title {
   margin: 8px 0 0 2px; font-size: 16px; font-weight: 700; line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

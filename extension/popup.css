@@ -1,0 +1,73 @@
+/* Popup for the DLE Hub Auto-Tracker — same warm stone / terracotta palette as the hub. */
+:root {
+  --bg: #fbf9f6; --card: #ffffff; --text: #1c1917; --text-dim: #57534e; --text-dimmer: #78716c;
+  --border: #e7e5e4; --accent: #c2593a; --done: #1f7a4f; --done-soft: #ebf5ef;
+  --fail: #dc2626; --fail-soft: #fdecec; --warn: #b45309; --warn-soft: #fdf3e2;
+  --ink: #0c0a09; --ink-text: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171513; --card: #262320; --text: #f5f5f4; --text-dim: #a8a29e; --text-dimmer: #78716c;
+    --border: #3a3531; --accent: #e57d5c; --done: #5cc489; --done-soft: #17271d;
+    --fail: #f87171; --fail-soft: #2d1a1a; --warn: #f2b544; --warn-soft: #2e2617;
+    --ink: #f5f5f4; --ink-text: #171513;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 340px; max-height: 560px; overflow-y: auto;
+  background: var(--bg); color: var(--text);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; background: #0c0a09; color: #fff;
+}
+.brand { display: flex; align-items: center; gap: 9px; }
+.logo { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #fff; color: #0c0a09; }
+.logo svg { width: 18px; height: 18px; }
+h1 { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.version { margin: 0; font-size: 11px; color: rgba(255,255,255,.6); }
+
+.pill {
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.pill--ink { background: #fff; border-color: #fff; color: #0c0a09; }
+.pill:hover { filter: brightness(.95); }
+
+.status { display: flex; gap: 10px; align-items: flex-start; margin: 12px 14px 0; padding: 10px 12px; border-radius: 12px; }
+.status .dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; background: currentColor; }
+.status b { display: block; font-size: 13px; }
+.status span { color: var(--text-dim); font-size: 12px; }
+.status--ok { background: var(--done-soft); color: var(--done); }
+.status--wait { background: var(--warn-soft); color: var(--warn); }
+
+.page { margin: 10px 14px 0; font-size: 12px; color: var(--text-dim); }
+.page code { font-size: 11.5px; color: var(--text); }
+
+.log { margin: 14px 14px 14px; }
+.log-head { display: flex; align-items: baseline; justify-content: space-between; }
+h2 { margin: 0 0 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-dimmer); }
+.link { border: none; background: none; color: var(--text-dimmer); font: inherit; font-size: 12px; cursor: pointer; padding: 0; }
+.link:hover { color: var(--accent); }
+
+.log-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.row {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 9px 10px; border-radius: 12px; background: var(--card); border: 1px solid var(--border);
+}
+.mark { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 13px; font-weight: 800; color: #fff; }
+.mark--solved { background: var(--done); }
+.mark--failed { background: var(--fail); }
+.what { min-width: 0; }
+.what b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.what span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; color: var(--text-dimmer); }
+.tag { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.tag--recorded { background: var(--done-soft); color: var(--done); }
+.tag--waiting { background: var(--warn-soft); color: var(--warn); }
+.tag--unmatched { background: var(--fail-soft); color: var(--fail); }
+
+.empty { margin: 4px 0 0; padding: 14px; border-radius: 12px; border: 1px dashed var(--border); color: var(--text-dim); font-size: 12.5px; }

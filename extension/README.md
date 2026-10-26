@@ -40,6 +40,15 @@ Detection is best-effort — games change their storage format over time, and ga
 keep stats on their server can't be seen. If auto-detect misses one, the Share hook still works.
 
 When the hub is open with the extension installed, its black band shows **⚡ Auto-tracking on**.
+
+### The popup
+Click the extension's toolbar icon to see:
+
+- whether DLE Hub has been seen recently, or how many results are **waiting** for you to open it;
+- the site you're on (it's being watched for a result);
+- your last 40 captured results — game, solved/failed with the guess count or time, and
+  whether the hub **Recorded** it, it's still **Waiting**, or the site is **Not in DLE Hub**;
+- an **Open DLE Hub** button (opens the hub you last used, `localhost:8777` by default).
 Results from a site with several games (one per mode) are matched by the page's URL path.
 
 Results appear in the hub when you **open or focus** the hub tab (polled every few seconds), not only on full page load.

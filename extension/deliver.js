@@ -5,7 +5,8 @@
 // Content scripts run in an isolated world: they share the page's DOM but not its JS
 // globals (window.DLEHub is invisible from here in both Chrome and Firefox), so everything
 // goes through window.postMessage. The hub pings on load ("dle-hub" / ping) and this script
-// answers with a hello, so whichever side loads first, the handshake still happens.
+// answers with a hello, so whichever side loads first, the handshake still happens. The hub
+// acks each delivered result, which updates the popup's log.
 (function () {
   var api = (typeof browser !== "undefined") ? browser : chrome;
   var version = (api.runtime.getManifest && api.runtime.getManifest().version) || "";
@@ -31,6 +32,7 @@
         post({
           source: "dle-extension",
           payload: {
+            logId: entry.logId,
             host: entry.host,
             path: entry.path,
             name: entry.name,
@@ -46,14 +48,32 @@
     });
   }
 
+  // The hub's answer for one delivered result -> that entry's status in the popup's log.
+  function applyAck(ack) {
+    if (!ack || !ack.logId) return;
+    api.storage.local.get({ log: [] }, function (o) {
+      var log = (o.log || []).map(function (e) {
+        if (e.logId !== ack.logId) return e;
+        e.status = ack.matched ? "recorded" : "unmatched";
+        if (ack.name) e.game = ack.name;
+        if (ack.matched) { e.solved = ack.solved; e.detail = ack.detail || ""; }
+        return e;
+      });
+      api.storage.local.set({ log: log });
+    });
+  }
+
   window.addEventListener("message", function (e) {
     if (!e.data || e.data.source !== "dle-hub") return;
     if (e.data.ping) {
       var first = !hubReady;
       hubReady = true;
+      // Remembered for the popup: when the hub was last seen and where it lives.
+      api.storage.local.set({ hubSeen: Date.now(), hubUrl: location.origin + location.pathname });
       if (first) hello(); // the hub answers only its first hello, so this can't ping-pong
       deliver();
     }
+    if (e.data.ack) applyAck(e.data.ack);
   });
 
   // Also mark the page itself: the DOM is shared with the page, so the hub can see this

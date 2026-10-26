@@ -48,12 +48,27 @@
       q.push(entry);
       if (q.length > 100) q = q.slice(-100);
       api.storage.local.set({ queue: q });
+      logEntry(entry);
+    });
+  }
+
+  // The popup's history: every captured result, newest first, with its delivery status
+  // ("waiting" until the hub answers; deliver.js then marks it recorded / unmatched).
+  function logEntry(entry) {
+    api.storage.local.get({ log: [] }, function (o) {
+      var log = [{
+        logId: entry.logId, host: entry.host, name: entry.name, solved: entry.solved,
+        resultType: entry.resultType, value: entry.value, source: entry.source,
+        ts: entry.ts, status: "waiting",
+      }].concat(o.log || []).slice(0, 40);
+      api.storage.local.set({ log: log });
     });
   }
 
   function makeEntry(res, extra) {
     extra = extra || {};
     return {
+      logId: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
       host: location.host.replace(/^www\./, ""),
       path: location.pathname,
       name: (document.title || "").split(/[|\-–—:•·]/)[0].trim().slice(0, 60),

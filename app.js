@@ -124,6 +124,8 @@
     activeTypes: "dlehub:activeTypes",
     notes: "dlehub:notes",
     deadLinks: "dlehub:deadLinks",
+    opened: "dlehub:opened", // { id: ms timestamp } of the last time each game was opened
+    visits: "dlehub:visits", // { prev, cur } visit days, for "new since your last visit"
   };
   function read(key, fallback) {
     try {
@@ -847,6 +849,7 @@
             icon +
             '<span class="card-title">' + escapeHtml(g.name) + "</span>" +
             '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+            newPillHtml(g) +
           "</div>" +
           desc +
         "</div>" +
@@ -956,7 +959,9 @@
     );
   }
 
-  function railCardHtml(g) {
+  // `note` (e.g. "Played yesterday") is optional; callers that pass railCardHtml straight to
+  // Array#map hand it an index instead, which is ignored.
+  function railCardHtml(g, note) {
     var fav = favorites.has(g.id);
     var done = isDoneToday(g.id);
     var col = colorFor(g.category);
@@ -965,7 +970,8 @@
         '<div ' + shotAttrs(g, "rc-shot") + ">" +
           '<button class="star-btn icon-act' + (fav ? " active" : "") + '" data-act="fav" title="' + (fav ? "Remove favorite" : "Add favorite") + '" aria-pressed="' + fav + '">' + (fav ? ico("star") : ico("starOutline")) + "</button>" +
         "</div>" +
-        '<span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" +
+        '<span class="rc-tags"><span class="card-badge" style="--cat:' + col + '">' + escapeHtml(g.category) + "</span>" + newPillHtml(g) + "</span>" +
+        (typeof note === "string" && note ? '<span class="rc-note">' + escapeHtml(note) + "</span>" : "") +
         '<span class="rc-title">' + escapeHtml(g.name) + "</span>" +
         '<p class="rc-desc">' + escapeHtml(g.description || "") + "</p>" +
         '<div class="rc-actions">' +
@@ -1031,11 +1037,13 @@
     var feat = featuredGame();
     if (feat) html += heroHtml(feat);
     html += trackerCardHtml();
+    html += lastPlayedRailHtml();
 
     var mine = routine.map(function (id) { return itemById[id]; }).filter(Boolean);
     html += railHtml("Your routine", mine, "var(--accent)");
     var favs = ITEMS.filter(itemFavorited).sort(byPopularity);
     html += railHtml("Your favorites", favs, "var(--star)");
+    html += newRailHtml();
 
     var top = ITEMS.slice().sort(function (a, b) { return itemPopularity(b) - itemPopularity(a); }).slice(0, 10);
     if (top.length && itemPopularity(top[0]) > 0) html += chartHtml(top);
@@ -1061,8 +1069,86 @@
     return html;
   }
 
+  // ---------- new games ----------
+  // g.added is the date (YYYY-MM-DD) the scraper first knew the game; undated games are old.
+  var NEW_DAYS = 7;
+  function daysAgo(dateStr) { return Math.round((parseDate(TODAY) - parseDate(dateStr)) / 864e5); }
+  function isNew(g) { return !!g.added && daysAgo(g.added) >= 0 && daysAgo(g.added) <= NEW_DAYS; }
+  function newGames() {
+    return ITEMS.filter(isNew).sort(function (a, b) {
+      return b.added.localeCompare(a.added) || (b.thumbnail ? 1 : 0) - (a.thumbnail ? 1 : 0) || itemPopularity(b) - itemPopularity(a);
+    });
+  }
+  // The day of the previous visit (not today's), kept across same-day reloads, so "new since
+  // your last visit" doesn't reset to 0 the moment the page is refreshed.
+  var visits = (function () {
+    var v = read(LS.visits, {});
+    if (v.cur !== TODAY) { v = { prev: v.cur || null, cur: TODAY }; write(LS.visits, v); }
+    return v;
+  })();
+  function newSinceLastVisit() {
+    if (!visits.prev) return 0; // first visit: everything is new, so say nothing
+    return ITEMS.filter(function (g) { return g.added && g.added > visits.prev; }).length;
+  }
+  function newPillHtml(g) { return isNew(g) ? '<span class="new-pill">New</span>' : ""; }
+
+  // ---------- last played ----------
+  // Most recent first: games opened from the hub (exact time) and games with a result logged
+  // (that day), so a game you opened but didn't finish still shows up.
+  function lastPlayed(limit) {
+    var when = {};
+    var opened = read(LS.opened, {});
+    Object.keys(opened).forEach(function (id) { when[id] = opened[id]; });
+    [history, fails].forEach(function (log) {
+      Object.keys(log).forEach(function (day) {
+        var t = parseDate(day).getTime() + 12 * 3600e3; // midday of that day
+        (log[day] || []).forEach(function (id) { if (!(when[id] >= t)) when[id] = t; });
+      });
+    });
+    return Object.keys(when)
+      .filter(function (id) { return itemById[id]; })
+      .sort(function (a, b) { return when[b] - when[a]; })
+      .slice(0, limit)
+      .map(function (id) { return { g: itemById[id], t: when[id] }; });
+  }
+  function playedLabel(t) {
+    var n = daysAgo(dateStrOf(new Date(t)));
+    return n <= 0 ? "Played today" : n === 1 ? "Played yesterday" : "Played " + n + " days ago";
+  }
+  function lastPlayedRailHtml() {
+    var recent = lastPlayed(RAIL_SIZE);
+    if (!recent.length) return "";
+    return (
+      '<section class="rail-sec">' +
+        '<h2 class="rail-head" style="--cat:var(--ink)">Last played</h2>' +
+        '<div class="rail">' + recent.map(function (r) { return railCardHtml(r.g, playedLabel(r.t)); }).join("") + "</div>" +
+      "</section>"
+    );
+  }
+  function newRailHtml() {
+    var fresh = newGames();
+    if (!fresh.length) return "";
+    return (
+      '<section class="rail-sec">' +
+        '<h2 class="rail-head" style="--cat:var(--done)">' +
+          '<button class="rail-link" data-collection="new">New this week <span aria-hidden="true">›</span></button>' +
+        "</h2>" +
+        '<p class="rail-blurb">' + fresh.length + " games added in the last " + NEW_DAYS + " days.</p>" +
+        '<div class="rail">' + fresh.slice(0, RAIL_SIZE).map(function (g) { return railCardHtml(g); }).join("") + "</div>" +
+      "</section>"
+    );
+  }
+
   // ---------- collections ----------
   function collectionById(id) {
+    if (id === "new") {
+      // Not stored with the others: it's computed, and stays out of tiles and rotation.
+      return {
+        id: "new", title: "New this week", source: "new",
+        blurb: "Games added to DLE Hub in the last " + NEW_DAYS + " days, newest first.",
+        games: newGames().map(function (g) { return g.id; }),
+      };
+    }
     for (var i = 0; i < COLLECTIONS.length; i++) if (COLLECTIONS[i].id === id) return COLLECTIONS[i];
     return null;
   }
@@ -1139,7 +1225,7 @@
     var doneCount = games.filter(function (g) { return isDoneToday(g.id); }).length;
     showPage(c.title,
       '<header class="dp-head coll-head">' +
-        '<p class="eyebrow">' + (c.source === "theme" ? "DLE Hub collection" : "Collection · curated by Playlin") + "</p>" +
+        '<p class="eyebrow">' + (c.source === "new" ? "Just added" : c.source === "theme" ? "DLE Hub collection" : "Collection · curated by Playlin") + "</p>" +
         '<h1 class="dp-title">' + escapeHtml(c.title) + "</h1>" +
         (c.blurb ? '<p class="dp-hook">' + escapeHtml(c.blurb) + "</p>" : "") +
         '<div class="dp-chips"><span class="dp-chip">' + games.length + " games</span>" +
@@ -1250,12 +1336,16 @@
     } else if (doneToday > 0) {
       parts.push('<span class="stat progress"><b>' + doneToday + "</b> done today</span>");
     }
+    var freshCount = newSinceLastVisit();
+    if (freshCount) parts.push('<button class="stat stat-new" data-collection="new" title="See what\'s new">✨ <b>' + freshCount + "</b> new since your last visit</button>");
     if (trackerVersion) parts.push('<span class="stat stat-tracker" title="The DLE Hub Auto-Tracker extension records results as you play">⚡ Auto-tracking on</span>');
     parts.push('<span class="stat"><b>' + DATA.length + "</b> games</span>");
     parts.push('<span class="stat"><b>' + favCount + "</b> favorites</span>");
     statsEl.innerHTML = parts.join("");
     var sBtn = $("openStatsFromStreak");
     if (sBtn) sBtn.addEventListener("click", openStats);
+    var nBtn = statsEl.querySelector(".stat-new");
+    if (nBtn) nBtn.addEventListener("click", function () { openCollection("new"); });
     footerCountEl.textContent = "Showing " + shown + " of " + DATA.length + " games";
   }
 
@@ -2669,7 +2759,17 @@
   // ---------- interactions ----------
   function openGame(url, id) {
     window.open(url, "_blank", "noopener");
+    if (id) noteOpened(id);
     if (id && prefs.askOnReturn) addPending(id);
+  }
+
+  // Remembers when each game was last opened (newest 60 kept), for the "Last played" rail.
+  function noteOpened(id) {
+    var opened = read(LS.opened, {});
+    opened[id] = Date.now();
+    var ids = Object.keys(opened).sort(function (a, b) { return opened[b] - opened[a]; });
+    if (ids.length > 60) ids.slice(60).forEach(function (k) { delete opened[k]; });
+    write(LS.opened, opened);
   }
 
   // Pick a random game from the current filter set (favorites, category, search, etc.).
@@ -2755,7 +2855,11 @@
     else if (currentDetailId === g.id) refreshDetail();
     else patchCard(g.id);
     showToast((payload.solved ? "Recorded solve: " : "Recorded fail: ") + g.name, "success");
-    return { matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null };
+    var val = payload.value != null ? payload.value : payload.guesses;
+    return {
+      matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null,
+      detail: payload.solved && val != null ? describeResultValue(payload.resultType || "guesses", val) : "",
+    };
   }
 
   // Anything that opens a game on click: grid/list cards, rail cards, the hero, chart rows.
@@ -3094,7 +3198,17 @@
     var d = e.data;
     if (!d || d.source !== "dle-extension") return;
     if (d.hello) { trackerSeen(d.version); return; }
-    if (d.payload) recordResult(d.payload);
+    if (d.payload) {
+      var res = recordResult(d.payload) || { matched: false };
+      // Tell the extension how it went, for its popup's log.
+      if (d.payload.logId) {
+        try {
+          window.postMessage({ source: "dle-hub", ack: {
+            logId: d.payload.logId, matched: !!res.matched, name: res.name || "", solved: !!res.solved, detail: res.detail || "",
+          } }, location.origin !== "null" ? location.origin : "*");
+        } catch (err) {}
+      }
+    }
   });
   function trackerSeen(version) {
     if (trackerVersion) return;

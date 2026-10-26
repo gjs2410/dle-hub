@@ -244,6 +244,11 @@
       if (solved && bucket != null && !lostBucket) {
         var n = parseInt(bucket, 10);
         if (!isNaN(n)) guesses = a.distZeroBased ? n + 1 : n;
+        // Only a guess distribution looks like this: a dozen or fewer numbered slots, all
+        // small (1..6 plus "fail"). Score/time histograms ("100", "250", ...) aren't guesses.
+        var slots = Object.keys(a.dist).filter(function (k) { return !/fail|lost|lose|^x$/i.test(k); });
+        var small = slots.every(function (k) { var v = parseInt(k, 10); return !isNaN(v) && v >= 0 && v <= 12; });
+        if (slots.length > 13 || !small || guesses > 12) guesses = null;
       }
       baseline = now; // re-arm for the next round (unlimited modes)
       emit(solved

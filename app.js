@@ -2626,6 +2626,41 @@
     if (m) return parseInt(m[1].replace(/,/g, ""), 10);
     return null;
   }
+  // Numbers in a share that are never a score: links, dates, years, percentages, times,
+  // streaks and puzzle numbers (after "#", "No.", "Puzzle", "Day", "Game"), blanked out.
+  var MONTHS = "jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec";
+  function maskNonScores(text) {
+    return text
+      .replace(/https?:\/\/\S+/g, " ")
+      .replace(/\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/g, " ")
+      .replace(new RegExp("\\b(?:" + MONTHS + ")[a-z]*\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?\\b|\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:" + MONTHS + ")[a-z]*\\b", "gi"), " ")
+      .replace(/\b(?:19|20)\d{2}\b/g, " ")
+      .replace(/\d[\d,.]*\s*%/g, " ")
+      .replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, " ")
+      // (same line only: "Puzzle" at the end of one line doesn't own the next line's number)
+      .replace(/(?:#|\bno\.?[ \t]*|\bpuzzle[ \t]*|\bday[ \t]*|\bgame[ \t]*|\bedition[ \t]*)\d[\d,]*/gi, " ")
+      .replace(/🔥[ \t]*\d+|\bstreak[^\d\n]{0,3}\d+|\d+[ \t]*(?:-?[ \t]*days?)?[ \t]*streak/gi, " ");
+  }
+  // A score with no label, found by size: guess counts, hints and "n of m" totals stay small,
+  // scores usually don't. Takes either a big "a/b" (Timeguessr's "34,512/50,000") or the one
+  // number over 20 left once the non-scores are masked. The number right after the game's
+  // name on the first line is its puzzle number ("Wordle 1,234 …") when anything else
+  // follows it, so it's skipped then. Two or more candidates is too ambiguous: no score.
+  function extractBigScore(text) {
+    var t = maskNonScores(text);
+    var NUM = "\\d{1,3}(?:,\\d{3})+|\\d+";
+    var toInt = function (s) { return parseInt(s.replace(/,/g, ""), 10); };
+    var f = t.match(new RegExp("(" + NUM + ")\\s*/\\s*(" + NUM + ")"));
+    if (f && (toInt(f[2]) > 30 || toInt(f[1]) > 30)) {
+      var a = toInt(f[1]), b = toInt(f[2]);
+      if (a <= b) return { score: a, fraction: { n: a, m: b } };
+    }
+    var nums = (t.match(new RegExp(NUM, "g")) || []).map(toInt);
+    var lead = (t.split("\n")[0] || "").match(new RegExp("^\\s*[^\\d\\n]+?\\s(" + NUM + ")\\b(?!\\s*/)"));
+    if (lead && nums.length > 1) nums.splice(nums.indexOf(toInt(lead[1])), 1);
+    nums = nums.filter(function (n, i, all) { return n > 20 && all.indexOf(n) === i; });
+    return nums.length === 1 ? { score: nums[0], fraction: null } : null;
+  }
   function extractHints(text) {
     // "Hints: 3" / "Hints used: 3" / "Hint 1"
     var m = text.match(/hints?\s*(?:used)?[:\s]+(\d{1,3})\b/i);
@@ -2658,25 +2693,41 @@
     var hasGrid = rows.length > 0;
 
     // explicit score "N/M" or "X/M" — guard against dates/percentages
-    var fSolved = null, fGuess = null;
-    var fm = text.match(/(?:^|[\s(#])(X|x|[1-9]\d?)\s*\/\s*([1-9]\d?)(?![\d/])/);
+    var fSolved = null, fGuess = null, fraction = null;
+    var fm = text.match(/(?:^|[\s(#])(X|x|[0-9]\d?)\s*\/\s*([1-9]\d?)(?![\d/])/);
     if (fm) {
       var mx = parseInt(fm[2], 10);
       if (mx >= 1 && mx <= 30) {
         if (/x/i.test(fm[1])) { fSolved = false; }
-        else { var n = parseInt(fm[1], 10); if (n <= mx) { fSolved = true; fGuess = n; } }
+        else { var n = parseInt(fm[1], 10); if (n <= mx) { fSolved = true; fGuess = n; fraction = { n: n, m: mx }; } }
       }
+    }
+
+    // An "N/M" isn't always a guess count: "I scored 8/10", "7/9 cells", "12/15 questions"
+    // are points out of a total. Read it as one when the text says so, when the total is
+    // too big for a guess limit (guess games stop at 8 or fewer tries). Never when there's a
+    // grid or guess wording, which make it a guess count.
+    var guessWords = /\b(guess(es|ed)?|tries|attempts?|rows?)\b/i.test(text);
+    var scoreWords = /\b(score[ds]?|points?|pts|correct|right|questions?|cells?)\b/i.test(text);
+    if (fraction && !hasGrid && !guessWords && (scoreWords || fraction.m > 8)) {
+      return withExtras(text, {
+        solved: fraction.n / fraction.m > 0.5 || fraction.n === fraction.m,
+        value: fraction, resultType: "correct", fraction: fraction, nameHint: extractNameHint(text),
+      });
     }
 
     if (!hasGrid && fSolved === null) {
       // No grid, no n/m — try a time, hints used, then a score, then plain solved/failed wording.
       var nameHint = extractNameHint(text);
       var timeSec = extractTimeSeconds(text);
-      if (timeSec != null) return { solved: true, value: timeSec, resultType: "time", nameHint: nameHint };
+      if (timeSec != null) return withExtras(text, { solved: true, value: timeSec, resultType: "time", nameHint: nameHint });
       var hints = extractHints(text);
-      if (hints != null) return { solved: true, value: hints, resultType: "hints", nameHint: nameHint };
+      if (hints != null) return withExtras(text, { solved: true, value: hints, resultType: "hints", nameHint: nameHint });
       var score = extractScore(text);
-      if (score != null) return { solved: true, value: score, resultType: "score", nameHint: nameHint };
+      if (score != null) return withExtras(text, { solved: true, value: score, resultType: "score", nameHint: nameHint });
+      // No label at all: a big number is almost certainly a score (see extractBigScore).
+      var big = extractBigScore(text);
+      if (big) return withExtras(text, { solved: !/\b(failed|lost)\b/i.test(text), value: big.score, resultType: "score", fraction: big.fraction, nameHint: nameHint });
       if (/\b(solved|won|win|success|complete|completed)\b/i.test(text)) {
         return { solved: true, value: null, resultType: "winloss", nameHint: nameHint };
       }
@@ -2710,7 +2761,23 @@
       else { solved = true; if (fGuess) guesses = fGuess; } // the game's own count wins
     }
 
-    return { solved: solved, value: guesses, resultType: "guesses", nameHint: extractNameHint(text) };
+    return withExtras(text, { solved: solved, value: guesses, resultType: "guesses", fraction: fraction, nameHint: extractNameHint(text) });
+  }
+  // Values a share shows besides its main one — "3/6 in ⏱ 1:42" is a guess count AND a time,
+  // "Score: 840 · 4 hints" a score AND hints — as { type: value } in p.extra. A time only
+  // counts here when it's labelled (clock emoji, "time", "in m:ss"), since a bare "12:30"
+  // next to a grid is as likely a date or puzzle number.
+  function withExtras(text, p) {
+    var extra = {};
+    if (p.resultType !== "time" && /[⏱⏲🕐⌛⏳]|\btime\b|\bin\s+\d{1,2}:\d{2}/i.test(text)) {
+      var t = extractTimeSeconds(text);
+      if (t != null) extra.time = t;
+    }
+    // ("12/15 points" is already the "correct" value; its "15 points" isn't a separate score)
+    if (p.resultType !== "score" && p.resultType !== "correct") { var s = extractScore(text); if (s != null) extra.score = s; }
+    if (p.resultType !== "hints") { var h = extractHints(text); if (h != null) extra.hints = h; }
+    p.extra = extra;
+    return p;
   }
   function extractNameHint(text) {
     var line = (text.split("\n")[0] || "").trim().replace(/^#/, "");
@@ -2802,6 +2869,7 @@
     if (!p) { if (prev) prev.textContent = text.trim() ? "Could not read a result from that text." : ""; return; }
     setResSelection(p.solved ? "solved" : "failed", wrap);
     if (p.value != null) upsertValueField(p.resultType, p.value, !p.solved, wrap);
+    Object.keys(p.extra || {}).forEach(function (t) { upsertValueField(t, p.extra[t], !p.solved, wrap); });
     var name = currentDetailId ? (gameById[currentDetailId] || {}).name : (matchGameByName(p.nameHint) || {}).name;
     var valTxt = p.solved && p.value != null ? " " + describeResultValue(p.resultType, p.value) : "";
     if (prev) prev.textContent = "Detected: " + (name ? name + " · " : "") + (p.solved ? "solved" + valTxt : "failed") + " — adjust below if needed.";
@@ -2960,14 +3028,22 @@
   // scores, hints and "n/m correct", which the extension's quick read doesn't).
   function recordResult(payload) {
     if (!payload || !payload.host) return { matched: false };
+    // Every value this result carries, as { type: value }: from the share text when there
+    // is one (the hub's parser knows times, scores, hints and "n/m correct"), else from what
+    // the extension detected.
+    var values = {}, fraction = null;
     if (payload.text) {
       var p = parseShareText(payload.text);
       if (p) {
         payload.solved = p.solved;
-        payload.resultType = p.resultType === "winloss" ? undefined : p.resultType;
-        payload.value = p.value;
-        payload.guesses = p.resultType === "guesses" ? p.value : null;
+        if (p.value != null && p.resultType && p.resultType !== "winloss") values[p.resultType] = p.value;
+        Object.keys(p.extra || {}).forEach(function (t) { values[t] = p.extra[t]; });
+        fraction = p.fraction || null;
       }
+    }
+    if (!Object.keys(values).length) {
+      var dv = payload.value != null ? payload.value : payload.guesses;
+      if (dv != null) values[payload.resultType || "guesses"] = dv;
     }
     if (typeof payload.solved !== "boolean") return { matched: false };
     var host = String(payload.host).replace(/^www\./, "").toLowerCase();
@@ -2989,26 +3065,55 @@
       if (hit.length) g = hit[0];
     }
     removePending(g.id);
+    var kept = {};
     if (payload.solved) {
       markDoneToday(g.id);
-      var rt = payload.resultType || "guesses";
-      var val = payload.value != null ? payload.value : payload.guesses;
-      if (val != null && (typeof val === "object" || val > 0)) {
-        setValueToday(g.id, rt, val);
-        ensureTypeActive(g.id, rt);
-      }
+      kept = valuesForGame(g, values, fraction);
+      Object.keys(kept).forEach(function (t) { setValueToday(g.id, t, kept[t]); });
     } else {
       markFailedToday(g.id);
     }
     if (prefs.completion !== "all" || prefs.favOnly || prefs.routineOnly) render();
     else if (currentDetailId === g.id) refreshDetail();
     else patchCard(g.id);
-    showToast((payload.solved ? "Recorded solve: " : "Recorded fail: ") + g.name, "success");
-    var val = payload.value != null ? payload.value : payload.guesses;
+    var detail = Object.keys(kept).map(function (t) { return describeResultValue(t, kept[t]); }).join(", ");
+    showToast((payload.solved ? "Recorded solve: " : "Recorded fail: ") + g.name + (detail ? " (" + detail + ")" : ""), "success");
     return {
-      matched: true, name: g.name, solved: !!payload.solved, guesses: payload.guesses || null,
-      detail: payload.solved && val != null ? describeResultValue(payload.resultType || "guesses", val) : "",
+      matched: true, name: g.name, solved: !!payload.solved,
+      guesses: kept.guesses != null ? kept.guesses : null, detail: payload.solved ? detail : "",
     };
+  }
+
+  // Which of a result's values to record for game g. Types you've set for a game yourself
+  // (on its page) win: values of other types are dropped rather than switched on behind
+  // your back — except that a bare "N/M" read as guesses is really the score when the game
+  // tracks a score (or accuracy) and not guesses. A game you haven't set types for (none, or
+  // only the dataset's default) records — and starts tracking — whatever this result clearly
+  // shows. Zero and empty values are never recorded.
+  function valuesForGame(g, values, fraction) {
+    var usable = {};
+    Object.keys(values).forEach(function (t) {
+      var v = values[t];
+      if (ALL_TYPES.indexOf(t) !== -1 && v != null && (typeof v === "object" || v > 0)) usable[t] = v;
+    });
+    var known = activeTypesOf(g);
+    var chosen = Object.prototype.hasOwnProperty.call(manualTypes, g.id);
+    if (!known.length || !chosen) {
+      Object.keys(usable).forEach(function (t) { ensureTypeActive(g.id, t); });
+      return usable;
+    }
+    var kept = {};
+    Object.keys(usable).forEach(function (t) { if (known.indexOf(t) !== -1) kept[t] = usable[t]; });
+    if (known.indexOf("guesses") === -1 && (usable.guesses != null || usable.correct)) {
+      var frac = usable.correct || fraction;
+      if (known.indexOf("correct") !== -1 && frac && kept.correct == null) kept.correct = frac;
+      else if (known.indexOf("score") !== -1 && kept.score == null) kept.score = frac ? frac.n : usable.guesses;
+    }
+    // A big "34,512/50,000" read as a score is "n of m" for a game tracking accuracy instead.
+    if (usable.score != null && fraction && known.indexOf("correct") !== -1 && known.indexOf("score") === -1 && kept.correct == null) {
+      kept.correct = fraction;
+    }
+    return kept;
   }
 
   // Anything that opens a game on click: grid/list cards, rail cards, the hero, chart rows.

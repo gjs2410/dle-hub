@@ -3088,10 +3088,27 @@
     var d = e.data;
     if (!d || d.source !== "dle-extension") return;
     if (d.hello) {
-      if (!trackerVersion) { trackerVersion = d.version || "?"; updateStats(currentList.length); renderTrackerNote(); }
+      if (!trackerVersion) {
+        trackerVersion = d.version || "?";
+        updateStats(currentList.length);
+        renderTrackerNote();
+        pingTracker(); // answer a late-loading extension so it starts delivering
+      }
       return;
     }
     if (d.payload) recordResult(d.payload);
+  });
+  // Ping the extension's content script (it can't see window.DLEHub from its isolated
+  // world): it answers with a hello and starts delivering queued results. Repeated in case
+  // it loads after this, and whenever the tab comes back into view.
+  function pingTracker() {
+    try { window.postMessage({ source: "dle-hub", ping: true }, location.origin !== "null" ? location.origin : "*"); } catch (e) {}
+  }
+  pingTracker();
+  setTimeout(pingTracker, 1000);
+  setTimeout(pingTracker, 3000);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") pingTracker();
   });
 
   // ---------- boot ----------

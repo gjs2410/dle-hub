@@ -820,6 +820,12 @@ main { padding: 14px clamp(12px, 4vw, 24px) 40px; overflow-x: clip; }
 .tracker-steps b { color: #fff; }
 .tracker-steps a { color: #6ee7a7; }
 .tracker-steps code { font-size: 12.5px; background: rgba(255,255,255,.1); padding: 1px 5px; border-radius: 5px; }
+.tracker-help {
+  grid-column: 1 / -1; margin: 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12);
+  font-size: 13px; line-height: 1.5; color: rgba(255,255,255,.62);
+}
+.tracker-help b { color: rgba(255,255,255,.9); }
+.tracker-help code { font-size: 12px; background: rgba(255,255,255,.1); padding: 1px 5px; border-radius: 5px; }
 .tracker-dismiss {
   position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%;
   border: none; background: rgba(255,255,255,.1); color: #fff; cursor: pointer; font-size: 13px;

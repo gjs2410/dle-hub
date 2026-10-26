@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DLE Hub Auto-Tracker",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "Auto-records your -dle results to DLE Hub — from Share text, or by spotting a finished game in the game's own saved stats.",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],
@@ -15,8 +15,8 @@
     {
       "matches": [
         "https://gjs2410.github.io/dle-hub/*",
-        "http://localhost:8777/*",
-        "http://127.0.0.1:8777/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*",
         "file:///*"
       ],
       "js": ["deliver.js"],

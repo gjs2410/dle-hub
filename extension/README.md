@@ -65,5 +65,5 @@ Results appear in the hub when you **open or focus** the hub tab (polled every f
 - It triggers on **sharing** when auto-detect doesn't apply — if you never press Share and the game isn't supported for detection, use the hub's manual Solved/Failed.
 - Games whose share text isn't a `n/6`-style format may not parse reliably — use the hub's paste modal for those.
 - Results sync to the hub when the tab is **open/focused** (polled every ~4s).
-- The hub URL is configured in `manifest.json` (`gjs2410.github.io/dle-hub` + `localhost:8777`). Add your own host to the `deliver.js` `matches` if needed.
+- The hub URL is configured in `manifest.json` (`gjs2410.github.io/dle-hub`, plus `localhost` / `127.0.0.1` on any port). Add your own host to the `deliver.js` `matches` if needed — without a port number, which Firefox's match patterns don't reliably support.
 - It requests access to all sites (needed to watch for share text and read game state) — it only reads completion-like data and sends it to your hub.

@@ -47,7 +47,7 @@
   }
 
   window.addEventListener("message", function (e) {
-    if (e.source !== window || !e.data || e.data.source !== "dle-hub") return;
+    if (!e.data || e.data.source !== "dle-hub") return;
     if (e.data.ping) {
       var first = !hubReady;
       hubReady = true;
@@ -55,6 +55,10 @@
       deliver();
     }
   });
+
+  // Also mark the page itself: the DOM is shared with the page, so the hub can see this
+  // even where a browser treats content-script messages differently (Firefox).
+  try { document.documentElement.setAttribute("data-dle-tracker", version || "1"); } catch (e) {}
 
   hello();
   setTimeout(hello, 1500);

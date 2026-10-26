@@ -1013,6 +1013,10 @@
           "<li><b>Load it</b> — Chrome/Edge: <code>chrome://extensions</code> → Developer mode → Load unpacked. Firefox: <code>about:debugging</code> → Load Temporary Add-on.</li>" +
           "<li><b>Play</b> — results show up here when you come back to this tab.</li>" +
         "</ol>" +
+        // This card disappears once the extension says hello; if it's still here after
+        // installing, the extension isn't running on this page — in Firefox that's almost
+        // always site access, which it doesn't grant this kind of extension by default.
+        '<p class="tracker-help"><b>Installed it, but this card is still here?</b> Firefox doesn\'t let the extension into pages until you allow it: open <code>about:addons</code> → DLE Hub Auto-Tracker → <b>Permissions</b> → turn on <b>Access your data for all websites</b>, then refresh this page. (Or click the puzzle-piece Extensions button in the toolbar → DLE Hub Auto-Tracker → <b>Always allow</b>.)</p>' +
         '<button class="tracker-dismiss" data-tracker-dismiss aria-label="Hide this tip">✕</button>' +
       "</section>"
     );
@@ -3083,21 +3087,34 @@
   };
 
   // The extension delivers results by posting a message into this page.
+  // Checked by origin rather than `e.source === window`: Firefox can report a different
+  // source for messages posted from an extension's content script.
   window.addEventListener("message", function (e) {
-    if (e.source !== window) return;
+    if (location.origin !== "null" && e.origin !== location.origin) return;
     var d = e.data;
     if (!d || d.source !== "dle-extension") return;
-    if (d.hello) {
-      if (!trackerVersion) {
-        trackerVersion = d.version || "?";
-        updateStats(currentList.length);
-        renderTrackerNote();
-        pingTracker(); // answer a late-loading extension so it starts delivering
-      }
-      return;
-    }
+    if (d.hello) { trackerSeen(d.version); return; }
     if (d.payload) recordResult(d.payload);
   });
+  function trackerSeen(version) {
+    if (trackerVersion) return;
+    trackerVersion = version || "?";
+    updateStats(currentList.length);
+    renderTrackerNote();
+    pingTracker(); // answer a late-loading extension so it starts delivering
+  }
+  // The extension (1.2.2+) also marks <html data-dle-tracker="…">, which needs no messaging.
+  (function watchTrackerMark() {
+    var root = document.documentElement;
+    if (root.hasAttribute("data-dle-tracker")) { trackerSeen(root.getAttribute("data-dle-tracker")); return; }
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function () {
+      if (!root.hasAttribute("data-dle-tracker")) return;
+      mo.disconnect();
+      trackerSeen(root.getAttribute("data-dle-tracker"));
+    });
+    mo.observe(root, { attributes: true, attributeFilter: ["data-dle-tracker"] });
+  })();
   // Ping the extension's content script (it can't see window.DLEHub from its isolated
   // world): it answers with a hello and starts delivering queued results. Repeated in case
   // it loads after this, and whenever the tab comes back into view.
